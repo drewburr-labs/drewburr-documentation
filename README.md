@@ -18,3 +18,8 @@ VPN and DNS servers live here.
 
 - [Initial Build](OpenVPN/initial-build.md)
 - [Current Setup](OpenVPN/setup.md)
+
+### DNS Server
+
+- [Initial Build](Bind9-DNS/initial-build.md)
+- [Current Setup](Bind9-DNS/setup.md)
