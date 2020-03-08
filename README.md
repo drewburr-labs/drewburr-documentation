@@ -4,4 +4,5 @@ Documentation related the the drewburr environment
 
 ## VPN Server
 
-[Initial Setup](VPN/initial-setup.md)
+[Initial Build](VPN/initial-build.md)
+[Current Setup](VPN/setup.md)
