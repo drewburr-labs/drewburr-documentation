@@ -2,7 +2,15 @@
 
 Documentation related the the drewburr environment
 
-## VPN Server
+## Hosts
+
+### prdzone1
+
+### openvpn
+
+## Applications
+
+### VPN Server
 
 [Initial Build](OpenVPN/initial-build.md)
 [Current Setup](OpenVPN/setup.md)
