@@ -6,7 +6,11 @@ Documentation related the the drewburr environment
 
 ### prdzone1
 
+Admin server. Holds the global root SSH keys.
+
 ### openvpn
+
+VPN and DNS servers live here.
 
 ## Applications
 
