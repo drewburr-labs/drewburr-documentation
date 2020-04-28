@@ -12,6 +12,10 @@ Admin server. Holds the global root SSH keys.
 
 VPN and DNS servers live here.
 
+### prdsummer01
+
+Self-hosted server. Intended for resource-intensive computing, personal testing, and to save money.
+
 ## Applications
 
 ### VPN Server
