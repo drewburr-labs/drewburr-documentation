@@ -8,9 +8,19 @@ Documentation related the the drewburr environment
 
 Admin server. Holds the global root SSH keys.
 
+Externally open ports
+
+- None
+
 ### openvpn
 
 VPN and DNS servers live here.
+
+Externally open ports
+
+- VPN
+  - 443 (TCP)
+  - 1194 (UDP)
 
 ### prdsummer01
 
