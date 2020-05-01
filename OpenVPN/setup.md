@@ -30,3 +30,9 @@ Documentation relateed to the setup and configuration of the OpenVPN server.
   - Creates DNS issues on Windows devices (nslookup does not work)
 - Do not set a default domain suffix
   - Cripples Spotify :(
+
+## Tips and tricks
+
+Clear DNS cache on Ubuntu
+
+`systemd-resolve --flush-caches`
