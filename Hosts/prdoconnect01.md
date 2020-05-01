@@ -37,3 +37,16 @@ dnf install certbot
 ### Split-tunnel setup
 
 [Setting kernel capabilities](https://gist.github.com/stefancocora/686bbce938f27ef72649a181e7bd0158#openconnect-binary-kernel-capabilities)
+
+## Setup and inststallation walkthrough
+
+Host was initially setup using the DNS name `vpn2.drewburr.com`. This was to allow for the buildout of a 2nd VPN and transition over from `vpn.drewburr.com` as-needed.
+
+The host is built out following the [official instructions w/ letsencrypt](https://ocserv.gitlab.io/www/recipes-ocserv-certificates-letsencrypt.html), with some differences regarding how the certs are referenced.
+
+Certificates are referenced by setting the following in `/etc/ocserv/ocserv.conf`.
+
+```text
+server-cert = /etc/letsencrypt/live/vpn2.drewburr.com/fullchain.pem
+server-key = /etc/letsencrypt/live/vpn2.drewburr.com/privkey.pem
+```
