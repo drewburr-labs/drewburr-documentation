@@ -11,7 +11,7 @@ uses the standard IETF security protocols such as TLS 1.2, and Datagram TLS
 to provide the secure VPN service.
 ```
 
-## Specs
+## Server specs
 
 CentOS 8
 
