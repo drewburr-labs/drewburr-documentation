@@ -27,7 +27,7 @@ CentOS 8
 [ocserv service configuration](https://github.com/openconnect/ocserv/blob/master/doc/systemd/standalone/ocserv.service)
 [Certificate setup](https://ocserv.gitlab.io/www/recipes-ocserv-certificates-letsencrypt.html)
 
-To install `certbot`, runthe following:
+To install `certbot`, run the following:
 
 ```shell
 dnf config-manager --set-enabled PowerTools
