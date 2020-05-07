@@ -26,13 +26,7 @@ CentOS 8
 [ocserv official documentation](https://ocserv.gitlab.io/www/recipes-ocserv-installation-CentOS-RHEL-Fedora.html)
 [ocserv service configuration](https://github.com/openconnect/ocserv/blob/master/doc/systemd/standalone/ocserv.service)
 [Certificate setup](https://ocserv.gitlab.io/www/recipes-ocserv-certificates-letsencrypt.html)
-
-To install `certbot`, run the following:
-
-```shell
-dnf config-manager --set-enabled PowerTools
-dnf install certbot
-```
+[Authentiction with FreeIPA](https://github.com/openconnect/recipes/blob/master/ocserv-freeipa.md)
 
 ### Split-tunnel setup
 
@@ -44,9 +38,6 @@ Host was initially setup using the DNS name `vpn2.drewburr.com`. This was to all
 
 The host is built out following the [official instructions w/ letsencrypt](https://ocserv.gitlab.io/www/recipes-ocserv-certificates-letsencrypt.html), with some differences regarding how the certs are referenced.
 
-Certificates are referenced by setting the following in `/etc/ocserv/ocserv.conf`.
+Certificates were setup through instructions referenced in `Authentiction with FreeIPA` (linked above).
 
-```text
-server-cert = /etc/letsencrypt/live/vpn2.drewburr.com/fullchain.pem
-server-key = /etc/letsencrypt/live/vpn2.drewburr.com/privkey.pem
-```
+> NOTE: GSSAPI authentication was not setup due to some errors that could not be resolved. Authentication works regardless, so the impact of doing so is not known.
