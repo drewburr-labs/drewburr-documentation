@@ -4,13 +4,14 @@ An attempt to document my testing with Postgres in Docker, and interfacting it w
 
 ## Index
 
-- [Docker](#Docker-Setup)
+- [Initial Setup](#Initial-Setup)
+- [Docker Setup](#Docker-Setup)
 
-## Docker Setup
+## Initial Setup
 
-### Installation / Setup
+Things to make sure you have setup before starting the tutorial.
 
-#### Docker setup w/ WSL
+### Docker setup w/ WSL
 
 I already had [Docker Desktop](https://www.docker.com/products/docker-desktop) installed at the time of writing. I did have to enable the built-in WSL Integration by right-clicking the Docker icon in the taskbar, click settings, then enable `Resources > WSL Integration > Ubuntu`.
 
@@ -18,13 +19,17 @@ Be sure Docker is installed in WSL by running `docker --version`. If not, instal
 
 Now you should be ready to go!
 
-#### pgAdmin 4
+### pgAdmin 4
 
 I downloaded and installed [pgAdmin 4](https://www.pgadmin.org/download/) for Windows. This can be run in a Docker container, but I figured this would be easier.
 
 After installing, give pgAdmin a launch to set a master password. This can be anything, but be sure you don't fat-finger it. There's not a 2nd password prompt.
 
 pgAdmin should be setup for you now.
+
+## Docker Setup
+
+Instructions for how to setup and connect to a postgres instance with Docker.
 
 ### Quick Links
 
