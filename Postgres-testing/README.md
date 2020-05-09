@@ -6,6 +6,7 @@ An attempt to document my testing with Postgres in Docker, and interfacting it w
 
 - [Initial Setup](#Initial-Setup)
 - [Docker Setup](#Docker-Setup)
+- [Postgres and Python](#Postgres-and-Python)
 
 ## Initial Setup
 
@@ -33,8 +34,8 @@ Instructions for how to setup and connect to a postgres instance with Docker.
 
 ### Quick Links
 
-[Postgres - Docker Hub](https://hub.docker.com/_/postgres)
-[Postgres config file](./my-postgres.conf)
+- [Postgres - Docker Hub](https://hub.docker.com/_/postgres)
+- [Postgres config file](./my-postgres.conf)
 
 ### Important notes
 
@@ -56,3 +57,25 @@ The following command will create the _postgres_ container with the following pa
 `docker run -d -p 5432:5432/tcp --name postgres -e POSTGRES_PASSWORD=postgres postgres`
 
 After executing the above command, you should be able to connect to the instance through pgAdmin by connecting to `127.0.0.1`, using `postgres` as the username and password.
+
+## Postgres and Python
+
+How to interface with a postgres databgase with Python.
+
+For this example, I created a database called
+
+`pip install psycopg2-binary`
+
+```python
+import psycopg2
+
+connection = psycopg2.connect(user = "postgres", password="postgres", host="127.0.0.1", port="5432", database="test_db")
+cursor = connection.cursor()
+
+# To rollback, execute: connection.rollback()
+# To commit, execute: connection.commit()
+# The connection object is available through cursor object
+# e.g. cursor.connection.rollback()
+```
+
+> NOTE: Any execution made against the database requires either a commit, or a rollback. If this is not done, the table will be held in a locked state.
