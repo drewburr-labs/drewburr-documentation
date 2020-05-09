@@ -23,14 +23,10 @@ CentOS 8
 
 ### Resources used
 
-[ocserv official documentation](https://ocserv.gitlab.io/www/recipes-ocserv-installation-CentOS-RHEL-Fedora.html)
-[ocserv service configuration](https://github.com/openconnect/ocserv/blob/master/doc/systemd/standalone/ocserv.service)
-[Certificate setup](https://ocserv.gitlab.io/www/recipes-ocserv-certificates-letsencrypt.html)
-[Authentiction with FreeIPA](https://github.com/openconnect/recipes/blob/master/ocserv-freeipa.md)
-
-### Split-tunnel setup
-
-[Setting kernel capabilities](https://gist.github.com/stefancocora/686bbce938f27ef72649a181e7bd0158#openconnect-binary-kernel-capabilities)
+- [ocserv official documentation](https://ocserv.gitlab.io/www/recipes-ocserv-installation-CentOS-RHEL-Fedora.html)
+- [ocserv service configuration](https://github.com/openconnect/ocserv/blob/master/doc/systemd/standalone/ocserv.service)
+- [Certificate setup](https://ocserv.gitlab.io/www/recipes-ocserv-certificates-letsencrypt.html)
+- [Authentiction with FreeIPA](https://github.com/openconnect/recipes/blob/master/ocserv-freeipa.md)
 
 ## Setup and inststallation walkthrough
 
