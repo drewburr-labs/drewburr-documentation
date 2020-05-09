@@ -2,6 +2,11 @@
 
 A list of helpful commands and topics, mostly for reference
 
+## Index
+
+- [Managing SSL certificates with certbot](#Managing-SSL-certificates-with-certbot)
+- [Adding a host to FreeIPA](#Adding-a-host-to-FreeIPA)
+
 ## Managing SSL certificates with certbot
 
 Installation instructions [here](https://certbot.eff.org/lets-encrypt/centosrhel8-other)
