@@ -6,3 +6,4 @@ Documentation related the the drewburr environment
 
 - [General host docs](./Hosts/README.md)
 - [Tips and tricks](./Tips-and-tricks.md)
+- [External automation](./External-automation.md)
