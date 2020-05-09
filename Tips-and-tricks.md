@@ -6,6 +6,7 @@ A list of helpful commands and topics, mostly for reference
 
 - [Managing SSL certificates with certbot](#Managing-SSL-certificates-with-certbot)
 - [Adding a host to FreeIPA](#Adding-a-host-to-FreeIPA)
+- [Adding SSH public key to FreeIPA](#Adding-SSH-public-key-to-FreeIPA)
 
 ## Managing SSL certificates with certbot
 
@@ -84,3 +85,9 @@ Continue to configure the system with these values? [no]: yes
 ```
 
 Installation should now be completed. This can be tested using `id` and `nslookup`.
+
+## Adding SSH public key to FreeIPA
+
+Run the following command on a FreeIPA-joined host to load your pubic key into FreeIPA.
+
+`ipa user-mod <user> --sshpubkey "$( cat /path/to/id_rsa.pub )"`
