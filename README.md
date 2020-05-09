@@ -2,6 +2,7 @@
 
 Documentation related the the drewburr environment
 
-## Hosts
+## Documentation Index
 
-[General host docs](./Hosts/README.md)
+- [General host docs](./Hosts/README.md)
+- [Tips and tricks](./Tips-and-tricks.md)
