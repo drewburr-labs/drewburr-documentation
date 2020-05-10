@@ -16,9 +16,31 @@ Things to make sure you have setup before starting the tutorial.
 
 I already had [Docker Desktop](https://www.docker.com/products/docker-desktop) installed at the time of writing. I did have to enable the built-in WSL Integration by right-clicking the Docker icon in the taskbar, click settings, then enable `Resources > WSL Integration > Ubuntu`.
 
-Be sure Docker is installed in WSL by running `docker --version`. If not, install it with `apt install docker.io`.
+Be sure Docker is installed by running `docker --version`. If not, install it and be sure to start the Docker service using the below commands.
 
-Now you should be ready to go!
+### Docker setup on a server
+
+When setting up Docker, we'll want to allow a non-root service account to manage the Docker containers. If you have a single application that will be using the Docker containers, it may make sense to allow that application's service account to manage Docker. Otherwise, it's wise to stick with the `docker` service account. For the below steps, we'll assume the service account being configured is `docker`.
+
+To allow a service account to manage Docker containers, create a group called `docker`. This group is used by Docker to grant access to the running Docker service. Afterwards, add the `docker` user to this group.
+
+```shell
+groupadd docker
+usermod -aG docker docker
+```
+
+After setting up the service account, make sure Docker is installed and the service is started.
+
+```shell
+# Install Docker
+apt install docker.io
+# Start the Docker service
+systemctl start docker
+# Auto-start Docker at boot
+systemctl enable docker
+```
+
+Docker should now be setup and ready for use with the service account.
 
 ### pgAdmin 4
 
