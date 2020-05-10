@@ -61,7 +61,7 @@ Instructions for how to setup and connect to a postgres instance with Docker.
 
 ### Important notes
 
-The location wehre Posatgres stores all its data is, by default, `/var/lib/postgresql/data`. This can be changed by defining **PGDATA**.
+The location wehre Posatgres stores all its data is, by default, `/var/lib/postgresql/data`. This can be changed by defining **PGDATA** when building the container.
 
 ### Building the container
 
