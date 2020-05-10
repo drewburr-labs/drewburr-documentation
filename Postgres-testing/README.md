@@ -76,7 +76,7 @@ The following command will create the _postgres_ container with the following pa
 - Set the _postgres_ admin user's password to `postgres`
   - `-e POSTGRES_PASSWORD=postgres`
 
-`docker run -d -p 5432:5432/tcp --name postgres -e POSTGRES_PASSWORD=postgres postgres`
+`docker run -d -p 5432:5432/tcp --name postgres -e POSTGRES_PASSWORD="$PG_PASSWORD" postgres`
 
 After executing the above command, you should be able to connect to the instance through pgAdmin by connecting to `127.0.0.1`, using `postgres` as the username and password.
 
