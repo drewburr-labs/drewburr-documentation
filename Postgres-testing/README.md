@@ -31,6 +31,21 @@ usermod -aG docker docker
 
 After setting up the service account, make sure Docker is installed and the service is started.
 
+#### CentOS
+
+```shell
+# Add docker-ce repository
+yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+# Install docker
+yum install docker-ce docker-ce-cli containerd.io
+# Start the Docker service
+systemctl start docker
+# Auto-start Docker at boot
+systemctl enable docker
+```
+
+#### Ubuntu
+
 ```shell
 # Install Docker
 apt install docker.io
