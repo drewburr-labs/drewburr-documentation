@@ -6,23 +6,13 @@ A locally-hosted server, currently separated from the rest of the envronment.
 
 ## Applications
 
-### httpd (Apache)
+### Terraria server
 
-httpd is being utilized for proxying host connections. The intention is to provide SSL certificates easily, without requiring each application to have custom configuration. This is achieved by configuring the application's service port to be 1 higher than the default (e.g. 80 -> 81), ensuring this port is blocked via `firewalld`, and configuring `httpd` to proxy this connection.
+#### Baseline info
 
-#### httpd proxies
+The `relogic` service account is the owner of all Terraria data. This users home directory is under `/srv/terraria`. Relgic is a member of the `docker` group, and therefore is allowed to execute Docker commands. The Terraria will be run from a Docker container, and hosted on port **7777** (default). This post has been opened for both UDP and TCP.
 
-Proxied connections are setup using virtual hosts, which are defined under `/etc/httpd/conf.d/appname.conf`
-
-Most virtual hosts will have the following configuration:
-
-```html
-<VirtualHost *:80>
-  ServerName appname.drewburr.com
-</VirtualHost>
-```
-
-#### Configuring firewalld
+## Configuring firewalld
 
 `firewall-cmd --permanent --add-port=80/tcp`
 
