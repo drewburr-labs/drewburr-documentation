@@ -6,9 +6,6 @@ Documentation related the the drewburr.com environment
 
 - [Environment Overview](#environment-overview)
 - [Operational Essentials](#operational-essentials)
-- [General host docs](./Hosts/README.md)
-- [Tips and tricks](./Tips-and-tricks.md)
-- [External automation](./External-automation.md)
 
 ## Environment Overview
 
