@@ -1,0 +1,15 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: example-certificate
+
+spec:
+  # Secret names are always required.
+  secretName: example-com-tls
+  # At least one of a DNS Name, URI, or IP address is required.
+  dnsNames:
+    - example-certificate.drewburr.com
+  # Issuer references are always required.
+  issuerRef:
+    name: letsencrypt
+    kind: ClusterIssuer
