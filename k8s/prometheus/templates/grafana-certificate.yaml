@@ -1,0 +1,14 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: grafana-tls
+spec:
+  # Secret names are always required.
+  secretName: grafana-tls
+  # At least one of a DNS Name, URI, or IP address is required.
+  dnsNames:
+    - grafana.drewburr.com
+  # Issuer references are always required.
+  issuerRef:
+    name: letsencrypt
+    kind: ClusterIssuer

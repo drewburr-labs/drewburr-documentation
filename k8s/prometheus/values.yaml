@@ -1,0 +1,14 @@
+---
+kube-prometheus-stack:
+  fullnameOverride: "test"
+
+  grafana:
+    ingress:
+      enabled: true
+      ingressClassName: traefik
+      hosts:
+      - grafana.drewburr.com
+      tls:
+      - secretName: grafana-tls
+        hosts:
+        - grafana.drewburr.com
