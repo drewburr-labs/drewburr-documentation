@@ -21,8 +21,24 @@ Each Ubuntu VM is cloned from a common VM template, then is initialized by [Clou
 
 In order to have a resilient and effective environment, as well as to ensure operational effectiveness as a user and administrator of said environment, a few key items should be considered hard requirements before fully leaning into a Kubernetes environment. The following items should be accounted for from day 1.
 
-- Deployability: Automated processes and standardized techniques to create and update Kuberenetes definitions.
-- Observability: Quickly and accurately view and describe the current and historical health of the environment and the services within it.
-- Secrets management: Management and exposure of sensitive information with scalable, programmatic processes.
 - Service exposure: Opening ports, creating DNS records, managing certificates.
+- Observability: Quickly and accurately view and describe the current and historical health of the environment and the services within it.
+- Deployability: Automated processes and standardized techniques to create and update Kuberenetes definitions.
+- Secrets management: Management and exposure of sensitive information with scalable, programmatic processes.
 - Log aggregation: View logs from across the environment in a single location.
+
+### Service exposure
+
+[MetalLB](https://metallb.universe.tf/)  is used to provide IP add assignment for LoadBalancer services. This is required as the drewburr environment is not cloud-based, and thus does not receive the required controllers out of the box.
+
+[Cert-manager](https://cert-manager.io/) provides certificate creation and rotation methods. ACME with Let's Encrypt was preferred, noting the cost and ease of use.
+
+[Traefik](https://traefik.io/traefik/) provides proxying for web-based services. Its CRD-based  policies make it particularly attractive in the K8s environent. It also helps separate certificate management from the base service, minimizing the risk of service downtime due to incomplete rotations.
+
+### Observability
+
+[Prometheus](https://prometheus.io/) is used for metric data aggregation. Its simplicity in setup, widespread support, and surrounding CRDs make it a default for a time-series database. The Prometheus community also provides a suite of helm charts which make metrics enablement simple. In my case, I utilized the [kube-prometheus-stack](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack) chart to immediately enable base K8s metrics and setup surrounding components.
+
+[Grafana](https://grafana.com/) provides the web UI and alerting functionality, based on Prometheus data. The `kube-prometheus-stack` Helm chart also provides Grafana out of the box, making this an easy choice. I also have a fair sum of experience working with Grafana, making this a personal preference.
+
+[PromLens](https://github.com/prometheus/promlens/), a Prometheus community project, provides a UI for testing and navigating PromQL queries. While Grafana has simplar tooling available, they are overcomplicated and lack ease of use. In my experience, having a simple and straightforward system for playing around with metrics is invaluable, especially when it comes to building charts in Grafana.
