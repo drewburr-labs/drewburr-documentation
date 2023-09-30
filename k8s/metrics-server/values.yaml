@@ -1,0 +1,6 @@
+---
+metrics-server:
+  args:
+  - --kubelet-insecure-tls
+  podLabels:
+    k8s-app: metrics-server # Is being applied to the service labelSelector on reboot
