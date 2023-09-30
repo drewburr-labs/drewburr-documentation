@@ -18,6 +18,8 @@ kube-prometheus-stack:
   grafana:
     ingress:
       enabled: true
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt
       ingressClassName: traefik
       hosts:
       - grafana.drewburr.com
