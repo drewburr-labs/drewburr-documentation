@@ -1,6 +1,19 @@
 ---
 kube-prometheus-stack:
-  fullnameOverride: "test"
+
+  prometheus:
+    ingress:
+      enabled: true
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt
+      ingressClassName: traefik
+      hosts:
+      - prometheus.drewburr.com
+      tls:
+      - secretName: prometheus-tls
+        hosts:
+        - prometheus.drewburr.com
+      pathType: ImplementationSpecific
 
   grafana:
     ingress:
