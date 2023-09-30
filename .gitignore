@@ -2,3 +2,4 @@
 **/template.yaml
 **/charts
 keys
+**/secrets

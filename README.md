@@ -24,6 +24,7 @@ In order to have a resilient and effective environment, as well as to ensure ope
 - Service exposure: Opening ports, creating DNS records, managing certificates.
 - Observability: Quickly and accurately view and describe the current and historical health of the environment and the services within it.
 - Deployability: Automated processes and standardized techniques to create and update Kuberenetes definitions.
+- Storage: Persistent storage option
 - Secrets management: Management and exposure of sensitive information with scalable, programmatic processes.
 - Log aggregation: View logs from across the environment in a single location.
 
@@ -40,3 +41,23 @@ In order to have a resilient and effective environment, as well as to ensure ope
 [Prometheus](https://prometheus.io/) is used for metric data aggregation. Its simplicity in setup, widespread support, and surrounding CRDs make it a default for a time-series database. The Prometheus community also provides a suite of helm charts which make metrics enablement simple. In my case, I utilized the [kube-prometheus-stack](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack) chart to immediately enable base K8s metrics and setup surrounding components.
 
 [Grafana](https://grafana.com/) provides the web UI and alerting functionality, based on Prometheus data. The `kube-prometheus-stack` Helm chart also provides Grafana out of the box, making this an easy choice. I also have a fair sum of experience working with Grafana, making this a personal preference.
+
+### Storage
+
+Followed the [official Ceph documentation]
+
+```shell
+# ceph auth get-or-create client.kubernetes mon 'profile rbd' osd 'profile rbd pool=kubernetes' mgr 'profile rbd pool=kubernetes'
+[client.kubernetes]
+        key = ....
+
+# ceph mon dump
+...
+fsid c5f08f8b-1724-4d5f-a5c5-4f4c3600c359
+...
+0: [v2:192.168.4.21:3300/0,v1:192.168.4.21:6789/0] mon.pve01
+1: [v2:192.168.4.22:3300/0,v1:192.168.4.22:6789/0] mon.pve02
+2: [v2:192.168.4.23:3300/0,v1:192.168.4.23:6789/0] mon.pve03
+3: [v2:192.168.4.24:3300/0,v1:192.168.4.24:6789/0] mon.pve04
+...
+```
