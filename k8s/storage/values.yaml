@@ -1,0 +1,14 @@
+---
+ceph-csi-rbd:
+  cephconf: |-
+    [global]
+    auth_cluster_required = cephx
+    auth_service_required = cephx
+    auth_client_required = cephx
+  csiMapping:
+  - clusterid: c5f08f8b-1724-4d5f-a5c5-4f4c3600c359
+    monitors:
+    - 192.168.4.21:6789
+    - 192.168.4.22:6789
+    - 192.168.4.23:6789
+    - 192.168.4.24:6789
