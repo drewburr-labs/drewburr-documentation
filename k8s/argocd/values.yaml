@@ -1,0 +1,45 @@
+---
+
+argocd:
+  global:
+    image:
+      tag: v2.8.4
+    addPrometheusAnnotations: true
+
+  redis-ha:
+    enabled: true
+    metrics:
+      enabled: true
+
+  controller:
+    replicas: 1
+    metrics:
+      enabled: true
+
+  server:
+    replicas: 2
+    metrics:
+      enabled: true
+
+    ingress:
+      enabled: true
+      https: true
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt
+      ingressClassName: traefik
+      hosts:
+      - argocd.drewburr.com
+      tls:
+      - secretName: argocd-server-tls
+        hosts:
+        - argocd.drewburr.com
+
+  repoServer:
+    replicas: 2
+    metrics:
+      enabled: true
+
+  applicationSet:
+    replicas: 2
+    metrics:
+      enabled: true
