@@ -13,6 +13,8 @@ applications:
     syncOptions:
     - ApplyOutOfSyncOnly=true
 - name: metallb
+  destination:
+    namespace: metallb-system
   targetRevision: HEAD
   syncPolicy:
     syncOptions:
@@ -23,6 +25,8 @@ applications:
     syncOptions:
     - ApplyOutOfSyncOnly=true
 - name: prometheus
+  destination:
+    namespace: kube-prometheus-stack
   targetRevision: HEAD
   syncPolicy:
     syncOptions:
