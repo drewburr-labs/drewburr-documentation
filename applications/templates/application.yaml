@@ -1,0 +1,19 @@
+{{- range .Values.applications -}}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ include "application.name" . }}
+  namespace: argocd
+spec:
+  destination:
+    namespace: {{ include "application.namespace" . }}
+    server: https://kubernetes.default.svc
+  project: {{ include "application.project" . }}
+  source:
+    path: {{ include "application.path" . }}
+    repoURL: git@github.com:drewburr-labs/drewburr-documentation.git
+    targetRevision: {{ include "application.targetRevision" . }}
+  syncPolicy:
+    {{- include "application.syncPolicy" . | nindent 4 }}
+{{ end -}}
