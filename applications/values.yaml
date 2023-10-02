@@ -33,7 +33,6 @@ applications:
   syncPolicy:
     syncOptions:
     - ApplyOutOfSyncOnly=true
-    - Replace=true
 - name: traefik
   targetRevision: HEAD
   syncPolicy:

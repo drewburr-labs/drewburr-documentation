@@ -1,5 +1,7 @@
 ---
 kube-prometheus-stack:
+  crds:
+    enabled: false
 
   prometheus:
     ingress:
