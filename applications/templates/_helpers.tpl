@@ -3,7 +3,7 @@
 {{- end }}
 
 {{- define "application.namespace" -}}
-{{- if hasKey . "destination" }}
+{{- if dig "destination" "namespace" "" . }}
 {{- .destination.namespace }}
 {{- else }}
 {{- .name }}
@@ -15,8 +15,10 @@
 {{- end }}
 
 {{- define "application.path" -}}
-{{- if hasKey . "source" }}
-{{- default .source.path "k8s/{{ .name }}" }}
+{{- if dig "source" "path" "" . }}
+{{- .source.path }}
+{{- else }}
+{{- printf "%s%s" "k8s/" .name }}
 {{- end }}
 {{- end }}
 
