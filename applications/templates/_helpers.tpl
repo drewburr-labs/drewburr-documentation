@@ -31,17 +31,11 @@
 {{- define "application.syncPolicy" -}}
 {{- if .syncPolicy -}}
 syncOptions:
-    {{/*
-    Optional base sync options
-    */}}
     {{- if .syncPolicy.syncOptions }}
-    {{- .syncPolicy.syncOptions | toYaml }}
+    {{- .syncPolicy.syncOptions | toYaml | nindent 2 }}
     {{- end }}
-    {{/*
-    Optional additonal sync options
-    */}}
     {{- if .syncPolicy.additionalSyncOptions }}
-    {{- .syncPolicy.additionalSyncOptions | toYaml }}
+    {{- .syncPolicy.additionalSyncOptions | toYaml | nindent 2 }}
     {{- end }}
 {{- end }}
 {{- end }}
