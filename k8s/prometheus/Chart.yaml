@@ -6,4 +6,4 @@ version: 0.1.0
 dependencies:
   - name: kube-prometheus-stack # https://github.com/prometheus-community/helm-charts/tree/kube-prometheus-stack-51.2.0/charts/kube-prometheus-stack
     repository: https://prometheus-community.github.io/helm-charts
-    version: 51.2.0
+    version: ^51.2.0
