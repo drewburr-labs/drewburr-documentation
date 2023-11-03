@@ -2,8 +2,8 @@
 
 argocd:
   global:
-    image:
-      tag: v2.8.4
+    # image:
+    #   tag: v2.8.4
     addPrometheusAnnotations: true
 
   redis-ha:
