@@ -39,3 +39,9 @@ syncOptions:
     {{- end }}
 {{- end }}
 {{- end }}
+
+{{- define "application.ignoreDifferences" -}}
+{{- if .ignoreDifferences -}}
+{{- .ignoreDifferences | toYaml }}
+{{- end }}
+{{- end }}
