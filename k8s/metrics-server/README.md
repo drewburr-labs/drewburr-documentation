@@ -1,6 +1,6 @@
 # metrics-server
 
 ```shell
-kubens kube-system
+kubens metrics-server
 helm template metrics-server . > template.yaml
 ```
