@@ -21,7 +21,7 @@ applications:
     - ApplyOutOfSyncOnly=true
 - name: metrics-server
   destination:
-    namespace: kube-system
+    namespace: metrics-server
   targetRevision: HEAD
   syncPolicy:
     syncOptions:
