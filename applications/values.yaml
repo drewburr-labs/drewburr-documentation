@@ -1,12 +1,5 @@
 ---
 applications:
-- name: ceph
-  destination:
-    namespace: ceph-csi-rbd
-  targetRevision: HEAD
-  syncPolicy:
-    syncOptions:
-    - ApplyOutOfSyncOnly=true
 - name: cert-manager
   targetRevision: HEAD
   syncPolicy:
