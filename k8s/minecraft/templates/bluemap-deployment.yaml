@@ -23,21 +23,19 @@ spec:
             - -w
           resources: {}
           volumeMounts:
-            - mountPath: /app/config
-              name: bluemap-config
             - mountPath: /app/data
               name: bluemap-data
             - mountPath: /app/web
               name: bluemap-web
             - mountPath: /app/minecraft-data
               name: minecraft-data
-            - mountPath: /bluemap-config
+            - mountPath: /app/config
               name: bluemap-config
-            - mountPath: /mnt/config-base
+            - mountPath: /app/config/base
               name: config-base
-            - mountPath: /mnt/config-maps
+            - mountPath: /app/config/maps
               name: config-maps
-            - mountPath: /mnt/config-storages
+            - mountPath: /app/config/storages
               name: config-storages
       restartPolicy: Always
       volumes:
