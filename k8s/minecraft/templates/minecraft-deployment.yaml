@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: minecraft
-          image: registry.hub.docker.com/itzg/minecraft-server
+          image: registry.hub.docker.com/itzg/minecraft-server:2023.12.2-java17
           ports:
             - containerPort: 25565
           resources:
@@ -28,7 +28,7 @@ spec:
             exec:
               command:
                 - mc-health
-            initialDelaySeconds: 60
+            initialDelaySeconds: 30
             failureThreshold: 24
             periodSeconds: 5
           livenessProbe:
