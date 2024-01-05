@@ -39,7 +39,7 @@ spec:
             periodSeconds: 5
           envFrom:
             - configMapRef:
-                name: accessModes
+                name: minecraft-env
           volumeMounts:
             - mountPath: /data
               name: minecraftserver-data
