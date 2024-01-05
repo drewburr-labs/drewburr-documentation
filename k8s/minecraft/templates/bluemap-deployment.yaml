@@ -18,7 +18,7 @@ spec:
           command: ['sh', '-c']
           args:
             - >-
-              cp -R /mnt/base/* /mnt/config &&
+              cp -R /mnt/base/. /mnt/config &&
               cp -R /mnt/maps /mnt/config &&
               cp -R /mnt/storages /mnt/config
           volumeMounts:
