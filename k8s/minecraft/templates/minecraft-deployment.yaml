@@ -42,9 +42,9 @@ spec:
                 name: minecraft-env
           volumeMounts:
             - mountPath: /data
-              name: minecraftserver-data
+              name: minecraft-data
       restartPolicy: Always
       volumes:
-        - name: minecraftserver-data
+        - name: minecraft-data
           persistentVolumeClaim:
-            claimName: minecraftserver-data
+            claimName: minecraft-data
