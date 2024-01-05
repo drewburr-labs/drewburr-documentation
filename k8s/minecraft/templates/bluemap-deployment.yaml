@@ -12,9 +12,27 @@ spec:
       labels:
         app: bluemap
     spec:
+      initContainers:
+        - name: config-copy
+          image: ghcr.io/bluemap-minecraft/bluemap:latest
+          command: ['sh', '-c']
+          args:
+            - >-
+              cp -R /mnt/base/* /mnt/config &&
+              cp -R /mnt/maps /mnt/config &&
+              cp -R /mnt/storages /mnt/config
+          volumeMounts:
+            - mountPath: /mnt/config
+              name: bluemap-config
+            - mountPath: /mnt/base
+              name: config-base
+            - mountPath: /mnt/maps
+              name: config-maps
+            - mountPath: /mnt/storages
+              name: config-storages
       containers:
-        - image: ghcr.io/bluemap-minecraft/bluemap:latest
-          name: bluemap
+        - name: bluemap
+          image: ghcr.io/bluemap-minecraft/bluemap:latest
           ports:
             - containerPort: 8100
           args:
@@ -31,12 +49,6 @@ spec:
               name: minecraft-data
             - mountPath: /app/config
               name: bluemap-config
-            - mountPath: /app/config/base
-              name: config-base
-            - mountPath: /app/config/maps
-              name: config-maps
-            - mountPath: /app/config/storages
-              name: config-storages
       restartPolicy: Always
       volumes:
         - name: bluemap-data
