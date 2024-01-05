@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+  name: bluemap
+spec:
+  ingressClassName: traefik
+  rules:
+  - host: map.drewburr.com
+    http:
+      paths:
+      - backend:
+          service:
+            name: argocd-server
+            port:
+              number: 80
+        path: /
+        pathType: Prefix
+  tls:
+  - hosts:
+    - map.drewburr.com
+    secretName: bluemap-server-tls
+status:
+  loadBalancer: {}
