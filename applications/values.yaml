@@ -47,3 +47,8 @@ applications:
   syncPolicy:
     syncOptions:
     - ApplyOutOfSyncOnly=true
+- name: minecraft
+  targetRevision: HEAD
+  syncPolicy:
+    syncOptions:
+    - ApplyOutOfSyncOnly=true

@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minecraftserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: minecraft-server
+  template:
+    metadata:
+      labels:
+        app: minecraft-server
+    spec:
+      containers:
+        - name: minecraft
+          image: registry.hub.docker.com/itzg/minecraft-server
+          ports:
+            - containerPort: 25565
+          resources:
+            requests:
+              cpu: 1000m
+              memory: 3Gi
+            limits:
+              cpu: 4000m
+              memory: 7Gi
+          readinessProbe:
+            exec:
+              command:
+                - mc-health
+            initialDelaySeconds: 60
+            failureThreshold: 24
+            periodSeconds: 5
+          livenessProbe:
+            exec:
+              command:
+                - mc-health
+            failureThreshold: 10
+            periodSeconds: 5
+          envFrom:
+            configMapRef:
+              name: accessModes
+          volumeMounts:
+            - mountPath: /data
+              name: minecraftserver-data
+      restartPolicy: Always
+      volumes:
+        - name: minecraftserver-data
+          persistentVolumeClaim:
+            claimName: minecraftserver-data
