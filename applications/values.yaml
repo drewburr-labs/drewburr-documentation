@@ -42,3 +42,8 @@ applications:
   syncPolicy:
     syncOptions:
     - ApplyOutOfSyncOnly=true
+- name: democratic-csi
+  targetRevision: HEAD
+  syncPolicy:
+    syncOptions:
+    - ApplyOutOfSyncOnly=true
