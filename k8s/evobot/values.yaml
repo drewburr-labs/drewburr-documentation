@@ -1,0 +1,8 @@
+evobot:
+  env:
+  - name: LISTENING_ACTIVITY
+    value: "The New Generation of Music"
+
+  envFrom:
+  - secretRef:
+      name: bot-token
