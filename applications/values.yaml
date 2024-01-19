@@ -37,6 +37,11 @@ applications:
   syncPolicy:
     syncOptions:
     - ApplyOutOfSyncOnly=true
+- name: prometheus-crds
+  targetRevision: HEAD
+  syncPolicy:
+    syncOptions:
+    - ApplyOutOfSyncOnly=true
 - name: traefik
   targetRevision: HEAD
   syncPolicy:
