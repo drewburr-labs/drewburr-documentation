@@ -1,8 +1,8 @@
 ---
 traefik:
   additionalArguments:
-  # - "--providers.http.tls.insecureSkipVerify=true" # Allow for self-signed backend certs
   - "--serversTransport.insecureskipverify=true"
+  - "--providers.kubernetesingress.ingressendpoint.publishedservice=traefik/traefik" # Kubernetes service to copy status from
 
   logs:
     general:
