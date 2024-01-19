@@ -42,6 +42,7 @@ applications:
   syncPolicy:
     syncOptions:
     - ApplyOutOfSyncOnly=true
+    - ServerSideApply=true
 - name: traefik
   targetRevision: HEAD
   syncPolicy:
