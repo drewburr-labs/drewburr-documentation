@@ -6,4 +6,4 @@ version: 0.1.0
 dependencies:
   - name: homepage # https://github.com/jameswynn/helm-charts/tree/main/charts/homepage
     repository: https://jameswynn.github.io/helm-charts
-    version: ^26.0.0
+    version: ^1.2.3
