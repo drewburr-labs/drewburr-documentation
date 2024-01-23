@@ -1,0 +1,63 @@
+---
+homepage:
+  enableRbac: true
+  ingress:
+    main:
+      enabled: true
+      ingressClassName: traefik
+      hosts:
+        - host: home.drewburr.com
+          paths:
+            - path: /
+              pathType: Prefix
+      tls:
+        hosts:
+          - host: home.drewburr.com
+
+  config:
+    bookmarks:
+      - Developer:
+          - Github:
+              - abbr: GH
+                href: https://github.com/
+
+    kubernetes:
+      mode: cluster
+
+    services:
+      - My First Group:
+          - My First Service:
+              href: http://localhost/
+              description: Homepage is awesome
+
+      - My Second Group:
+          - My Second Service:
+              href: http://localhost/
+              description: Homepage is the best
+
+      - My Third Group:
+          - My Third Service:
+              href: http://localhost/
+              description: Homepage is 😎
+
+    widgets:
+      - resources:
+          backend: kubernetes
+          expanded: true
+          cpu: true
+          memory: true
+      - search:
+          provider: duckduckgo
+          target: _blank
+      - kubernetes:
+          cluster:
+            show: true
+            cpu: true
+            memory: true
+            showLabel: true
+            label: "cluster"
+          nodes:
+            show: true
+            cpu: true
+            memory: true
+            showLabel: true
