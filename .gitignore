@@ -1,0 +1,6 @@
+**/Chart.lock
+!**/argocd/Chart.lock
+**/template.yaml
+**/charts
+keys
+**/secrets

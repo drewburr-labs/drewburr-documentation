@@ -1,0 +1,31 @@
+---
+kube-prometheus-stack:
+  crds:
+    enabled: false
+
+  prometheus:
+    ingress:
+      enabled: true
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt
+      ingressClassName: traefik
+      hosts:
+      - prometheus.drewburr.com
+      tls:
+      - secretName: prometheus-tls
+        hosts:
+        - prometheus.drewburr.com
+      pathType: ImplementationSpecific
+
+  grafana:
+    ingress:
+      enabled: true
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt
+      ingressClassName: traefik
+      hosts:
+      - grafana.drewburr.com
+      tls:
+      - secretName: grafana-tls
+        hosts:
+        - grafana.drewburr.com

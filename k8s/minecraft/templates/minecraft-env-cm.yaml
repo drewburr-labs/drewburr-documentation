@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: minecraft-env
+data:
+  EULA: "TRUE"
+  VERSION: LATEST
+  TZ: America/Chicago
+  TYPE: PAPER
+  USE_AIKAR_FLAGS: "true"
+  INIT_MEMORY: 2G
+  MAX_MEMORY: 6G
+  OVERRIDE_SERVER_PROPERTIES: "true"
+  SERVER_NAME: "Central Station"
+  VIEW_DISTANCE: "24"
+  MAX_PLAYERS: "20"
+  PLAYER_IDLE_TIMEOUT: "30"
+  MOTD: "Glory to the beans hole\nView the map at http://minecraft.drewburr.com"
+  MAX_TICK_TIME: "-1"
+  ENABLE_AUTOPAUSE: "false"
+  JVM_DD_OPTS: disable.watchdog:true,paper.playerconnection.keepalive:60
+  AUTOPAUSE_TIMEOUT_EST: "120"
+  AUTOPAUSE_TIMEOUT_INIT: "60"
+  AUTOPAUSE_TIMEOUT_KN: "20"

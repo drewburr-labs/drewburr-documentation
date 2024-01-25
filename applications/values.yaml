@@ -1,0 +1,70 @@
+---
+applications:
+- name: cert-manager
+  targetRevision: HEAD
+  syncPolicy:
+    syncOptions:
+    - ApplyOutOfSyncOnly=true
+- name: metallb
+  destination:
+    namespace: metallb-system
+  targetRevision: HEAD
+  syncPolicy:
+    syncOptions:
+    - ApplyOutOfSyncOnly=true
+  ignoreDifferences: # https://github.com/metallb/metallb/issues/1681
+  - group: "apiextensions.k8s.io"
+    kind: CustomResourceDefinition
+    name: bgppeers.metallb.io
+    jsonPointers:
+    - /spec/conversion/webhook/clientConfig/caBundle
+  - group: "apiextensions.k8s.io"
+    kind: CustomResourceDefinition
+    name: addresspools.metallb.io
+    jsonPointers:
+    - /spec/conversion/webhook/clientConfig/caBundle
+- name: metrics-server
+  destination:
+    namespace: metrics-server
+  targetRevision: HEAD
+  syncPolicy:
+    syncOptions:
+    - ApplyOutOfSyncOnly=true
+- name: prometheus
+  destination:
+    namespace: kube-prometheus-stack
+  targetRevision: HEAD
+  syncPolicy:
+    syncOptions:
+    - ApplyOutOfSyncOnly=true
+- name: prometheus-crds
+  targetRevision: HEAD
+  syncPolicy:
+    syncOptions:
+    - ApplyOutOfSyncOnly=true
+    - ServerSideApply=true
+- name: traefik
+  targetRevision: HEAD
+  syncPolicy:
+    syncOptions:
+    - ApplyOutOfSyncOnly=true
+- name: democratic-csi
+  targetRevision: HEAD
+  syncPolicy:
+    syncOptions:
+    - ApplyOutOfSyncOnly=true
+- name: minecraft
+  targetRevision: HEAD
+  syncPolicy:
+    syncOptions:
+    - ApplyOutOfSyncOnly=true
+- name: evobot
+  targetRevision: HEAD
+  syncPolicy:
+    syncOptions:
+    - ApplyOutOfSyncOnly=true
+- name: homepage
+  targetRevision: HEAD
+  syncPolicy:
+    syncOptions:
+    - ApplyOutOfSyncOnly=true

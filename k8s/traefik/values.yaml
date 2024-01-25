@@ -1,0 +1,43 @@
+---
+traefik:
+  additionalArguments:
+  - "--serversTransport.insecureskipverify=true"
+  - "--providers.kubernetesingress.ingressendpoint.publishedservice=traefik/traefik" # Kubernetes service to copy status from
+
+  logs:
+    general:
+      level: INFO
+
+  service:
+    annotations:
+      metallb.universe.tf/loadBalancerIPs: 192.168.4.50 # Ensure static IP
+
+  ingressRoute:
+    dashboard:
+      matchRule: Host(`traefik.drewburr.com`)
+      entryPoints:
+      - web
+
+  metrics:
+    prometheus:
+      disableAPICheck: true # Don't check for monitoring.coreos.com/v1
+      service:
+        enabled: true # Enable dedicated Prometheus metrics service
+
+      serviceMonitor: # Setup default ServiceMonitor
+        metricRelabelings:
+          - sourceLabels: [__name__]
+            separator: ;
+            regex: ^fluentd_output_status_buffer_(oldest|newest)_.+
+            replacement: $1
+            action: drop
+        relabelings:
+          - sourceLabels: [__meta_kubernetes_pod_node_name]
+            separator: ;
+            regex: ^(.*)$
+            targetLabel: nodename
+            replacement: $1
+            action: replace
+        jobLabel: traefik
+        interval: 30s
+        honorLabels: true
