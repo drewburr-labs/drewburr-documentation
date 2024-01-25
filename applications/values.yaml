@@ -69,6 +69,8 @@ applications:
     syncOptions:
     - ApplyOutOfSyncOnly=true
 - name: system-upgrade-controller
+  destination:
+    namespace: system-upgrade
   targetRevision: HEAD
   syncPolicy:
     syncOptions:
