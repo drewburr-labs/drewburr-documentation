@@ -21,7 +21,7 @@ spec:
           service:
             name: minecraft-http
             port:
-              name: http
+              name: minecraft-http
         path: /maps/{path:[a-zA-Z]+}/live/
         pathType: Prefix
   tls:
