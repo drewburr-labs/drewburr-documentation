@@ -1,11 +1,12 @@
+{{- with .Values.minecraft.volumes.data }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: minecraft-data
+  name: {{ .name }}
 spec:
   accessModes:
-    - ReadWriteMany
+    {{- toYaml .accessModes | nindent 4 }}
   resources:
-    requests:
-      storage: 50Gi
-  storageClassName: local-hostpath
+    {{- toYaml .resources | nindent 4 }}
+  storageClassName: {{ .storageClass }}
+{{- end }}

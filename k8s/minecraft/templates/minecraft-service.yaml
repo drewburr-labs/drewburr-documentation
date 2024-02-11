@@ -1,14 +1,36 @@
+---
 apiVersion: v1
 kind: Service
 metadata:
-  name: minecraft-server
+  name: {{ .Values.minecraft.name }}
   annotations:
-    metallb.universe.tf/loadBalancerIPs: 192.168.4.51 # Ensure static IP
+    {{- toYaml .Values.minecraft.service.annotations | nindent 4 }}
+  labels:
+    {{- toYaml .Values.minecraft.service.labels | nindent 4 }}
 spec:
   ports:
     - name: minecraft
-      port: 25569
-      targetPort: 25565
+      port: {{ .Values.minecraft.service.port }}
+      targetPort: minecraft
   selector:
-    app: minecraft-server
-  type: LoadBalancer
+    app: {{ .Values.minecraft.name }}
+  type: {{ .Values.minecraft.service.type }}
+{{- range $name, $spec := .Values.minecraft.additonalServices }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $name }}
+  annotations:
+    {{- toYaml $.Values.minecraft.service.annotations | nindent 4 }}
+  labels:
+    {{- toYaml $.Values.minecraft.service.labels | nindent 4 }}
+spec:
+  ports:
+    - name: {{ $name }}
+      port: {{ $spec.port }}
+      targetPort: {{ $name }}
+  selector:
+    app: {{ $.Values.minecraft.name }}
+  type: {{ $.Values.minecraft.service.type }}
+{{- end }}
