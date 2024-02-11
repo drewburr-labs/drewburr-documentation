@@ -37,7 +37,7 @@ minecraft:
     VIEW_DISTANCE: "24"
     MAX_PLAYERS: "20"
     PLAYER_IDLE_TIMEOUT: "30"
-    MOTD: "Glory to the beans hole\nView the map at http://minecraft.drewburr.com"
+    MOTD: "Glory to the beans hole\nView the map at http://map.drewburr.com"
     MAX_TICK_TIME: "-1"
     ENABLE_AUTOPAUSE: "false"
     JVM_DD_OPTS: disable.watchdog:true,paper.playerconnection.keepalive:60
@@ -76,3 +76,6 @@ bluemap:
   name: bluemap
   image: ghcr.io/bluemap-minecraft/bluemap
   tag: v3.20
+
+  ingress:
+    host: map.drewburr.com

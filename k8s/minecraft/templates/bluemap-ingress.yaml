@@ -7,7 +7,7 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-  - host: map.drewburr.com
+  - host: {{ .Values.bluemap.ingress.host }}
     http:
       paths:
       - backend:
@@ -26,5 +26,5 @@ spec:
         pathType: Prefix
   tls:
   - hosts:
-    - map.drewburr.com
+    - {{ .Values.bluemap.ingress.host }}
     secretName: bluemap-server-tls
