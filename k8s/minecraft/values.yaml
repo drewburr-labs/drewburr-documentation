@@ -44,6 +44,8 @@ minecraft:
     AUTOPAUSE_TIMEOUT_EST: "120"
     AUTOPAUSE_TIMEOUT_INIT: "60"
     AUTOPAUSE_TIMEOUT_KN: "20"
+    PLUGINS: |
+      https://github.com/BlueMap-Minecraft/BlueMap/releases/download/v3.20/BlueMap-3.20-paper.jar
 
   envFrom: {}
 
