@@ -49,16 +49,51 @@ minecraft:
 
   envFrom: {}
 
-  volumes:
-    data:
-      name: minecraft-data
-      path: /data
-      resources:
-        requests:
-          storage: 50Gi
-      accessModes:
-        - ReadWriteMany
-      storageClass: local-hostpath
+  persistence:
+    name: minecraft-data
+    path: /data
+    resources:
+      requests:
+        storage: 50Gi
+    accessModes:
+      - ReadWriteMany
+    storageClass: local-hostpath
+
+  initContainers:
+    - name: config-copy
+      image: "{{ .Values.bluemap.image }}:{{ .Values.bluemap.tag }}"
+      command: ['sh', '-c']
+      args:
+        - >-
+          cp -R /mnt/base/. /mnt/config &&
+          cp -R /mnt/maps /mnt/config &&
+          cp -R /mnt/storages /mnt/config
+      volumeMounts:
+        - mountPath: /mnt/config
+          name: bluemap-config
+        - mountPath: /mnt/base
+          name: config-base
+        - mountPath: /mnt/maps
+          name: config-maps
+        - mountPath: /mnt/storages
+          name: config-storages
+
+  additionalVolumes:
+    - name: config-base
+      configMap:
+        name: minecraft-bluemap-config-base
+    - name: config-maps
+      configMap:
+        name: minecraft-bluemap-config-maps
+    - name: config-storages
+      configMap:
+        name: minecraft-bluemap-config-storages
+    - name: bluemap-config
+      emptyDir: {}
+
+  additionalVolumeMounts:
+    - mountPath: /app/config
+      name: bluemap-config
 
   readinessProbe:
     exec:
