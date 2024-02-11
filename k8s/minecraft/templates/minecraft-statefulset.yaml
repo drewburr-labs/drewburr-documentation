@@ -1,50 +1,51 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: minecraftserver
+  name: {{ .Values.minecraft.name }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: minecraft-server
+      app: {{ .Values.minecraft.name }}
   template:
     metadata:
       labels:
-        app: minecraft-server
+        app: {{ .Values.minecraft.name }}
     spec:
       containers:
         - name: minecraft
-          image: registry.hub.docker.com/itzg/minecraft-server:2023.12.2-java17
+          image: {{ .Values.minecraft.image }}:{{ .Values.minecraft.tag }}
           ports:
-            - containerPort: 25565
+            - name: minecraft
+              containerPort: 25565
+            {{- range $name, $spec := .Values.minecraft.additionalServices }}
+            - name: {{ $name }}
+              containerPort: {{ $spec.port }}
+            {{- end }}
           resources:
-            requests:
-              cpu: 1000m
-              memory: 3Gi
-            limits:
-              cpu: 4000m
-              memory: 7Gi
+            {{- toYaml .Values.minecraft.resources | nindent 12 }}
           readinessProbe:
-            exec:
-              command:
-                - mc-health
-            initialDelaySeconds: 30
-            failureThreshold: 24
-            periodSeconds: 5
+            {{- toYaml .Values.minecraft.readinessProbe | nindent 12 }}
           livenessProbe:
-            exec:
-              command:
-                - mc-health
-            failureThreshold: 10
-            periodSeconds: 5
+            {{- toYaml .Values.minecraft.livenessProbe | nindent 12 }}
+          env:
+            {{- range $name, $value := .Values.minecraft.env }}
+            - name: {{ $name }}
+              value: {{ $value | quote }}
+            {{- end }}
+          {{- with .Values.minecraft.envFrom }}
           envFrom:
-            - configMapRef:
-                name: minecraft-env
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.minecraft.volumes.data }}
           volumeMounts:
-            - mountPath: /data
-              name: minecraft-data
+            - mountPath: {{ .path }}
+              name: data
+          {{- end }}
       restartPolicy: Always
+      {{- with .Values.minecraft.volumes.data }}
       volumes:
-        - name: minecraft-data
+        - name: data
           persistentVolumeClaim:
-            claimName: minecraft-data
+            claimName: {{ .name }}
+      {{- end }}
