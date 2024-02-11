@@ -87,9 +87,7 @@ minecraft:
       configMap:
         name: minecraft-bluemap-config-storages
 
-  additionalVolumeMounts:
-    - mountPath: /app/config
-      name: bluemap-config
+  additionalVolumeMounts: {}
 
   readinessProbe:
     exec:
