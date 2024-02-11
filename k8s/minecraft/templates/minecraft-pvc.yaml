@@ -1,4 +1,4 @@
-{{- with .Values.minecraft.volumes.data }}
+{{- with .Values.minecraft.persistence }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:

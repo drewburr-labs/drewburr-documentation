@@ -12,6 +12,8 @@ spec:
       labels:
         app: {{ .Values.minecraft.name }}
     spec:
+      initContainers:
+        {{ tpl (toYaml .Values.minecraft.initContainers) . | nindent 8 }}
       containers:
         - name: minecraft
           image: {{ .Values.minecraft.image }}:{{ .Values.minecraft.tag }}
@@ -37,15 +39,17 @@ spec:
           envFrom:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.minecraft.volumes.data }}
           volumeMounts:
-            - mountPath: {{ .path }}
+            - mountPath: /data
               name: data
-          {{- end }}
+            {{- with .Values.minecraft.additionalVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
       restartPolicy: Always
-      {{- with .Values.minecraft.volumes.data }}
       volumes:
         - name: data
           persistentVolumeClaim:
-            claimName: {{ .name }}
-      {{- end }}
+            claimName: minecraft-data
+        {{- with .Values.minecraft.additionalVolumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
