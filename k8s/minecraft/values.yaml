@@ -1,0 +1,78 @@
+minecraft:
+  name: minecraft-server
+
+  image: registry.hub.docker.com/itzg/minecraft-server
+  tag: 2023.12.2-java17
+
+  service:
+    annotations:
+      metallb.universe.tf/loadBalancerIPs: 192.168.4.51 # Ensure static IP
+    labels: {}
+    port: 25569
+    type: LoadBalancer
+
+  additionalServices:
+    server-bluemap:
+      port: 80
+      type: ClusterIP
+
+  resources:
+    requests:
+      cpu: 1000m
+      memory: 3Gi
+    limits:
+      cpu: 4000m
+      memory: 7Gi
+
+  env:
+    EULA: "TRUE"
+    VERSION: LATEST
+    TZ: America/New_York
+    TYPE: PAPER
+    USE_AIKAR_FLAGS: "true"
+    INIT_MEMORY: 2G
+    MAX_MEMORY: 6G
+    OVERRIDE_SERVER_PROPERTIES: "true"
+    SERVER_NAME: "Central Station"
+    VIEW_DISTANCE: "24"
+    MAX_PLAYERS: "20"
+    PLAYER_IDLE_TIMEOUT: "30"
+    MOTD: "Glory to the beans hole\nView the map at http://minecraft.drewburr.com"
+    MAX_TICK_TIME: "-1"
+    ENABLE_AUTOPAUSE: "false"
+    JVM_DD_OPTS: disable.watchdog:true,paper.playerconnection.keepalive:60
+    AUTOPAUSE_TIMEOUT_EST: "120"
+    AUTOPAUSE_TIMEOUT_INIT: "60"
+    AUTOPAUSE_TIMEOUT_KN: "20"
+
+  envFrom: {}
+
+  volumes:
+    data:
+      name: minecraft-data
+      path: /data
+      resources:
+        requests:
+          storage: 50Gi
+      accessModes:
+        - ReadWriteMany
+      storageClass: local-hostpath
+
+  readinessProbe:
+    exec:
+      command:
+        - mc-health
+    initialDelaySeconds: 30
+    failureThreshold: 24
+    periodSeconds: 5
+  livenessProbe:
+    exec:
+      command:
+        - mc-health
+    failureThreshold: 10
+    periodSeconds: 5
+
+bluemap:
+  name: bluemap
+  image: ghcr.io/bluemap-minecraft/bluemap
+  tag: v3.20
