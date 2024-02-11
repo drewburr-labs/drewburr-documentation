@@ -12,7 +12,7 @@ minecraft:
     type: LoadBalancer
 
   additionalServices:
-    server-bluemap:
+    minecraft-http:
       port: 80
       type: ClusterIP
 

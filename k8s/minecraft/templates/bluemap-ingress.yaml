@@ -14,12 +14,12 @@ spec:
           service:
             name: bluemap
             port:
-              name: bluemap-http
+              name: http
         path: /maps/{path:[a-zA-Z]+}/tiles/
         pathType: Prefix
       - backend:
           service:
-            name: {{ .Values.minecraft.name }}-bluemap
+            name: minecraft-http
             port:
               name: http
         path: /maps/{path:[a-zA-Z]+}/live/
