@@ -4,7 +4,7 @@ metadata:
   name: bluemap
 spec:
   ports:
-    - name: bluemap
+    - name: http
       port: 80
       targetPort: 8100
   selector:
