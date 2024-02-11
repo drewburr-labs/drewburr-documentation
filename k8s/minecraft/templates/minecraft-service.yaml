@@ -32,7 +32,7 @@ metadata:
 spec:
   ports:
     - name: {{ $name }}
-      port: {{ $name }}
+      port: {{ $spec.port }}
       targetPort: {{ $name }}
   selector:
     app: {{ $.Values.minecraft.name }}
