@@ -15,6 +15,13 @@ spec:
             name: bluemap
             port:
               name: http
+        path: /
+        pathType: Prefix
+      - backend:
+          service:
+            name: bluemap
+            port:
+              name: http
         path: /maps/{path:[a-zA-Z]+}/tiles/
         pathType: Prefix
       - backend:
