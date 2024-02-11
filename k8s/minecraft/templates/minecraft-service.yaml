@@ -15,7 +15,7 @@ spec:
   selector:
     app: {{ .Values.minecraft.name }}
   type: {{ .Values.minecraft.service.type }}
-{{- range $name, $spec := .Values.minecraft.additonalServices }}
+{{- range $name, $spec := .Values.minecraft.additionalServices }}
 ---
 apiVersion: v1
 kind: Service
