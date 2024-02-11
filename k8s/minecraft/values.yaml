@@ -75,6 +75,8 @@ minecraft:
           name: config-maps
         - mountPath: /mnt/storages
           name: config-storages
+        - mountPath: /data
+          name: data
 
   additionalVolumes:
     - name: config-base
