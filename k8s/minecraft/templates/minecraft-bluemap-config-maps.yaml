@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: minecraft-bluemap-config-maps
 data:
-  overworld.conf: |
+  world.conf: |
     ##                          ##
     ##         BlueMap          ##
     ##        Map-Config        ##
@@ -17,7 +17,7 @@ data:
     # The path to the save-folder of the world to render.
     #  (If this is not defined (commented out or removed), the map will be only registered to the web-server and the web-app
     #   but not rendered or loaded by BlueMap. This can be used to display a map that has been rendered somewhere else.)
-    world: "minecraft-data/world"
+    world: "world"
 
     # A lower value makes the map sorted first (in lists and menus), a higher value makes it sorted later.
     # The value needs to be an integer but it can be negative.
@@ -133,7 +133,7 @@ data:
       # https://bluemap.bluecolored.de/wiki/customization/Markers.html
 
     }
-  nether.conf: |
+  world_nether.conf: |
     ##                          ##
     ##         BlueMap          ##
     ##        Map-Config        ##
@@ -147,7 +147,7 @@ data:
     # The path to the save-folder of the world to render.
     #  (If this is not defined (commented out or removed), the map will be only registered to the web-server and the web-app
     #   but not rendered or loaded by BlueMap. This can be used to display a map that has been rendered somewhere else.)
-    world: "minecraft-data/world_nether/DIM-1"
+    world: "world_nether"
 
     # A lower value makes the map sorted first (in lists and menus), a higher value makes it sorted later.
     # The value needs to be an integer but it can be negative.
@@ -263,7 +263,7 @@ data:
       # https://bluemap.bluecolored.de/wiki/customization/Markers.html
 
     }
-  end.conf: |
+  world_the_end.conf: |
     ##                          ##
     ##         BlueMap          ##
     ##        Map-Config        ##
@@ -277,7 +277,7 @@ data:
     # The path to the save-folder of the world to render.
     #  (If this is not defined (commented out or removed), the map will be only registered to the web-server and the web-app
     #   but not rendered or loaded by BlueMap. This can be used to display a map that has been rendered somewhere else.)
-    world: "minecraft-data/world_the_end/DIM1"
+    world: "world_the_end"
 
     # A lower value makes the map sorted first (in lists and menus), a higher value makes it sorted later.
     # The value needs to be an integer but it can be negative.
