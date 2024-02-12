@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: minecraft-bluemap-config-maps
 data:
-  world.conf: |
+  overworld.conf: |
     ##                          ##
     ##         BlueMap          ##
     ##        Map-Config        ##
@@ -133,7 +133,7 @@ data:
       # https://bluemap.bluecolored.de/wiki/customization/Markers.html
 
     }
-  world_nether.conf: |
+  nether.conf: |
     ##                          ##
     ##         BlueMap          ##
     ##        Map-Config        ##
@@ -263,7 +263,7 @@ data:
       # https://bluemap.bluecolored.de/wiki/customization/Markers.html
 
     }
-  world_the_end.conf: |
+  end.conf: |
     ##                          ##
     ##         BlueMap          ##
     ##        Map-Config        ##
