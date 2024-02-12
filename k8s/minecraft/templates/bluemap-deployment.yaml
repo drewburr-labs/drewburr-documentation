@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: bluemap
+  name: {{ .Values.bluemap.name }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: bluemap
+      app: {{ .Values.bluemap.name }}
   template:
     metadata:
       labels:
-        app: bluemap
+        app: {{ .Values.bluemap.name }}
     spec:
       initContainers:
         - name: config-copy
-          image: ghcr.io/bluemap-minecraft/bluemap:latest
+          image: {{ .Values.bluemap.image }}:{{ .Values.bluemap.tag }}
           command: ['sh', '-c']
           args:
             - >-
@@ -32,9 +32,10 @@ spec:
               name: config-storages
       containers:
         - name: bluemap
-          image: ghcr.io/bluemap-minecraft/bluemap:latest
+          image: {{ .Values.bluemap.image }}:{{ .Values.bluemap.tag }}
           ports:
-            - containerPort: 8100
+            - name: bluemap
+              containerPort: 8100
           args:
             - -r
             - -u

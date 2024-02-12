@@ -7,19 +7,31 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-  - host: map.drewburr.com
+  - host: {{ .Values.bluemap.ingress.host }}
     http:
       paths:
       - backend:
           service:
             name: bluemap
             port:
-              number: 80
+              name: http
         path: /
+        pathType: Prefix
+      - backend:
+          service:
+            name: bluemap
+            port:
+              name: http
+        path: /maps/{path:[a-zA-Z]+}/tiles/
+        pathType: Prefix
+      - backend:
+          service:
+            name: minecraft-http
+            port:
+              name: minecraft-http
+        path: /maps/{path:[a-zA-Z]+}/live/
         pathType: Prefix
   tls:
   - hosts:
-    - map.drewburr.com
+    - {{ .Values.bluemap.ingress.host }}
     secretName: bluemap-server-tls
-status:
-  loadBalancer: {}
