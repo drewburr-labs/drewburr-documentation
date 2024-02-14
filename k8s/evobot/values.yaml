@@ -2,6 +2,12 @@ evobot:
   env:
   - name: LISTENING_ACTIVITY
     value: "The New Generation of Music"
+  - name: DEFAULT_VOLUME
+    value: "20"
+  - name: MAX_PLAYLIST_SIZE
+    value: "100"
+  - name: STAY_TIME
+    value: "300"
 
   envFrom:
   - secretRef:
