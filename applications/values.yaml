@@ -1,5 +1,10 @@
 ---
 applications:
+- name: argocd
+  targetRevision: HEAD
+  syncPolicy:
+    syncOptions:
+    - ApplyOutOfSyncOnly=true
 - name: cert-manager
   targetRevision: HEAD
   syncPolicy:
@@ -71,6 +76,11 @@ applications:
 - name: system-upgrade-controller
   destination:
     namespace: system-upgrade
+  targetRevision: HEAD
+  syncPolicy:
+    syncOptions:
+    - ApplyOutOfSyncOnly=true
+- name: kubernetes-dashboard
   targetRevision: HEAD
   syncPolicy:
     syncOptions:
