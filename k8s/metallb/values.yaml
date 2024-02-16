@@ -1,0 +1,34 @@
+metallb:
+  nameOverride: ""
+  fullnameOverride: ""
+  loadBalancerClass: ""
+
+  rbac:
+    # create specifies whether to install and use RBAC rules.
+    create: true
+
+  prometheus:
+    # Prometheus Operator ServiceMonitors. To be used as an alternative
+    # to podMonitor, supports secure metrics.
+    serviceMonitor:
+      # enable support for Prometheus Operator
+      enabled: true
+
+
+  # controller contains configuration specific to the MetalLB cluster
+  # controller.
+  controller:
+    enabled: true
+    # -- Controller log level. Must be one of: `all`, `debug`, `info`, `warn`, `error` or `none`
+    logLevel: info
+
+  # speaker contains configuration specific to the MetalLB speaker
+  # daemonset.
+  speaker:
+    enabled: true
+    # -- Speaker log level. Must be one of: `all`, `debug`, `info`, `warn`, `error` or `none`
+    logLevel: info
+
+  crds:
+    enabled: true
+    validationFailurePolicy: Fail
