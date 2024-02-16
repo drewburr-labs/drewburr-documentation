@@ -8,6 +8,10 @@ metallb:
     create: true
 
   prometheus:
+    # the service account used by prometheus
+    # required when " .Values.prometheus.rbacPrometheus == true " and " .Values.prometheus.podMonitor.enabled=true or prometheus.serviceMonitor.enabled=true "
+    serviceAccount: "prometheus"
+
     # Prometheus Operator ServiceMonitors. To be used as an alternative
     # to podMonitor, supports secure metrics.
     serviceMonitor:
