@@ -22,14 +22,14 @@ spec:
             name: bluemap
             port:
               name: http
-        path: /maps/{path:[^/]*}/tiles/
+        path: /maps/{world:[^/]*}/tiles/
         pathType: Prefix
       - backend:
           service:
             name: minecraft-http
             port:
               name: minecraft-http
-        path: /maps/{path:[^/]*}/live/
+        path: /maps/{world:[^/]*}/{resource:(live|assets)/
         pathType: Prefix
   tls:
   - hosts:
