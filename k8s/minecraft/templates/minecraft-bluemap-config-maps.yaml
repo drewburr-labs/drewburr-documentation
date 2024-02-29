@@ -147,7 +147,7 @@ data:
     # The path to the save-folder of the world to render.
     #  (If this is not defined (commented out or removed), the map will be only registered to the web-server and the web-app
     #   but not rendered or loaded by BlueMap. This can be used to display a map that has been rendered somewhere else.)
-    world: "world_nether"
+    world: "world_nether/DIM-1"
 
     # A lower value makes the map sorted first (in lists and menus), a higher value makes it sorted later.
     # The value needs to be an integer but it can be negative.
@@ -277,7 +277,7 @@ data:
     # The path to the save-folder of the world to render.
     #  (If this is not defined (commented out or removed), the map will be only registered to the web-server and the web-app
     #   but not rendered or loaded by BlueMap. This can be used to display a map that has been rendered somewhere else.)
-    world: "world_the_end"
+    world: "world_the_end/DIM1"
 
     # A lower value makes the map sorted first (in lists and menus), a higher value makes it sorted later.
     # The value needs to be an integer but it can be negative.
