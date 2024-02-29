@@ -29,7 +29,7 @@ spec:
             name: minecraft-http
             port:
               name: minecraft-http
-        path: /maps/{world:[^/]*}/{resource:(live|assets)/
+        path: /maps/{world:[^/]*}/{resource:(live|assets)}/
         pathType: Prefix
   tls:
   - hosts:
