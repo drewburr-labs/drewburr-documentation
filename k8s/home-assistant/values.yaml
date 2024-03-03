@@ -1,0 +1,21 @@
+home-assistant:
+
+  persistence:
+    enabled: true
+    size: 5Gi
+    storageClass: local-hostpath
+
+  ingress:
+    enabled: true
+    className: traefik
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt
+    hosts:
+      - host: homeassistant.drewburr.com
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+    tls:
+    - hosts:
+      - homeassistant.drewburr.com
+    secretName: bluemap-server-tls
