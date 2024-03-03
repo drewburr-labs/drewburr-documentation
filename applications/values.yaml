@@ -68,11 +68,6 @@ applications:
   syncPolicy:
     syncOptions:
     - ApplyOutOfSyncOnly=true
-- name: homepage
-  targetRevision: HEAD
-  syncPolicy:
-    syncOptions:
-    - ApplyOutOfSyncOnly=true
 - name: system-upgrade-controller
   destination:
     namespace: system-upgrade
@@ -80,7 +75,7 @@ applications:
   syncPolicy:
     syncOptions:
     - ApplyOutOfSyncOnly=true
-- name: kubernetes-dashboard
+- name: home-assistant
   targetRevision: HEAD
   syncPolicy:
     syncOptions:
