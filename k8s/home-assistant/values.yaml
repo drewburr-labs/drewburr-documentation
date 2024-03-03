@@ -29,4 +29,5 @@ home-assistant:
 
   additionalVolumeMounts:
     - name: home-assistant-config
-      mountPath: "/config"
+      mountPath: /config/configuration.yaml
+      subPath: configuration.yaml
