@@ -18,3 +18,15 @@ home-assistant:
       - hosts:
           - homeassistant.drewburr.com
         secretName: home-assistant-server-tls
+
+  hostPort:
+    enabled: true
+
+  additionalVolumes:
+    - name: home-assistant-config
+      configMap:
+        name: home-assistant-config
+
+  additionalVolumeMounts:
+    - name: home-assistant-config
+      mountPath: "/config"
