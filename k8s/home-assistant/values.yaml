@@ -1,5 +1,4 @@
 home-assistant:
-
   persistence:
     enabled: true
     size: 5Gi
@@ -16,6 +15,6 @@ home-assistant:
           - path: /
             pathType: ImplementationSpecific
     tls:
-    - hosts:
-      - homeassistant.drewburr.com
-    secretName: bluemap-server-tls
+      - hosts:
+          - homeassistant.drewburr.com
+        secretName: home-assistant-server-tls
