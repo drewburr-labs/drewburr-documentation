@@ -15,6 +15,11 @@ minecraft:
     minecraft-http:
       port: 8100
       type: ClusterIP
+    metrics:
+      port: 9940
+      type: ClusterIP
+      labels:
+        service: metrics
 
   resources:
     requests:
@@ -105,10 +110,22 @@ minecraft:
     failureThreshold: 10
     periodSeconds: 5
 
+  metrics:
+    enabled: true # Default to false
+    name: minecraft-monitor
+    endpoint:
+      honorLabels: true
+      path: /metrics
+      port: http-web
+      scheme: http
+      scrapeTimeout: 30s
+    selector:
+      matchLabels:
+        service: metrics
+
 bluemap:
   name: bluemap
   image: ghcr.io/bluemap-minecraft/bluemap
   tag: v3.20
-
   ingress:
     host: map.drewburr.com
