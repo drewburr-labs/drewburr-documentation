@@ -27,7 +27,7 @@ minecraft:
       memory: 3Gi
     limits:
       cpu: 4000m
-      memory: 7Gi
+      memory: 8Gi
 
   env:
     EULA: "TRUE"
