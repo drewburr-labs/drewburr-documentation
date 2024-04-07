@@ -1,0 +1,18 @@
+{{- with .Values.minecraft.metrics }}
+{{- if .enabled }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ .name }}
+  namespace: {{ $.Release.Namespace }}
+spec:
+  endpoints:
+  {{- list .endpoint | toYaml | nindent 2 }}
+  namespaceSelector:
+    matchNames:
+    - {{ $.Release.Namespace }}
+  selector:
+    {{- toYaml .selector | trim | nindent 4 }}
+{{- end }}
+{{- end }}
