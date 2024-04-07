@@ -17,6 +17,12 @@ kube-prometheus-stack:
         - prometheus.drewburr.com
       pathType: ImplementationSpecific
 
+    prometheusSpec:
+      serviceMonitorNamespaceSelector:
+        matchExpressions:
+        - key: kubernetes.io/metadata.name
+          operator: Exists
+
   grafana:
     ingress:
       enabled: true
