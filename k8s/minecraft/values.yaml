@@ -116,7 +116,7 @@ minecraft:
     endpoint:
       honorLabels: true
       path: /metrics
-      port: http-web
+      port: metrics
       scheme: http
       scrapeTimeout: 30s
     selector:
