@@ -6,6 +6,8 @@ kind: ServiceMonitor
 metadata:
   name: {{ .name }}
   namespace: {{ $.Release.Namespace }}
+  labels:
+    release: prometheus
 spec:
   endpoints:
   {{- list .endpoint | toYaml | nindent 2 }}
