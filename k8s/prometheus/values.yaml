@@ -23,6 +23,8 @@ kube-prometheus-stack:
         - key: kubernetes.io/metadata.name
           operator: Exists
 
+      serviceMonitorSelector: {}
+
   grafana:
     ingress:
       enabled: true
