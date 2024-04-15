@@ -22,6 +22,9 @@ kube-prometheus-stack:
         matchLabels: null
 
   grafana:
+    admin:
+      existingSecret: "prometheus-grafana"
+
     env:
       GF_auth.anonymous_enabled: true
 
