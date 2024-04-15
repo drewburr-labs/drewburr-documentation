@@ -18,8 +18,8 @@ kube-prometheus-stack:
       pathType: ImplementationSpecific
 
     prometheusSpec:
-      # Scrape all servicemonitors
-      serviceMonitorSelector: null
+      serviceMonitorSelector:
+        matchLabels: null
 
   grafana:
     ingress:
