@@ -40,3 +40,14 @@ kube-prometheus-stack:
       - secretName: grafana-tls
         hosts:
         - grafana.drewburr.com
+
+    persistence:
+      enabled: true
+
+    resources:
+     limits:
+       cpu: 1000m
+       memory: 1Gi
+    #  requests:
+    #    cpu: 100m
+    #    memory: 128Mi
