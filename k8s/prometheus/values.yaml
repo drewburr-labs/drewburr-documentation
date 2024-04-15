@@ -18,10 +18,8 @@ kube-prometheus-stack:
       pathType: ImplementationSpecific
 
     prometheusSpec:
-      # Redundant. Is default.
-      serviceMonitorSelector:
-        matchLabels:
-          release: prometheus
+      # Scrape all servicemonitors
+      serviceMonitorSelector: null
 
   grafana:
     ingress:
