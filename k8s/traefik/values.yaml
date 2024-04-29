@@ -3,7 +3,10 @@ traefik:
   additionalArguments:
   - "--serversTransport.insecureskipverify=true"
   - "--providers.kubernetesingress.ingressendpoint.publishedservice=traefik/traefik" # Kubernetes service to copy status from
+  - "--providers.kubernetescrd.allowemptyservices=true"
   - "--providers.kubernetescrd.allowexternalnameservices=true"
+  - "--providers.kubernetesingress.allowemptyservices=true"
+  - "--providers.kubernetesingress.allowexternalnameservices=true"
   logs:
     general:
       level: INFO
