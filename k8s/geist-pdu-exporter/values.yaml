@@ -35,6 +35,10 @@ securityContext: {}
   # runAsNonRoot: true
   # runAsUser: 1000
 
+env:
+- name: PDU_ADDRESS
+  value: 192.168.4.3
+
 service:
   type: ClusterIP
   port: 9100
