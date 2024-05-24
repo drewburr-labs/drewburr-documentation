@@ -1,0 +1,16 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "geist-pdu-exporter.fullname" . }}
+  labels:
+    release: prometheus
+    {{- include "geist-pdu-exporter.labels" . | nindent 4 }}
+spec:
+  endpoints:
+  - port: http
+    path: /
+  namespaceSelector:
+    matchNames:
+    - {{ $.Release.Namespace }}
+  selector:
+    {{- include "geist-pdu-exporter.selectorLabels" . | nindent 4 }}
