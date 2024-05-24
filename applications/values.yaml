@@ -75,7 +75,7 @@ applications:
   syncPolicy:
     syncOptions:
     - ApplyOutOfSyncOnly=true
-- name: home-assistant
+- name: geist-pdu-exporter
   targetRevision: HEAD
   syncPolicy:
     syncOptions:
