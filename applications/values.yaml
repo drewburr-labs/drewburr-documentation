@@ -78,5 +78,6 @@ applications:
 - name: geist-pdu-exporter
   targetRevision: HEAD
   syncPolicy:
+    automated: {}
     syncOptions:
     - ApplyOutOfSyncOnly=true
