@@ -12,5 +12,5 @@ spec:
   namespaceSelector:
     matchNames:
     - {{ $.Release.Namespace }}
-  selector:
-    {{- include "geist-pdu-exporter.selectorLabels" . | nindent 4 }}
+  # selector:
+  #   {{- include "geist-pdu-exporter.selectorLabels" . | nindent 4 }}
