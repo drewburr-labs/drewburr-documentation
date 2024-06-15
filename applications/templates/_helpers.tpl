@@ -24,7 +24,7 @@
 
 {{- define "application.targetRevision" -}}
 {{- if get . "source" }}
-{{- default .source.targetRevision }}
+{{- default "main" .source.targetRevision }}
 {{- end }}
 {{- end }}
 

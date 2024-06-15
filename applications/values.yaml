@@ -1,19 +1,16 @@
 ---
 applications:
 - name: argocd
-  targetRevision: HEAD
   syncPolicy:
     syncOptions:
     - ApplyOutOfSyncOnly=true
 - name: cert-manager
-  targetRevision: HEAD
   syncPolicy:
     syncOptions:
     - ApplyOutOfSyncOnly=true
 - name: metallb
   destination:
     namespace: metallb-system
-  targetRevision: HEAD
   syncPolicy:
     syncOptions:
     - ApplyOutOfSyncOnly=true
@@ -31,52 +28,49 @@ applications:
 - name: metrics-server
   destination:
     namespace: metrics-server
-  targetRevision: HEAD
   syncPolicy:
     syncOptions:
     - ApplyOutOfSyncOnly=true
 - name: prometheus
   destination:
     namespace: kube-prometheus-stack
-  targetRevision: HEAD
   syncPolicy:
     syncOptions:
     - ApplyOutOfSyncOnly=true
 - name: prometheus-crds
-  targetRevision: HEAD
   syncPolicy:
     syncOptions:
     - ApplyOutOfSyncOnly=true
     - ServerSideApply=true
 - name: traefik
-  targetRevision: HEAD
   syncPolicy:
     syncOptions:
     - ApplyOutOfSyncOnly=true
-- name: democratic-csi
-  targetRevision: HEAD
+- name: democratic-csi-local
+  destination:
+    namespace: democratic-csi
+  syncPolicy:
+    syncOptions:
+    - ApplyOutOfSyncOnly=true
+- name: democratic-csi-zfs-nvmeof
   syncPolicy:
     syncOptions:
     - ApplyOutOfSyncOnly=true
 - name: minecraft
-  targetRevision: HEAD
   syncPolicy:
     syncOptions:
     - ApplyOutOfSyncOnly=true
 - name: evobot
-  targetRevision: HEAD
   syncPolicy:
     syncOptions:
     - ApplyOutOfSyncOnly=true
 - name: system-upgrade-controller
   destination:
     namespace: system-upgrade
-  targetRevision: HEAD
   syncPolicy:
     syncOptions:
     - ApplyOutOfSyncOnly=true
 - name: geist-pdu-exporter
-  targetRevision: HEAD
   syncPolicy:
     automated: {}
     syncOptions:
