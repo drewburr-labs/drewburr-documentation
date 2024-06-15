@@ -1,0 +1,173 @@
+# https://github.com/democratic-csi/charts/blob/master/stable/democratic-csi/examples/zfs-generic-nvmeof.yaml
+democratic-csi:
+  fullnameOverride: democratic-csi-zfs-nvmeof
+
+  # driver only works with 1.16+
+  csiDriver:
+    # should be globally unique for a given cluster
+    name: "org.democratic-csi.zfs-nvmeof"
+    attachRequired: false
+    storageCapacity: true
+    fsGroupPolicy: File
+
+  storageClasses:
+  - name: zfs-nvmeof
+    defaultClass: false
+    reclaimPolicy: Delete
+    volumeBindingMode: Immediate
+    allowVolumeExpansion: true
+    parameters:
+      # for block-based storage can be ext3, ext4, xfs
+      # for nfs should be nfs
+      fsType: ext4
+
+      # if true, volumes created from other snapshots will be
+      # zfs send/received instead of zfs cloned
+      # detachedVolumesFromSnapshots: "false"
+
+      # if true, volumes created from other volumes will be
+      # zfs send/received instead of zfs cloned
+      # detachedVolumesFromVolumes: "false"
+
+    mountOptions: []
+    secrets:
+      provisioner-secret:
+      controller-publish-secret:
+      node-stage-secret:
+      node-publish-secret:
+      controller-expand-secret:
+
+  # if your cluster supports snapshots you may enable below
+  volumeSnapshotClasses: []
+  #- name: zfs-nvmeof
+  #  secrets:
+  #    snapshotter-secret:
+
+  # controller:
+  #   enabled: true
+  #   strategy: deployment
+  #   externalProvisioner:
+  #     extraArgs:
+  #     - --leader-election=false
+  #     - --node-deployment=true
+  #     - --node-deployment-immediate-binding=false
+  #     - --feature-gates=Topology=true
+  #     - --strict-topology=true
+  #     - --enable-capacity=true
+  #     - --capacity-ownerref-level=1
+
+  #   externalAttacher:
+  #     enabled: false
+
+  #   # distributed support is not yet ready
+  #   externalResizer:
+  #     enabled: false
+
+  #   externalSnapshotter:
+  #     enabled: true
+  #     extraArgs:
+  #     - --leader-election=false
+  #     - --node-deployment=true
+
+  driver:
+    config:
+      driver: zfs-generic-nvmeof
+      sshConnection:
+        host: ${SERVER_HOST}
+        port: 22
+        username: ${SERVER_USERNAME}
+        # use either password or key
+        # password: ""
+        privateKey: ${SERVER_PRIVATE_KEY}
+
+      zfs:
+        # can be used to override defaults if necessary
+        # the example below is useful for TrueNAS 12
+        cli:
+          sudoEnabled: true
+        #  paths:
+        #    zfs: /usr/sbin/zfs
+        #    zpool: /usr/sbin/zpool
+        #    sudo: /usr/bin/sudo
+        #    chroot: /usr/sbin/chroot
+
+        # can be used to set arbitrary values on the dataset/zvol
+        # can use handlebars templates with the parameters from the storage class/CO
+        #datasetProperties:
+        #  "org.freenas:description": "{{ parameters.[csi.storage.k8s.io/pvc/namespace] }}/{{ parameters.[csi.storage.k8s.io/pvc/name] }}"
+        #  "org.freenas:test": "{{ parameters.foo }}"
+        #  "org.freenas:test2": "some value"
+
+        datasetParentName: tanks/k8s/dataset
+        # do NOT make datasetParentName and detachedSnapshotsDatasetParentName overlap
+        # they may be siblings, but neither should be nested in the other
+        detachedSnapshotsDatasetParentName: tanks/k8s/snapshots
+
+        # "" (inherit), lz4, gzip-9, etc
+        zvolCompression:
+        # "" (inherit), on, off, verify
+        zvolDedup:
+        zvolEnableReservation: false
+        # 512, 1K, 2K, 4K, 8K, 16K, 64K, 128K default is 16K
+        zvolBlocksize:
+
+      nvmeof:
+        # these are for the node/client aspect
+        transports:
+          - tcp://${STORAGE_HOST}:4420
+          #- "tcp://127.0.0.1:4420?host-iface=eth0"
+          #- "tcp://[2001:123:456::1]:4420"
+          #- "rdma://127.0.0.1:4420"
+          #- "fc://[nn-0x203b00a098cbcac6:pn-0x203d00a098cbcac6]"
+
+        # MUST ensure uniqueness
+        # full iqn limit is 223 bytes, plan accordingly
+        # default is "{{ name }}"
+        #nameTemplate: "{{ parameters.[csi.storage.k8s.io/pvc/namespace] }}-{{ parameters.[csi.storage.k8s.io/pvc/name] }}"
+        namePrefix:
+        nameSuffix:
+
+        shareStrategy: "nvmetCli"
+        #shareStrategy: "spdkCli"
+
+        # https://documentation.suse.com/es-es/sles/15-SP1/html/SLES-all/cha-nvmeof.html
+        # https://www.linuxjournal.com/content/data-flash-part-iii-nvme-over-fabrics-using-tcp
+        # http://git.infradead.org/users/hch/nvmetcli.git
+        shareStrategyNvmetCli:
+          #sudoEnabled: true
+          # /root/.local/bin/nvmetcli
+          #nvmetcliPath: nvmetcli
+          # prevent startup race conditions by ensuring the config on disk has been imported
+          # before we start messing with things
+          #configIsImportedFilePath: /var/run/nvmet-config-loaded
+          #configPath: /etc/nvmet/config.json
+          basename: "nqn.2003-01.org.linux-nvme"
+          # add more ports here as appropriate if you have multipath
+          ports:
+            - "1"
+          subsystem:
+            attributes:
+              allow_any_host: 1
+          # not supported yet in nvmetcli
+          #namespace:
+          #  attributes:
+          #    buffered_io: 1
+
+        # shareStrategySpdkCli:
+        #   # spdkcli.py
+        #   #spdkcliPath: spdkcli
+        #   configPath: /etc/spdk/spdk.json
+        #   basename: "nqn.2003-01.org.linux-nvmeof"
+        #   bdev:
+        #     type: uring
+        #     #type: aio
+        #     attributes:
+        #       block_size: 512
+        #   subsystem:
+        #     attributes:
+        #       allow_any_host: "true"
+        #   listeners:
+        #     - trtype: tcp
+        #       traddr: server
+        #       trsvcid: port
+        #       adrfam: ipv4
