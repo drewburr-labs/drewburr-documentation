@@ -133,7 +133,7 @@ democratic-csi:
     #     # https://www.linuxjournal.com/content/data-flash-part-iii-nvme-over-fabrics-using-tcp
     #     # http://git.infradead.org/users/hch/nvmetcli.git
     #     shareStrategyNvmetCli:
-    #       #sudoEnabled: true
+    #       sudoEnabled: true
     #       # /root/.local/bin/nvmetcli
     #       #nvmetcliPath: nvmetcli
     #       # prevent startup race conditions by ensuring the config on disk has been imported
