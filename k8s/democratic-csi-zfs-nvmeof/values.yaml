@@ -97,10 +97,10 @@ democratic-csi:
     #     #  "org.freenas:test": "{{ parameters.foo }}"
     #     #  "org.freenas:test2": "some value"
 
-    #     datasetParentName: tanks/k8s/dataset
+    #     datasetParentName: sas-pool/k8s/nvmeof/dataset
     #     # do NOT make datasetParentName and detachedSnapshotsDatasetParentName overlap
     #     # they may be siblings, but neither should be nested in the other
-    #     detachedSnapshotsDatasetParentName: tanks/k8s/snapshots
+    #     detachedSnapshotsDatasetParentName: sas-pool/k8s/nvmeof/snapshots
 
     #     # "" (inherit), lz4, gzip-9, etc
     #     zvolCompression:
