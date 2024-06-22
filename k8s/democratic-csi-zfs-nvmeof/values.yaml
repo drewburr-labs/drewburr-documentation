@@ -70,6 +70,24 @@ democratic-csi:
   #     - --node-deployment=true
 
   driver:
+    extraEnv:
+    - name: SERVER_HOST
+      valueFrom:
+      secretKeyRef:
+        name: server-connection-details
+        key: host
+    - name: SERVER_USERNAME
+      valueFrom:
+      secretKeyRef:
+        name: server-connection-details
+        key: username
+    - name: SERVER_PRIVATE_KEY
+      valueFrom:
+      secretKeyRef:
+        name: server-connection-details
+        key: private_key
+
+
     config:
       driver: zfs-generic-nvmeof
       sshConnection:
@@ -114,7 +132,7 @@ democratic-csi:
       nvmeof:
         # these are for the node/client aspect
         transports:
-          - tcp://${STORAGE_HOST}:4420
+          - tcp://${SERVER_HOST}:4420
           #- "tcp://127.0.0.1:4420?host-iface=eth0"
           #- "tcp://[2001:123:456::1]:4420"
           #- "rdma://127.0.0.1:4420"
