@@ -69,8 +69,8 @@ democratic-csi:
     # https://github.com/democratic-csi/democratic-csi/issues/400
     existingConfigSecret: custom-driver-config
 
-    # config:
-    #   driver: zfs-generic-nvmeof
+    config:
+      driver: zfs-generic-nvmeof
     #   sshConnection:
     #     host: ${SERVER_HOST}
     #     port: 22
