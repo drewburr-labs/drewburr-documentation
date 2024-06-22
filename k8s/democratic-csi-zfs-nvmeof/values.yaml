@@ -48,19 +48,19 @@ democratic-csi:
       extraEnv:
       - name: SERVER_HOST
         valueFrom:
-        secretKeyRef:
-          name: server-connection-details
-          key: host
+          secretKeyRef:
+            name: server-connection-details
+            key: host
       - name: SERVER_USERNAME
         valueFrom:
-        secretKeyRef:
-          name: server-connection-details
-          key: username
+          secretKeyRef:
+            name: server-connection-details
+            key: username
       - name: SERVER_PRIVATE_KEY
         valueFrom:
-        secretKeyRef:
-          name: server-connection-details
-          key: private_key
+          secretKeyRef:
+            name: server-connection-details
+            key: private_key
 
   #   enabled: true
   #   strategy: deployment
