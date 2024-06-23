@@ -71,6 +71,7 @@ minecraft:
       command: ['sh', '-c']
       args:
         - >-
+          mkdir -p /data/plugins/BlueMap
           cp -R /mnt/base/. /data/plugins/BlueMap &&
           cp -R /mnt/maps /data/plugins/BlueMap &&
           cp -R /mnt/storages /data/plugins/BlueMap
