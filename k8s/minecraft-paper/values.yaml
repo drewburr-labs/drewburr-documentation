@@ -48,18 +48,18 @@ minecraft:
     # https://www.spigotmc.org/resources/huskhomes-1-16-1-20-set-homes-warps-spawn-tp-and-tpa-public-homes-works-cross-server.83767/
     # https://www.spigotmc.org/resources/spark.57242/
     # https://www.spigotmc.org/resources/item-effects.91208/
-    # PLUGINS: |
-    #   https://github.com/sladkoff/minecraft-prometheus-exporter/releases/download/v3.1.0/minecraft-prometheus-exporter-3.1.0.jar
-    #   https://mediafilez.forgecdn.net/files/5382/232/dead-chest-4.21.0.jar
-    #   https://mediafilez.forgecdn.net/files/5382/326/spawner-silk-5.7.0.jar
-    #   https://mediafilez.forgecdn.net/files/5341/652/TreeFeller-1.23.1.jar
-    #   https://mediafilez.forgecdn.net/files/4301/100/YetAnotherHarvest-1.1.jar
-    #   https://dev.bukkit.org/projects/customcrafting-advanced-custom-recipes
-    #   https://dev.bukkit.org/projects/dead-chest
-    #   https://dev.bukkit.org/projects/spawnersilk
-    #   https://dev.bukkit.org/projects/thizzyz-tree-feller
-    #   https://dev.bukkit.org/projects/wolfyutilities
-    #   https://dev.bukkit.org/projects/yetanotherharvest
+    PLUGINS: |
+      https://github.com/sladkoff/minecraft-prometheus-exporter/releases/download/v3.1.0/minecraft-prometheus-exporter-3.1.0.jar
+    # https://mediafilez.forgecdn.net/files/5382/232/dead-chest-4.21.0.jar
+    # https://mediafilez.forgecdn.net/files/5382/326/spawner-silk-5.7.0.jar
+    # https://mediafilez.forgecdn.net/files/5341/652/TreeFeller-1.23.1.jar
+    # https://mediafilez.forgecdn.net/files/4301/100/YetAnotherHarvest-1.1.jar
+    # https://dev.bukkit.org/projects/customcrafting-advanced-custom-recipes
+    # https://dev.bukkit.org/projects/dead-chest
+    # https://dev.bukkit.org/projects/spawnersilk
+    # https://dev.bukkit.org/projects/thizzyz-tree-feller
+    # https://dev.bukkit.org/projects/wolfyutilities
+    # https://dev.bukkit.org/projects/yetanotherharvest
     SERVER_NAME: "Central Station"
     VIEW_DISTANCE: "24"
     MAX_PLAYERS: "20"
