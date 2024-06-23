@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.bluemap.name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.bluemap.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.bluemap.name }}
+    spec:
+      initContainers:
+        - name: config-copy
+          image: {{ .Values.bluemap.image }}:{{ .Values.bluemap.tag }}
+          command: ['sh', '-c']
+          args:
+            - >-
+              cp -R /mnt/base/. /mnt/config &&
+              cp -R /mnt/maps /mnt/config &&
+              cp -R /mnt/storages /mnt/config
+          volumeMounts:
+            - mountPath: /mnt/config
+              name: bluemap-config
+            - mountPath: /mnt/base
+              name: config-base
+            - mountPath: /mnt/maps
+              name: config-maps
+            - mountPath: /mnt/storages
+              name: config-storages
+      containers:
+        - name: bluemap
+          image: {{ .Values.bluemap.image }}:{{ .Values.bluemap.tag }}
+          ports:
+            - name: bluemap
+              containerPort: 8100
+          args:
+            - -r
+            - -u
+            - -w
+          resources: {}
+          volumeMounts:
+            - mountPath: /app/data
+              name: bluemap-data
+            - mountPath: /app/web
+              name: bluemap-web
+            - mountPath: /app/minecraft-data
+              name: minecraft-data
+            - mountPath: /app/config
+              name: bluemap-config
+      restartPolicy: Always
+      volumes:
+        - name: bluemap-data
+          persistentVolumeClaim:
+            claimName: bluemap-data
+        - name: bluemap-web
+          persistentVolumeClaim:
+            claimName: bluemap-web
+        - name: bluemap-config
+          emptyDir: {}
+        - name: config-base
+          configMap:
+            name: bluemap-config-base
+        - name: config-maps
+          configMap:
+            name: bluemap-config-maps
+        - name: config-storages
+          configMap:
+            name: bluemap-config-storages
+        - name: minecraft-data
+          persistentVolumeClaim:
+            claimName: minecraft-data
