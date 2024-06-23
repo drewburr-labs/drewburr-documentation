@@ -1,2 +1,5 @@
 snapshot-controller:
   fullnameOverride: snapshot-controller
+
+  validatingWebhook:
+    enabled: true
