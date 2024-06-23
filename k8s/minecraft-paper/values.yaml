@@ -40,15 +40,20 @@ minecraft:
     MAX_MEMORY: 6G
     OVERRIDE_SERVER_PROPERTIES: "true"
     SPIGET_RESOURCES: 83557,81534,27021,18494,83767,57242,91208
-    CURSEFORGE_FILES: |
-      https://www.curseforge.com/minecraft/bukkit-plugins/customcrafting-advanced-custom-recipes/download/4655562
-      https://www.curseforge.com/minecraft/bukkit-plugins/dead-chest/download/5382232
-      https://www.curseforge.com/minecraft/bukkit-plugins/spawnersilk/download/5382326
-      https://www.curseforge.com/minecraft/bukkit-plugins/thizzyz-tree-feller/download/5341652
-      https://www.curseforge.com/minecraft/bukkit-plugins/wolfyutilities/download/4664168
-      https://www.curseforge.com/minecraft/bukkit-plugins/yetanotherharvest/download/4301100
     PLUGINS: |
       https://github.com/sladkoff/minecraft-prometheus-exporter/releases/download/v3.1.0/minecraft-prometheus-exporter-3.1.0.jar
+      https://mediafilez.forgecdn.net/files/4655/562/customcrafting-spigot-4.16.8.2.jar
+      https://mediafilez.forgecdn.net/files/5382/232/dead-chest-4.21.0.jar
+      https://mediafilez.forgecdn.net/files/5382/326/spawner-silk-5.7.0.jar
+      https://mediafilez.forgecdn.net/files/5341/652/TreeFeller-1.23.1.jar
+      https://mediafilez.forgecdn.net/files/4664/168/wolfyutils-spigot-4.16.12.1.jar
+      https://mediafilez.forgecdn.net/files/4301/100/YetAnotherHarvest-1.1.jar
+    #   https://dev.bukkit.org/projects/customcrafting-advanced-custom-recipes
+    #   https://dev.bukkit.org/projects/dead-chest
+    #   https://dev.bukkit.org/projects/spawnersilk
+    #   https://dev.bukkit.org/projects/thizzyz-tree-feller
+    #   https://dev.bukkit.org/projects/wolfyutilities
+    #   https://dev.bukkit.org/projects/yetanotherharvest
     SERVER_NAME: "Central Station"
     VIEW_DISTANCE: "24"
     MAX_PLAYERS: "20"
@@ -63,9 +68,7 @@ minecraft:
     # PLUGINS: |
     #   https://github.com/BlueMap-Minecraft/BlueMap/releases/download/v3.20/BlueMap-3.20-paper.jar
 
-  envFrom:
-  - secretRef:
-      name: curseforge-api-key
+  envFrom: []
 
   persistence:
     name: minecraft-data
