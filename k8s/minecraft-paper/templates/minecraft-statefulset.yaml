@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Values.minecraft.name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.minecraft.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.minecraft.name }}
+    spec:
+      initContainers:
+        {{ tpl (toYaml .Values.minecraft.initContainers) . | nindent 8 }}
+      containers:
+        - name: minecraft
+          image: {{ .Values.minecraft.image }}:{{ .Values.minecraft.tag }}
+          ports:
+            - name: minecraft
+              containerPort: 25565
+            {{- range $name, $spec := .Values.minecraft.additionalServices }}
+            - name: {{ $name }}
+              containerPort: {{ $spec.port }}
+            {{- end }}
+          resources:
+            {{- toYaml .Values.minecraft.resources | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.minecraft.readinessProbe | nindent 12 }}
+          livenessProbe:
+            {{- toYaml .Values.minecraft.livenessProbe | nindent 12 }}
+          env:
+            {{- range $name, $value := .Values.minecraft.env }}
+            - name: {{ $name }}
+              value: {{ $value | quote }}
+            {{- end }}
+          {{- with .Values.minecraft.envFrom }}
+          envFrom:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - mountPath: /data
+              name: data
+            {{- with .Values.minecraft.additionalVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+      restartPolicy: Always
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: minecraft-data
+        {{- with .Values.minecraft.additionalVolumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
