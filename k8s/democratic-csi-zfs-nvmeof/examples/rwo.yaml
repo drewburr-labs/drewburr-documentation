@@ -40,3 +40,10 @@ spec:
       - name: pvc
         persistentVolumeClaim:
           claimName: example-rwo-pvc
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - topologyKey: kubernetes.io/hostname
+            labelSelector:
+              matchLabels:
+                app: example-rwo-deployment
