@@ -38,8 +38,8 @@ democratic-csi:
       controller-expand-secret:
 
   # if your cluster supports snapshots you may enable below
-  volumeSnapshotClasses: []
-  #- name: zfs-nvmeof
+  volumeSnapshotClasses:
+  - name: zfs-nvmeof
   #  secrets:
   #    snapshotter-secret:
 

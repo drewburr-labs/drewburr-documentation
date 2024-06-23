@@ -28,8 +28,8 @@ democratic-csi:
       controller-expand-secret:
 
   # if your cluster supports snapshots you may enable below
-  volumeSnapshotClasses: []
-  #- name: local-hostpath
+  volumeSnapshotClasses:
+  - name: local-hostpath
   #  secrets:
   #    snapshotter-secret:
 
