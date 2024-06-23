@@ -52,8 +52,8 @@ minecraft:
       https://github.com/sladkoff/minecraft-prometheus-exporter/releases/download/v3.1.0/minecraft-prometheus-exporter-3.1.0.jar
       https://mediafilez.forgecdn.net/files/5382/232/dead-chest-4.21.0.jar
       https://mediafilez.forgecdn.net/files/5382/326/spawner-silk-5.7.0.jar
-      https://mediafilez.forgecdn.net/files/5341/652/TreeFeller-1.23.1.jar
       https://mediafilez.forgecdn.net/files/4301/100/YetAnotherHarvest-1.1.jar
+    # https://mediafilez.forgecdn.net/files/5341/652/TreeFeller-1.23.1.jar
     # https://dev.bukkit.org/projects/customcrafting-advanced-custom-recipes
     # https://dev.bukkit.org/projects/dead-chest
     # https://dev.bukkit.org/projects/spawnersilk
