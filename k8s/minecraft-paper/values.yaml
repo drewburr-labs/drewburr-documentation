@@ -40,7 +40,7 @@ minecraft:
     MAX_MEMORY: 6G
     OVERRIDE_SERVER_PROPERTIES: "true"
     REMOVE_OLD_MODS: "true"
-    SPIGET_RESOURCES: "83557,81534,83767" #18494
+    SPIGET_RESOURCES: "83557,81534,83767,18494"
     # https://www.spigotmc.org/resources/bluemap.83557/
     # https://www.spigotmc.org/resources/chunky.81534/
     # https://www.spigotmc.org/resources/clicksort.27021/
@@ -57,9 +57,9 @@ minecraft:
     # https://dev.bukkit.org/projects/customcrafting-advanced-custom-recipes
     # https://dev.bukkit.org/projects/dead-chest
     # https://dev.bukkit.org/projects/spawnersilk
-    # https://dev.bukkit.org/projects/thizzyz-tree-feller
     # https://dev.bukkit.org/projects/wolfyutilities
     # https://dev.bukkit.org/projects/yetanotherharvest
+    # https://dev.bukkit.org/projects/thizzyz-tree-feller # Causes server crash (6/23/24)
     SERVER_NAME: "Central Station"
     VIEW_DISTANCE: "24"
     MAX_PLAYERS: "20"
