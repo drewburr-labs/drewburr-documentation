@@ -41,12 +41,12 @@ minecraft:
     OVERRIDE_SERVER_PROPERTIES: "true"
     SPIGET_RESOURCES: 83557,81534,27021,18494,83767,57242,91208
     CURSEFORGE_FILES: |
-      322882
-      322295
-      312445
-      504679
-      787822
-      504660
+      https://www.curseforge.com/minecraft/bukkit-plugins/customcrafting-advanced-custom-recipes/download/4655562
+      https://www.curseforge.com/minecraft/bukkit-plugins/dead-chest/download/5382232
+      https://www.curseforge.com/minecraft/bukkit-plugins/spawnersilk/download/5382326
+      https://www.curseforge.com/minecraft/bukkit-plugins/thizzyz-tree-feller/download/5341652
+      https://www.curseforge.com/minecraft/bukkit-plugins/wolfyutilities/download/4664168
+      https://www.curseforge.com/minecraft/bukkit-plugins/yetanotherharvest/download/4301100
     PLUGINS: |
       https://github.com/sladkoff/minecraft-prometheus-exporter/releases/download/v3.1.0/minecraft-prometheus-exporter-3.1.0.jar
     SERVER_NAME: "Central Station"
