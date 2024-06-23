@@ -75,3 +75,7 @@ applications:
     automated: {}
     syncOptions:
     - ApplyOutOfSyncOnly=true
+- name: dcsi-snapshot-controller
+  syncPolicy:
+    syncOptions:
+    - ApplyOutOfSyncOnly=true
