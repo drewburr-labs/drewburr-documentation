@@ -32,7 +32,7 @@ minecraft:
   env:
     EULA: "TRUE"
     VERSION: "1.21"
-    # PAPER_BUILD: "27"
+    PAPER_BUILD: "27"
     TZ: America/New_York
     TYPE: PAPER
     USE_AIKAR_FLAGS: "true"
