@@ -62,6 +62,7 @@ applications:
     - ApplyOutOfSyncOnly=true
 - name: minecraft-paper
   syncPolicy:
+    automated: {}
     syncOptions:
     - ApplyOutOfSyncOnly=true
 - name: evobot
