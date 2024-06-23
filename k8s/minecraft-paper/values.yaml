@@ -39,6 +39,15 @@ minecraft:
     INIT_MEMORY: 2G
     MAX_MEMORY: 6G
     OVERRIDE_SERVER_PROPERTIES: "true"
+    SPIGET_RESOURCES: 83557,81534,27021,55883,18494,83767,57242
+    CURSEFORGE_FILES: |
+      dead-chest
+      spawnersilk
+      thizzyz-tree-feller
+      wolfyutilities
+      yetanotherharvest
+    PLUGINS: |
+      https://github.com/sladkoff/minecraft-prometheus-exporter/releases/download/v3.1.0/minecraft-prometheus-exporter-3.1.0.jar
     SERVER_NAME: "Central Station"
     VIEW_DISTANCE: "24"
     MAX_PLAYERS: "20"
@@ -53,7 +62,9 @@ minecraft:
     # PLUGINS: |
     #   https://github.com/BlueMap-Minecraft/BlueMap/releases/download/v3.20/BlueMap-3.20-paper.jar
 
-  envFrom: {}
+  envFrom:
+  - secretRef:
+      name: curseforge-api-key
 
   persistence:
     name: minecraft-data
