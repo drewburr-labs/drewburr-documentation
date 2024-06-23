@@ -124,7 +124,7 @@ minecraft:
       command:
         - mc-health
     initialDelaySeconds: 30
-    failureThreshold: 24
+    failureThreshold: 36
     periodSeconds: 5
   livenessProbe:
     exec:
