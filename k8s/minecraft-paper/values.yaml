@@ -39,13 +39,14 @@ minecraft:
     INIT_MEMORY: 2G
     MAX_MEMORY: 6G
     OVERRIDE_SERVER_PROPERTIES: "true"
-    SPIGET_RESOURCES: 83557,81534,27021,55883,18494,83767,57242,91208
+    SPIGET_RESOURCES: 83557,81534,27021,18494,83767,57242,91208
     CURSEFORGE_FILES: |
       dead-chest
       spawnersilk
       thizzyz-tree-feller
       wolfyutilities
       yetanotherharvest
+      customcrafting-advanced-custom-recipes
     PLUGINS: |
       https://github.com/sladkoff/minecraft-prometheus-exporter/releases/download/v3.1.0/minecraft-prometheus-exporter-3.1.0.jar
     SERVER_NAME: "Central Station"
