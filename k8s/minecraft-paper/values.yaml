@@ -72,9 +72,9 @@ minecraft:
       args:
         - >-
           mkdir -p /data/plugins/BlueMap
-          cp -R /mnt/base/. /data/plugins/BlueMap &&
-          cp -R /mnt/maps /data/plugins/BlueMap &&
-          cp -R /mnt/storages /data/plugins/BlueMap
+          cp -r /mnt/base/. /data/plugins/BlueMap &&
+          cp -r /mnt/maps /data/plugins/BlueMap &&
+          cp -r /mnt/storages /data/plugins/BlueMap
       volumeMounts:
         - mountPath: /mnt/base
           name: config-base
