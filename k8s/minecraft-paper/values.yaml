@@ -40,7 +40,7 @@ minecraft:
     MAX_MEMORY: 6G
     OVERRIDE_SERVER_PROPERTIES: "true"
     REMOVE_OLD_MODS: "true"
-    # SPIGET_RESOURCES: 83557,81534,18494,83767
+    SPIGET_RESOURCES: "83557" #,81534,18494,83767
     # https://www.spigotmc.org/resources/bluemap.83557/
     # https://www.spigotmc.org/resources/chunky.81534/
     # https://www.spigotmc.org/resources/clicksort.27021/
