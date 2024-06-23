@@ -107,6 +107,7 @@ minecraft:
     exec:
       command:
         - mc-health
+    initialDelaySeconds: 60
     failureThreshold: 10
     periodSeconds: 5
 
