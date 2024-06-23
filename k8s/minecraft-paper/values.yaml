@@ -60,7 +60,7 @@ minecraft:
     path: /data
     resources:
       requests:
-        storage: 50Gi
+        storage: 100Gi
     accessModes:
       - ReadWriteOnce
     storageClass: zfs-nvmeof
