@@ -22,8 +22,9 @@ kube-prometheus-stack:
         matchLabels: null
 
       additionalArgs:
-      - externalLabels:
-        - cluster: k3s # TODO: Marking as cluster-specific
+      - name: externalLabels
+        value:
+          cluster: k3s # TODO: Marking as cluster-specific
 
       storageSpec:
         volumeClaimTemplate:
