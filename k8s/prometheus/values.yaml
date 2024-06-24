@@ -33,6 +33,10 @@ kube-prometheus-stack:
               requests:
                 storage: 50Gi
 
+      global:
+        external_labels:
+          cluster: "k3s"
+
       retention: 30d
 
       resources: {}
