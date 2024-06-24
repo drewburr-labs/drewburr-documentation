@@ -23,8 +23,7 @@ kube-prometheus-stack:
 
       additionalArgs:
       - name: externalLabels
-        value:
-          cluster: k3s # TODO: Marking as cluster-specific
+        value: "{cluster: k3s}" # TODO: Marking as cluster-specific
 
       storageSpec:
         volumeClaimTemplate:
