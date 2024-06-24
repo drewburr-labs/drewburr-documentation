@@ -21,6 +21,14 @@ kube-prometheus-stack:
       serviceMonitorSelector:
         matchLabels: null
 
+      storageSpec:
+        volumeClaimTemplate:
+          spec:
+            storageClassName: zfs-nvmeof
+            resources:
+              requests:
+                storage: 50Gi
+
   grafana:
     admin:
       existingSecret: "prometheus-grafana"
@@ -43,6 +51,8 @@ kube-prometheus-stack:
 
     persistence:
       enabled: true
+      storageClassName: zfs-nvmeof
+      size: 20Gi
 
     resources:
      limits:
