@@ -17,10 +17,7 @@ kube-prometheus-stack:
         - prometheus.drewburr.com
       pathType: ImplementationSpecific
 
-    server:
-      global:
-        external_labels:
-          cluster: "k3s"
+
 
     prometheusSpec:
       serviceMonitorSelector:
@@ -37,6 +34,9 @@ kube-prometheus-stack:
       retention: 30d
 
       resources: {}
+
+      externalLabels:
+        cluster: "k3s"
 
       additionalScrapeConfigs:
       - job_name: kube-etcd
