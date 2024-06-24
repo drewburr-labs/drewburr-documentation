@@ -17,6 +17,11 @@ kube-prometheus-stack:
         - prometheus.drewburr.com
       pathType: ImplementationSpecific
 
+    server:
+      global:
+        external_labels:
+          cluster: "k3s"
+
     prometheusSpec:
       serviceMonitorSelector:
         matchLabels: null
@@ -28,10 +33,6 @@ kube-prometheus-stack:
             resources:
               requests:
                 storage: 50Gi
-
-      global:
-        external_labels:
-          cluster: "k3s"
 
       retention: 30d
 
