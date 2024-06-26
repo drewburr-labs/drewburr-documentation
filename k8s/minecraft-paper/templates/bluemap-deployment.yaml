@@ -42,7 +42,7 @@ spec:
             claimName: bluemap-web
         - name: bluemap-config
           persistentVolumeClaim:
-            claimName: bluemap-config
+            claimName: bluemap-configs
         - name: minecraft-data
           persistentVolumeClaim:
             claimName: minecraft-data
