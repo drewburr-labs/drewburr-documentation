@@ -12,24 +12,6 @@ spec:
       labels:
         app: {{ .Values.bluemap.name }}
     spec:
-      initContainers:
-        - name: config-copy
-          image: {{ .Values.bluemap.image }}:{{ .Values.bluemap.tag }}
-          command: ['sh', '-c']
-          args:
-            - >-
-              cp -R /mnt/base/. /mnt/config &&
-              cp -R /mnt/maps /mnt/config &&
-              cp -R /mnt/storages /mnt/config
-          volumeMounts:
-            - mountPath: /mnt/config
-              name: bluemap-config
-            - mountPath: /mnt/base
-              name: config-base
-            - mountPath: /mnt/maps
-              name: config-maps
-            - mountPath: /mnt/storages
-              name: config-storages
       containers:
         - name: bluemap
           image: {{ .Values.bluemap.image }}:{{ .Values.bluemap.tag }}
@@ -46,10 +28,10 @@ spec:
               name: bluemap-data
             - mountPath: /app/web
               name: bluemap-web
-            - mountPath: /app/minecraft-data
-              name: minecraft-data
             - mountPath: /app/config
               name: bluemap-config
+            - mountPath: /app/minecraft-data
+              name: minecraft-data
       restartPolicy: Always
       volumes:
         - name: bluemap-data
@@ -59,16 +41,8 @@ spec:
           persistentVolumeClaim:
             claimName: bluemap-web
         - name: bluemap-config
-          emptyDir: {}
-        - name: config-base
-          configMap:
-            name: bluemap-config-base
-        - name: config-maps
-          configMap:
-            name: bluemap-config-maps
-        - name: config-storages
-          configMap:
-            name: bluemap-config-storages
+          persistentVolumeClaim:
+            claimName: bluemap-config
         - name: minecraft-data
           persistentVolumeClaim:
             claimName: minecraft-data
