@@ -2,4 +2,6 @@ snapshot-controller:
   fullnameOverride: snapshot-controller
 
   validatingWebhook:
-    enabled: true
+    # Unable to be configured
+    # https://github.com/democratic-csi/charts/issues/57
+    enabled: false
