@@ -86,36 +86,7 @@ minecraft:
       - ReadWriteOnce
     storageClass: zfs-nvmeof
 
-  initContainers:
-    - name: config-copy
-      image: "{{ .Values.bluemap.image }}:{{ .Values.bluemap.tag }}"
-      command: ['sh', '-c']
-      args:
-        - >-
-          mkdir -p /data/plugins/BlueMap &&
-          cp -r /mnt/base/. /data/plugins/BlueMap &&
-          cp -r /mnt/maps /data/plugins/BlueMap &&
-          cp -r /mnt/storages /data/plugins/BlueMap
-      volumeMounts:
-        - mountPath: /mnt/base
-          name: config-base
-        - mountPath: /mnt/maps
-          name: config-maps
-        - mountPath: /mnt/storages
-          name: config-storages
-        - mountPath: /data
-          name: data
-
-  additionalVolumes:
-    - name: config-base
-      configMap:
-        name: minecraft-bluemap-config-base
-    - name: config-maps
-      configMap:
-        name: minecraft-bluemap-config-maps
-    - name: config-storages
-      configMap:
-        name: minecraft-bluemap-config-storages
+  initContainers: []
 
   additionalVolumeMounts: {}
 

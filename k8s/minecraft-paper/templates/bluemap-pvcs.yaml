@@ -22,3 +22,15 @@ spec:
     requests:
       storage: 20Gi
   storageClassName: zfs-nvmeof
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: bluemap-configs
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi
+  storageClassName: zfs-nvmeof
