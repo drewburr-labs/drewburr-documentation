@@ -14,5 +14,6 @@ spec:
     matchNames:
     - {{ $.Release.Namespace }}
   selector:
-    {{- toYaml $.Values.labels | nindent 4 }}
+    matchLabels:
+      {{- toYaml $.Values.labels | nindent 6 }}
 {{- end }}
