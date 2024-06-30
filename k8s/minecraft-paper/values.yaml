@@ -34,7 +34,7 @@ minecraft:
     VERSION: "1.21"
     PAPER_CHANNEL: experimental
     TZ: America/New_York
-    PAPER_BUILD: "38"
+    # PAPER_BUILD: "38"
     TYPE: PAPER
     USE_AIKAR_FLAGS: "true"
     INIT_MEMORY: 2G
