@@ -9,8 +9,8 @@ metadata:
 spec:
   type: ExternalName
   ports:
-    - port: {{ $.Values.port | quote }}
-      targetPort: {{ $.Values.port | quote }}
+    - port: {{ $.Values.port }}
+      targetPort: {{ $.Values.port }}
       protocol: TCP
       name: http
   externalName: {{ .url | quote }}
