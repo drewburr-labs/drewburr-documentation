@@ -17,7 +17,6 @@ endpoint:
   port: http
   scheme: http
   scrapeTimeout: 30s
-path: /metrics
 port: 9100
 labels:
   app: proxmox-node-exporter
