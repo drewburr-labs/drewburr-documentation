@@ -21,7 +21,7 @@ metadata:
   labels:
     {{- toYaml $.Values.labels | nindent 4 }}
 subsets:
-  addresses:
+- addresses:
   - ip: {{ .ip }}
   ports:
   - name: http
