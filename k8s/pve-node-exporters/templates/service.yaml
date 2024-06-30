@@ -1,0 +1,17 @@
+{{- range .Values.endpoints }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .name | quote }}
+  labels:
+    {{- toYaml $.Values.labels | nindent 4 }}
+spec:
+  type: ExternalName
+  ports:
+    - port: {{ $.Values.port | quote }}
+      targetPort: {{ $.Values.port | quote }}
+      protocol: TCP
+      name: http
+  externalName: {{ .url | quote }}
+{{- end }}
