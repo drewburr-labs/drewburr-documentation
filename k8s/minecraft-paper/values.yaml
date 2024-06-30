@@ -26,7 +26,7 @@ minecraft:
       cpu: 1000m
       memory: 3Gi
     limits:
-      cpu: 4000m
+      cpu: 7000m
       memory: 8Gi
 
   env:
