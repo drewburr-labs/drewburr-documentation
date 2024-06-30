@@ -1,0 +1,17 @@
+{{- range .Values.endpoints }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ .name | quote }}
+  labels:
+    {{- toYaml $.Values.labels | nindent 4 }}
+spec:
+  endpoints:
+  {{- list $.Values.endpoint | toYaml | nindent 2 }}
+  namespaceSelector:
+    matchNames:
+    - {{ $.Release.Namespace }}
+  selector:
+    {{- toYaml $.Values.labels | nindent 4 }}
+{{- end }}

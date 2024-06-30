@@ -84,3 +84,8 @@ applications:
   syncPolicy:
     syncOptions:
     - ApplyOutOfSyncOnly=true
+- name: pve-node-exporters
+  syncPolicy:
+    automated: {}
+    syncOptions:
+    - ApplyOutOfSyncOnly=true

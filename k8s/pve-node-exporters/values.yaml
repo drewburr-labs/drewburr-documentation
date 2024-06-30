@@ -1,0 +1,23 @@
+---
+endpoints:
+- name: pve01
+  url: pve01.drewburr.com
+- name: pve02
+  url: pve02.drewburr.com
+- name: pve03
+  url: pve03.drewburr.com
+- name: pve04
+  url: pve04.drewburr.com
+- name: pve05
+  url: pve05.drewburr.com
+
+endpoint:
+  honorLabels: true
+  path: /metrics
+  port: http
+  scheme: http
+  scrapeTimeout: 30s
+path: /metrics
+port: 9100
+labels:
+  app: proxmox-node-exporter
