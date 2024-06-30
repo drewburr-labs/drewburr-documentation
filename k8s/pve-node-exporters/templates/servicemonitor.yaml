@@ -5,6 +5,7 @@ kind: ServiceMonitor
 metadata:
   name: {{ .name | quote }}
   labels:
+    release: prometheus
     {{- toYaml $.Values.labels | nindent 4 }}
 spec:
   endpoints:
