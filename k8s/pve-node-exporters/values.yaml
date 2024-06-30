@@ -1,15 +1,15 @@
 ---
 endpoints:
 - name: pve01
-  url: pve01.drewburr.com
+  url: 192.168.4.21
 - name: pve02
-  url: pve02.drewburr.com
+  url: 192.168.4.22
 - name: pve03
-  url: pve03.drewburr.com
+  url: 192.168.4.23
 - name: pve04
-  url: pve04.drewburr.com
+  url: 192.168.4.24
 - name: pve05
-  url: pve05.drewburr.com
+  url: 192.168.4.25
 
 endpoint:
   honorLabels: true
