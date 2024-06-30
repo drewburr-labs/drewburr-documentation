@@ -24,7 +24,7 @@ minecraft:
   resources:
     requests:
       cpu: 2
-      memory: 3Gi
+      memory: 14Gi
     limits:
       cpu: 8
       memory: 14Gi
