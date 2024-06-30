@@ -7,11 +7,12 @@ metadata:
   labels:
     {{- toYaml $.Values.labels | nindent 4 }}
 spec:
-  type: ExternalName
+  type: ClusterIP
   ports:
     - port: {{ $.Values.port }}
       targetPort: {{ $.Values.port }}
       protocol: TCP
       name: http
-  externalName: {{ .url | quote }}
+  externalIPs:
+  - {{ .ip | quote }}
 {{- end }}

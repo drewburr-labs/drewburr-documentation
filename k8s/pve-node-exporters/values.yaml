@@ -1,15 +1,15 @@
 ---
 endpoints:
 - name: pve01
-  url: 192.168.4.21
+  ip: 192.168.4.21
 - name: pve02
-  url: 192.168.4.22
+  ip: 192.168.4.22
 - name: pve03
-  url: 192.168.4.23
+  ip: 192.168.4.23
 - name: pve04
-  url: 192.168.4.24
+  ip: 192.168.4.24
 - name: pve05
-  url: 192.168.4.25
+  ip: 192.168.4.25
 
 endpoint:
   honorLabels: true
