@@ -13,6 +13,17 @@ spec:
       targetPort: {{ $.Values.port }}
       protocol: TCP
       name: http
-  externalIPs:
-  - {{ .ip | quote }}
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: {{ .name | quote }}
+  labels:
+    {{- toYaml $.Values.labels | nindent 4 }}
+subsets:
+  addresses:
+  - ip: {{ .ip }}
+  ports:
+  - name: http
+    port: 9100
 {{- end }}
