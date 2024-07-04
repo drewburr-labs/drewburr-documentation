@@ -17,7 +17,8 @@ spec:
   syncPolicy:
     {{- include "application.syncPolicy" . | nindent 4 }}
   ignoreDifferences:
-    - jsonPointers:
+    - kind: "*"
+      jsonPointers:
       - /metadata/labels/app.kubernetes.io~version
       - /metadata/labels/helm.sh~chart
     {{- include "application.ignoreDifferences" . | nindent 4 }}
