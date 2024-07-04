@@ -1,5 +1,6 @@
 ---
 kube-prometheus-stack:
+  fullnameOverride: kube-prometheus
   crds:
     enabled: false
 
