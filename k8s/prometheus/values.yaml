@@ -2,6 +2,7 @@
 kube-prometheus-stack:
   nameOverride: prometheus
   fullnameOverride: prometheus
+  cleanPrometheusOperatorObjectNames: true
   crds:
     enabled: false
 
@@ -25,6 +26,8 @@ kube-prometheus-stack:
 
       storageSpec:
         volumeClaimTemplate:
+          metadata:
+            name:
           spec:
             storageClassName: zfs-nvmeof
             resources:
