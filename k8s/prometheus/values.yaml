@@ -27,7 +27,7 @@ kube-prometheus-stack:
       storageSpec:
         volumeClaimTemplate:
           metadata:
-            name: prometheus
+            name: prometheus-db
           spec:
             storageClassName: zfs-nvmeof
             resources:
