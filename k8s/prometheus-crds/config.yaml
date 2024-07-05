@@ -1,0 +1,3 @@
+syncOptions:
+- ApplyOutOfSyncOnly=true
+- ServerSideApply=true
