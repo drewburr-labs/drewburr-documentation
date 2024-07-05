@@ -6,7 +6,7 @@ metadata:
   namespace: argocd
 spec:
   goTemplate: true
-  goTemplateOptions: ['missingkey=error']
+  goTemplateOptions: ['missingkey=invalid']
   generators:
   - git:
       repoURL: git@github.com:drewburr-labs/drewburr-documentation.git
