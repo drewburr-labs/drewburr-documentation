@@ -22,14 +22,14 @@ spec:
     metadata:
       name: '{{.path.basename}}'
     spec:
-      project: '{{dig ".values.defaultProject" ".project" .}}'
+      project: '{{default .values.defaultProject .project}}'
       source:
         path: '{{.path.path}}'
         repoURL: git@github.com:drewburr-labs/drewburr-documentation.git
         targetRevision: main
       destination:
-        server: '{{dig ".values.defaultServer" ".server" .}}'
-        namespace: '{{dig ".path.basename" ".namespace" .}}'
+        server: '{{default .values.defaultServer .server}}'
+        namespace: '{{default .path.basename .namespace}}'
   templatePatch: |
     spec:
       ignoreDifferences:
