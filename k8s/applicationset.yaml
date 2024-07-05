@@ -20,16 +20,16 @@ spec:
     preserveResourcesOnDeletion: true
   template:
     metadata:
-      name: '{{ .path.basename }}'
+      name: '{{.path.basename}}'
     spec:
-      project: '{{ default .values.defaultProject .project}}'
+      project: '{{dig ".values.defaultProject" ".project" .}}'
       source:
-        path: '{{ .path.path }}'
+        path: '{{.path.path}}'
         repoURL: git@github.com:drewburr-labs/drewburr-documentation.git
         targetRevision: main
       destination:
-        server: '{{ default .values.defaultServer .server }}'
-        namespace: '{{ default .path.basename .namespace }}'
+        server: '{{dig ".values.defaultServer" ".server" .}}'
+        namespace: '{{dig ".path.basename" ".namespace" .}}'
   templatePatch: |
     spec:
       ignoreDifferences:
