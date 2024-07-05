@@ -1,0 +1,50 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: drewburr-apps
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ['missingkey=error']
+  generators:
+  - git:
+      repoURL: git@github.com:drewburr-labs/drewburr-documentation.git
+      revision: main
+      files:
+        - path: k8s/**/config.yaml
+      values:
+        defaultProject: default
+        defaultServer: https://kubernetes.default.svc
+  syncPolicy:
+    preserveResourcesOnDeletion: true
+  template:
+    metadata:
+      name: '{{ .path.basename }}'
+    spec:
+      project: '{{ default .values.defaultProject .project}}'
+      source:
+        path: '{{ .path.path }}'
+        repoURL: git@github.com:drewburr-labs/drewburr-documentation.git
+        targetRevision: main
+      destination:
+        server: '{{ default .values.defaultServer .server }}'
+        namespace: '{{ default .path.basename .namespace }}'
+  templatePatch: |
+    spec:
+      ignoreDifferences:
+      - kind: "*"
+        group: "*"
+        jsonPointers:
+          - /metadata/labels/app.kubernetes.io~1version
+          - /metadata/labels/helm.sh~1chart
+          - /spec/template/metadata/labels/app.kubernetes.io~1version
+          - /spec/template/metadata/labels/helm.sh~1chart
+        {{- if .ignoreDifferences }}
+        {{ toYaml .ignoreDifferences | nindent 2 }}
+        {{- end }}
+      syncPolicy:
+        {{- if .syncOptions }}
+        syncOptions:
+          {{ toYaml .syncOptions }}'
+        {{- end }}
