@@ -31,6 +31,7 @@ minecraft:
     # Autopause settings
     MAX_TICK_TIME: "-1"
     ENABLE_AUTOPAUSE: "true"
+    AUTOPAUSE_KNOCK_INTERFACE: eth0
     JVM_DD_OPTS: disable.watchdog:true,paper.playerconnection.keepalive:60
     AUTOPAUSE_TIMEOUT_EST: "120"
     AUTOPAUSE_TIMEOUT_INIT: "60"
