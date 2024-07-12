@@ -1,5 +1,7 @@
 ---
 minecraft:
+  nameOverride: minecraft
+
   resources:
     requests:
       memory: 6Gi
