@@ -24,6 +24,11 @@ minecraft:
     serviceAnnotations:
       metallb.universe.tf/loadBalancerIPs: 192.168.4.52 # Ensure static IP
 
+    rcon:
+      enabled: true
+      existingSecret: rcon-auth
+      secretKey: rcon-password
+
   extraEnv:
     TZ: America/New_York
     USE_AIKAR_FLAGS: "true"
@@ -37,11 +42,6 @@ minecraft:
     AUTOPAUSE_TIMEOUT_EST: "120"
     AUTOPAUSE_TIMEOUT_INIT: "60"
     AUTOPAUSE_TIMEOUT_KN: "20"
-
-    rcon:
-      enabled: true
-      existingSecret: rcon-auth
-      secretKey: rcon-password
 
   persistence:
     storageClass: zfs-nvmeof
