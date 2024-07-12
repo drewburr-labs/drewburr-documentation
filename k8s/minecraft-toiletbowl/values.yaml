@@ -51,13 +51,14 @@ minecraft:
       accessModes:
         - ReadWriteOnce
 
-mcbackup:
-  enabled: true
+  mcbackup:
+    enabled: true
 
-  persistence:
-    storageClass: zfs-nvmeof
-    backupDir:
-      enabled: true
-      Size: 100Gi
-      accessModes:
-        - ReadWriteOnce
+    persistence:
+      existingClaim: false
+      storageClass: zfs-nvmeof
+      backupDir:
+        enabled: true
+        Size: 100Gi
+        accessModes:
+          - ReadWriteOnce
