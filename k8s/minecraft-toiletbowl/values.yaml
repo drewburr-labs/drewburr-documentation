@@ -1,0 +1,61 @@
+---
+minecraft:
+  resources:
+    requests:
+      memory: 6Gi
+      cpu: 1
+    limits:
+      memory: 6Gi
+      cpu: 4
+
+  minecraftServer:
+    eula: TRUE
+    motd: Welcome to the Toilet Bowl!
+    difficulty: easy
+    # A comma-separated list of player names who should be admins.
+    ops: drebwurr
+    maxWorldSize: 29999984
+    worldSaveName: lou
+    viewDistance: 14
+    overrideServerProperties: true
+
+    serviceType: LoadBalancer
+    serviceAnnotations:
+      metallb.universe.tf/loadBalancerIPs: 192.168.4.52 # Ensure static IP
+
+  extraEnv:
+    TZ: America/New_York
+    USE_AIKAR_FLAGS: "true"
+    INIT_MEMORY: 2G
+    MAX_MEMORY: 5G
+    # Autopause settings
+    MAX_TICK_TIME: "-1"
+    ENABLE_AUTOPAUSE: "true"
+    JVM_DD_OPTS: disable.watchdog:true,paper.playerconnection.keepalive:60
+    AUTOPAUSE_TIMEOUT_EST: "120"
+    AUTOPAUSE_TIMEOUT_INIT: "60"
+    AUTOPAUSE_TIMEOUT_KN: "20"
+
+  persistence:
+    storageClass: zfs-nvmeof
+    dataDir:
+      enabled: true
+      Size: 20Gi
+      accessModes:
+        - ReadWriteOnce
+
+  rcon:
+    enabled: true
+    existingSecret: rcon-auth
+    secretKey: rcon-password
+
+mcbackup:
+  enabled: true
+
+  persistence:
+    storageClass: zfs-nvmeof
+    backupDir:
+      enabled: true
+      Size: 100Gi
+      accessModes:
+        - ReadWriteOnce
