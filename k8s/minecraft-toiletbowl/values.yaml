@@ -38,6 +38,11 @@ minecraft:
     AUTOPAUSE_TIMEOUT_INIT: "60"
     AUTOPAUSE_TIMEOUT_KN: "20"
 
+    rcon:
+      enabled: true
+      existingSecret: rcon-auth
+      secretKey: rcon-password
+
   persistence:
     storageClass: zfs-nvmeof
     dataDir:
@@ -45,11 +50,6 @@ minecraft:
       Size: 20Gi
       accessModes:
         - ReadWriteOnce
-
-  rcon:
-    enabled: true
-    existingSecret: rcon-auth
-    secretKey: rcon-password
 
 mcbackup:
   enabled: true
