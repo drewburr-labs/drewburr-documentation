@@ -20,6 +20,7 @@ minecraft:
     overrideServerProperties: true
 
     serviceType: LoadBalancer
+    servicePort: 25570
     serviceAnnotations:
       metallb.universe.tf/loadBalancerIPs: 192.168.4.52 # Ensure static IP
 
