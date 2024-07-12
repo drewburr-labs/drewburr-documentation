@@ -13,7 +13,7 @@ minecraft:
     motd: Welcome to the Toilet Bowl!
     difficulty: easy
     # A comma-separated list of player names who should be admins.
-    ops: drebwurr
+    # ops: drebwurr
     maxWorldSize: 29999984
     worldSaveName: lou
     viewDistance: 14
