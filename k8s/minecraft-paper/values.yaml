@@ -24,10 +24,10 @@ minecraft:
   resources:
     requests:
       cpu: 2
-      memory: 14Gi
+      memory: 20Gi
     limits:
       cpu: 8
-      memory: 14Gi
+      memory: 20Gi
 
   env:
     EULA: "TRUE"
@@ -38,7 +38,7 @@ minecraft:
     TYPE: PAPER
     USE_AIKAR_FLAGS: "true"
     INIT_MEMORY: 2G
-    MAX_MEMORY: 12G
+    MAX_MEMORY: 16G
     OVERRIDE_SERVER_PROPERTIES: "true"
     REMOVE_OLD_MODS: "true"
     SPIGET_RESOURCES: "83557,81534,83767"
