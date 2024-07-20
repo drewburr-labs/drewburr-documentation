@@ -23,6 +23,7 @@ minecraft:
     servicePort: 25570
     serviceAnnotations:
       metallb.universe.tf/loadBalancerIPs: 192.168.4.52 # Ensure static IP
+      mc-router.itzg.me/externalServerName: toiletbowl.mc.drewburr.com
 
     rcon:
       enabled: true
