@@ -7,8 +7,9 @@ resources:
 - https://raw.githubusercontent.com/rancher/system-upgrade-controller/latest/manifests/clusterrolebinding.yaml
 - https://raw.githubusercontent.com/rancher/system-upgrade-controller/latest/manifests/system-upgrade-controller.yaml
 - resources/upgrade-plan.yaml
-patches:
+patchesStrategicMerge:
 - patches/fix-clusterrolebindings.yaml
+patches:
 - target:
     group: apps
     version: v1
