@@ -8,4 +8,4 @@ resources:
 - https://raw.githubusercontent.com/rancher/system-upgrade-controller/master/manifests/system-upgrade-controller.yaml
 - resources/upgrade-plan.yaml
 patchesStrategicMerge:
-- patches/fix-rolebinding.yaml
+- patches/fix-clusterrolebindings.yaml
