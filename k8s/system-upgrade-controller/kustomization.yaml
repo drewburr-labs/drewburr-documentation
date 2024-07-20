@@ -3,9 +3,16 @@ kind: Kustomization
 resources:
 # https://github.com/rancher/system-upgrade-controller/tree/master/manifests
 # https://github.com/kubernetes-sigs/kustomize/issues/119#issuecomment-2177235690
-- https://raw.githubusercontent.com/rancher/system-upgrade-controller/v0.13.4/manifests/clusterrole.yaml
-- https://raw.githubusercontent.com/rancher/system-upgrade-controller/v0.13.4/manifests/clusterrolebinding.yaml
-- https://raw.githubusercontent.com/rancher/system-upgrade-controller/v0.13.4/manifests/system-upgrade-controller.yaml
+- https://raw.githubusercontent.com/rancher/system-upgrade-controller/latest/manifests/clusterrole.yaml
+- https://raw.githubusercontent.com/rancher/system-upgrade-controller/latest/manifests/clusterrolebinding.yaml
+- https://raw.githubusercontent.com/rancher/system-upgrade-controller/latest/manifests/system-upgrade-controller.yaml
 - resources/upgrade-plan.yaml
 patchesStrategicMerge:
 - patches/fix-clusterrolebindings.yaml
+patchesJson6902:
+- target:
+    group: apps
+    version: v1
+    kind: Deployment
+    name: system-upgrade-controller
+  path: patches/system-upgrade-controller.yaml
