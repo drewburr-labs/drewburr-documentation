@@ -6,4 +6,6 @@ resources:
 - https://raw.githubusercontent.com/rancher/system-upgrade-controller/master/manifests/clusterrole.yaml
 - https://raw.githubusercontent.com/rancher/system-upgrade-controller/master/manifests/clusterrolebinding.yaml
 - https://raw.githubusercontent.com/rancher/system-upgrade-controller/master/manifests/system-upgrade-controller.yaml
-- ./upgrade-plan.yaml
+- resources/upgrade-plan.yaml
+patchesStrategicMerge:
+- patches/fix-rolebinding.yaml
