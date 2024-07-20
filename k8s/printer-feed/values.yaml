@@ -1,0 +1,29 @@
+---
+# Default values for printstream.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+service:
+  port: 8080
+  targetPort: 8080
+  externalName: k1c.drewburr.com
+
+ingress:
+  enabled: true
+  ingressClassName: traefik
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+    traefik.frontend.passHostHeader: "false"
+    traefik.ingress.kubernetes.io/redirect-regex: ^https://printstream.drewburr.com
+    traefik.ingress.kubernetes.io/redirect-replacement: http://k1c.drewburr.com/
+    traefik.ingress.kubernetes.io/redirect-permanent: "false"
+    traefik.ingress.kubernetes.io/router.middlewares: printstream-query-stream-add@kubernetescrd,printstream-query-stream-modify@kubernetescrd
+  hosts:
+    - host: printstream.drewburr.com
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls:
+  - secretName: printstream-tls
+    hosts:
+    - printstream.drewburr.com
