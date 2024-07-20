@@ -5,10 +5,10 @@ metadata:
   name: k3s-latest
   namespace: system-upgrade
   labels:
-    k3s-upgrade: v1.28.5
+    k3s-upgrade: v1.30.2
 spec:
   concurrency: 1
-  version: v1.28.5+k3s1
+  version: v1.30.2+k3s1
   nodeSelector:
     matchExpressions:
       - {key: k3s-upgrade, operator: Exists}
