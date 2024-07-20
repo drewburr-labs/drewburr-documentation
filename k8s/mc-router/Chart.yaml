@@ -1,0 +1,10 @@
+---
+apiVersion: v2
+name: mc-router
+description: A Helm chart for Kubernetes
+type: application
+version: 0.1.0
+dependencies:
+  - name: mc-router # https://github.com/itzg/minecraft-server-charts/tree/master/charts/mc-router
+    repository: https://itzg.github.io/minecraft-server-charts/
+    version: ^4.19.0
