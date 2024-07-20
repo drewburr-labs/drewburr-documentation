@@ -1,0 +1,46 @@
+mc-router:
+  replicaCount: 1
+
+  fullnameOverride: mc-router
+
+  securityContext:
+    capabilities:
+      drop:
+      - ALL
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    runAsUser: 1000
+
+  services:
+    minecraft:
+      type: LoadBalancer
+      port: 25565
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: 192.168.4.53 # Ensure static IP
+
+  resources:
+    limits:
+      cpu: 250m
+      memory: 100Mi
+    requests:
+      cpu: 100m
+      memory: 50Mi
+
+  minecraftRouter:
+    # "Wake up" any stopped Minecraft servers.
+    # This requires Minecraft servers to be kind: StatefulSet
+    autoScaleUp:
+      enabled: false
+
+    # Max number of connections to allow per second
+    connectionRateLimit: 1
+
+    metrics:
+      # Backend to use for metrics exposure/publishing: discard,expvar,influxdb
+      backend: expvar
+
+    # Simplify fully qualified SRV records for mapping
+    simplifySrv: false
+
+    # Send PROXY protocol to backend servers
+    useProxyProtocol: false
