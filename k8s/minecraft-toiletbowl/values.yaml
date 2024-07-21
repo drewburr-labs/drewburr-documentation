@@ -10,14 +10,17 @@ minecraft:
 
   minecraftServer:
     eula: TRUE
+    type: PAPER
+    version: LATEST
+    overrideServerProperties: true
     motd: Welcome to the Toilet Bowl!
     difficulty: easy
     # A comma-separated list of player names who should be admins.
     # ops: drebwurr
     maxWorldSize: 29999984
     worldSaveName: lou
+    maxPlayers: 20
     viewDistance: 14
-    overrideServerProperties: true
 
     rcon:
       enabled: true
@@ -32,6 +35,8 @@ minecraft:
     USE_AIKAR_FLAGS: "true"
     INIT_MEMORY: 2G
     MAX_MEMORY: 5G
+    PLAYER_IDLE_TIMEOUT: "30"
+    USES_PROXY_PROTOCOL: "true"
     # Autopause settings
     MAX_TICK_TIME: "-1"
     ENABLE_AUTOPAUSE: "true"
@@ -51,7 +56,6 @@ minecraft:
 
   mcbackup:
     enabled: true
-
     persistence:
       existingClaim: false
       storageClass: zfs-nvmeof
