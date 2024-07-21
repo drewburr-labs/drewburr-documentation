@@ -6,11 +6,10 @@ minecraft:
 
   service:
     annotations:
-      metallb.universe.tf/loadBalancerIPs: 192.168.4.51 # Ensure static IP
       mc-router.itzg.me/externalServerName: centralstation.mc.drewburr.com
     labels: {}
     port: 25569
-    type: LoadBalancer
+    type: ClusterIP
 
   additionalServices:
     minecraft-http:
