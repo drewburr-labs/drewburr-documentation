@@ -46,6 +46,28 @@ minecraft:
     AUTOPAUSE_TIMEOUT_INIT: "60"
     AUTOPAUSE_TIMEOUT_KN: "20"
 
+  readinessProbe:
+    command:
+      - mc-monitor
+      - status
+      - -use-proxy
+    initialDelaySeconds: 30
+    periodSeconds: 5
+    failureThreshold: 20
+    successThreshold: 1
+    timeoutSeconds: 1
+
+  livenessProbe:
+    command:
+      - mc-monitor
+      - status
+      - -use-proxy
+    initialDelaySeconds: 30
+    periodSeconds: 5
+    failureThreshold: 20
+    successThreshold: 1
+    timeoutSeconds: 1
+
   persistence:
     storageClass: zfs-nvmeof
     dataDir:
