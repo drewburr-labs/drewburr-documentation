@@ -43,4 +43,4 @@ mc-router:
     simplifySrv: false
 
     # Send PROXY protocol to backend servers
-    useProxyProtocol: false
+    useProxyProtocol: true
