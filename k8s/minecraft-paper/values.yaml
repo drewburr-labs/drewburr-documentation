@@ -32,8 +32,8 @@ minecraft:
   env:
     EULA: "TRUE"
     VERSION: "1.21"
-    PAPER_CHANNEL: experimental
     TZ: America/New_York
+    # PAPER_CHANNEL: experimental
     # PAPER_BUILD: "38"
     TYPE: PAPER
     USE_AIKAR_FLAGS: "true"
