@@ -69,6 +69,7 @@ minecraft:
     PLAYER_IDLE_TIMEOUT: "30"
     MOTD: "Glory to the beans hole\nView the map at http://map.drewburr.com"
     MAX_TICK_TIME: "-1"
+    USES_PROXY_PROTOCOL: "true"
     ENABLE_AUTOPAUSE: "false"
     JVM_DD_OPTS: disable.watchdog:true,paper.playerconnection.keepalive:60
     AUTOPAUSE_TIMEOUT_EST: "120"
