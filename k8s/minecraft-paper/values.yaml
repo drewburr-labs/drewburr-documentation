@@ -96,16 +96,10 @@ minecraft:
   additionalVolumeMounts: {}
 
   readinessProbe:
-    exec:
-      command:
-        - mc-health
     initialDelaySeconds: 30
     failureThreshold: 36
     periodSeconds: 5
   livenessProbe:
-    exec:
-      command:
-        - mc-health
     failureThreshold: 10
     periodSeconds: 5
 
