@@ -608,36 +608,7 @@
           },
           "unit": "amp"
         },
-        "overrides": [
-          {
-            "__systemRef": "hideSeriesFrom",
-            "matcher": {
-              "id": "byNames",
-              "options": {
-                "mode": "exclude",
-                "names": [
-                  "Outlet 6",
-                  "pve01",
-                  "pve02",
-                  "pve04",
-                  "pve03"
-                ],
-                "prefix": "All except:",
-                "readOnly": true
-              }
-            },
-            "properties": [
-              {
-                "id": "custom.hideFrom",
-                "value": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": true
-                }
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
         "h": 11,
@@ -919,14 +890,14 @@
     ]
   },
   "time": {
-    "from": "2024-08-10T18:21:52.624Z",
-    "to": "2024-08-11T02:32:01.075Z"
+    "from": "now-6h",
+    "to": "now"
   },
   "timeRangeUpdatedDuringEditOrView": false,
   "timepicker": {},
   "timezone": "browser",
   "title": "Geist PDU Usage Overview",
   "uid": "ddugii24e0poge",
-  "version": 2,
+  "version": 3,
   "weekStart": ""
 }
