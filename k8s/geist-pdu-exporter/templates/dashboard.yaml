@@ -6,4 +6,4 @@ metadata:
     grafana_dashboard: "1"
 data:
   geist-pdu-grafana-dashboard.json: |
-    {{ .Files.Get "geist-pdu-grafana-dashboard.json"  | nindent 4 }
+    {{ .Files.Get "geist-pdu-grafana-dashboard.json"  | nindent 4 }}
