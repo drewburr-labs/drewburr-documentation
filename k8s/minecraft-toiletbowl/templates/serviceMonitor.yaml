@@ -15,6 +15,7 @@ spec:
     matchNames:
     - {{ $.Release.Namespace }}
   selector:
-    {{- toYaml .selector | nindent 4 }}
+    matchLabels:
+      app: {{ $.Release.Name }}-minecraft-metrics
 {{- end }}
 {{- end }}
