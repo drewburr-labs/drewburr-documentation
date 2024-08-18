@@ -56,6 +56,7 @@ minecraft:
             service: metrics
           type: ClusterIP
           port: 9940
+        ingress: {}
 
   serviceAnnotations:
     mc-router.itzg.me/externalServerName: toiletbowl.mc.drewburr.com
