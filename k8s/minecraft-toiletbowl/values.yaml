@@ -27,6 +27,36 @@ minecraft:
       existingSecret: rcon-auth
       secretKey: rcon-password
 
+    extraPorts:
+      - name: map
+        containerPort: 8100
+        protocol: TCP
+        service:
+          enabled: true
+          type: ClusterIP
+          port: 8100
+        ingress:
+          ingressClassName: traefik
+          enabled: true
+          annotations:
+            cert-manager.io/cluster-issuer: letsencrypt
+          hosts:
+            - name: toiletbowl.map.drewburr.com
+              path: /
+          tls:
+            - secretName: map-tls
+              hosts:
+                - toiletbowl.map.drewburr.com
+      - name: metrics
+        containerPort: 9940
+        protocol: TCP
+        service:
+          enabled: true
+          annotations:
+            service: metrics
+          type: ClusterIP
+          port: 9940
+
   serviceAnnotations:
     mc-router.itzg.me/externalServerName: toiletbowl.mc.drewburr.com
 
@@ -45,6 +75,15 @@ minecraft:
     AUTOPAUSE_TIMEOUT_EST: "120"
     AUTOPAUSE_TIMEOUT_INIT: "60"
     AUTOPAUSE_TIMEOUT_KN: "20"
+    # Plugins
+    REMOVE_OLD_MODS: "true"
+    SPIGET_RESOURCES: "83557,81534"
+    # https://www.spigotmc.org/resources/bluemap.83557/
+    # https://www.spigotmc.org/resources/chunky.81534/
+    PLUGINS: |
+      https://github.com/BlueMap-Minecraft/BlueMap/releases/download/v5.3/BlueMap-5.3-paper.jar
+      https://github.com/sladkoff/minecraft-prometheus-exporter/releases/download/v3.1.0/minecraft-prometheus-exporter-3.1.0.jar
+      https://snapshot.discordsrv.com/discordsrv.jar
 
   readinessProbe:
     command:
@@ -86,3 +125,14 @@ minecraft:
         Size: 100Gi
         accessModes:
           - ReadWriteOnce
+
+serviceMonitor:
+  enabled: true
+  endpoints:
+  - honorLabels: true
+    path: /metrics
+    port: metrics
+    scheme: http
+    scrapeTimeout: 30s
+  selector:
+    service: metrics
