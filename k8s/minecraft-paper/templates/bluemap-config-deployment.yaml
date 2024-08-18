@@ -22,10 +22,10 @@ spec:
           resources:
             requests:
               cpu: 10m
-              memory: 100m
+              memory: 10Mi
             limits:
               cpu: 100m
-              memory: 250m
+              memory: 100Mi
           volumeMounts:
             - mountPath: /app/data
               name: bluemap-data
