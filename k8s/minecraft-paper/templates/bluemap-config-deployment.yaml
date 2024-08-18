@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: config
-          image: {{ .Values.bluemap.image }}:{{ .Values.bluemap.tag }}
+          image: ubuntu
           command:
             - tail
             - -f
