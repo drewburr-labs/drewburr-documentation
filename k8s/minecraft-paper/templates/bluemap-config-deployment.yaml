@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: config
-          image: ubuntu
+          image: alpine
           command:
             - tail
             - -f
