@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.bluemap.name }}-config
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.bluemap.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.bluemap.name }}
+    spec:
+      containers:
+        - name: config
+          image: {{ .Values.bluemap.image }}:{{ .Values.bluemap.tag }}
+          command:
+            - tail
+            - -f
+            - /dev/null
+          resources:
+            requests:
+              cpu: 10m
+              memory: 10m
+            limits:
+              cpu: 100m
+              memory: 100m
+          volumeMounts:
+            - mountPath: /app/data
+              name: bluemap-data
+            - mountPath: /app/web
+              name: bluemap-web
+            - mountPath: /app/config
+              name: bluemap-config
+            - mountPath: /app/minecraft-data
+              name: minecraft-data
+      restartPolicy: Always
+      volumes:
+        - name: bluemap-data
+          persistentVolumeClaim:
+            claimName: bluemap-data
+        - name: bluemap-web
+          persistentVolumeClaim:
+            claimName: bluemap-web
+        - name: bluemap-config
+          persistentVolumeClaim:
+            claimName: bluemap-configs
+        - name: minecraft-data
+          persistentVolumeClaim:
+            claimName: minecraft-data
