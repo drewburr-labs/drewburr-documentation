@@ -133,3 +133,8 @@ serviceMonitor:
     port: metrics
     scheme: http
     scrapeTimeout: 30s
+    relabelings:
+    - action: replace
+      regex: .*
+      replacement: toiletbowl
+      targetLabel: server_name
