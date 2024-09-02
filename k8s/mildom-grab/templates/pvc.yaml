@@ -1,11 +1,13 @@
+{{- if .Values.persistence.unified }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: mildom-grab-{{ .Values.persistence.name }}
+  name: grab-data
 spec:
   accessModes:
     {{ toYaml .Values.persistence.accessModes | nindent 4 }}
   resources:
     {{ toYaml .Values.persistence.resources | nindent 4 }}
   storageClassName: {{ .Values.persistence.storageClass }}
+{{- end }}

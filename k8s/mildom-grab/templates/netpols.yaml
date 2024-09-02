@@ -6,7 +6,7 @@ metadata:
 spec:
   podSelector:
     matchLabels:
-      app: mildom-grab
+      app: archiveteam-grab
   policyTypes:
     - Ingress
 ---
@@ -17,7 +17,7 @@ metadata:
 spec:
   podSelector:
     matchLabels:
-      app: mildom-grab
+      app: archiveteam-grab
   policyTypes:
     - Egress
   egress:

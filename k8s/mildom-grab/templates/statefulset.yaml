@@ -1,22 +1,22 @@
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
-  name: mildom-grab
+  name: archiveteam-grab
   labels:
-    app: mildom-grab
+    app: archiveteam-grab
 spec:
   replicas: {{ .Values.replicas }}
   selector:
     matchLabels:
-      app: mildom-grab
+      app: archiveteam-grab
   template:
     metadata:
       labels:
-        app: mildom-grab
+        app: archiveteam-grab
     spec:
       containers:
-        - name: mildom-grab
+        - name: archiveteam-grab
           image: {{ .Values.image }}
           args:
             - '--concurrent'
@@ -28,7 +28,7 @@ spec:
           securityContext:
             allowPrivilegeEscalation: false
           volumeMounts:
-            - name: cache-volume
+            - name: grab-data
               mountPath: /grab/data
           imagePullPolicy: Always
       securityContext:
@@ -36,7 +36,20 @@ spec:
         runAsGroup: 2000
         fsGroup: 2000
       terminationGracePeriodSeconds: 300
+      {{- if .Values.persistence.unified }}
       volumes:
-        - name: cache-volume
+        - name: grab-data
           persistentVolumeClaim:
-            claimName: mildom-grab-{{ .Values.persistence.name }}
+            claimName: grab-data
+      {{- end }}
+  {{- if not .Values.persistence.unified }}
+  volumeClaimTemplates:
+  - metadata:
+      name: grab-data
+    spec:
+      accessModes:
+        {{ toYaml .Values.persistence.accessModes | nindent 4 }}
+      resources:
+        {{ toYaml .Values.persistence.resources | nindent 4 }}
+      storageClassName: {{ .Values.persistence.storageClass }}
+  {{- end }}
