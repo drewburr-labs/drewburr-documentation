@@ -35,10 +35,10 @@ spec:
         - name: copy-grab
           image: {{ .Values.image }}
           command:
-            - cp
-            - -R
-            - /grab/*
-            - /pvc
+          - sh
+          - -c
+          args:
+          - "cp -R /grab/* /pvc"
           volumeMounts:
             - name: grab-data
               mountPath: /pvc
