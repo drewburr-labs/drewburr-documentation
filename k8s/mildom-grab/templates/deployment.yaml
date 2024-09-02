@@ -17,12 +17,12 @@ spec:
     spec:
       containers:
         - name: mildom-grab
-          image: atdr.meo.ws/archiveteam/mildom-grab
+          image: {{ .Values.image }}
           args:
             - '--concurrent'
-            - {{ .Values.mildomGrab.concurrency | quote }}
+            - {{ .Values.grabArgs.concurrency | quote }}
             - '--disable-web-server'
-            - {{ .Values.mildomGrab.username | quote }}
+            - {{ .Values.grabArgs.username | quote }}
           resources:
             {{ toYaml .Values.resources | nindent 12 }}
           securityContext:
