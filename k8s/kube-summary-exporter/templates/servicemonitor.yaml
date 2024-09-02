@@ -1,0 +1,33 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: kube-summary-exporter
+  labels:
+    release: prometheus
+spec:
+  endpoints:
+  - honorLabels: true
+    path: /metrics
+    port: 9779
+    scheme: http
+    scrapeTimeout: 30s
+    relabelings:
+    - action: labelmap
+      regex: __meta_kubernetes_node_label_(.+)
+    - source_labels: [__meta_kubernetes_node_name]
+      regex: (.+)
+      target_label: __metrics_path__
+      replacement: /node/${1}
+    - target_label: __address__
+      replacement: kube-summary-exporter:9779
+  namespaceSelector:
+    matchNames:
+    - {{ .Release.Namespace }}
+  selector:
+    matchLabels:
+      name: kube-summary-exporter
+
+
+# Scrape config for the Summary API exporter.
+# This assumes that the exporter is available at kube-summary-exporter:9779
