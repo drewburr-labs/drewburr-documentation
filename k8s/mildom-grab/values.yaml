@@ -27,6 +27,9 @@ persistence:
   # By default, each pod will receive its own PVC.
   # If `unified: true`, all pods will share one PVC.
   unified: false
+  # To prevent ephemeralStorage issues, encapsulate the workDir in the PVC
+  encapsulateWorkdir: true
+
   storageClass: zfs-nvmeof
   resources:
     requests:
