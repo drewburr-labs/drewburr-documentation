@@ -26,6 +26,6 @@ persistence:
   storageClass: zfs-nvmeof
   resources:
     requests:
-      storage: 3Ti
+      storage: 100Gi
   accessModes:
     - ReadWriteOnce
