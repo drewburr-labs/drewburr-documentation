@@ -1,0 +1,36 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mildom-grab
+  labels:
+    app: mildom-grab
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      app: mildom-grab
+  template:
+    metadata:
+      labels:
+        app: mildom-grab
+    spec:
+      containers:
+        - name: mildom-grab
+          image: atdr.meo.ws/archiveteam/mildom-grab
+          args:
+            - '--concurrent'
+            - {{ .Values.mildomGrab.concurrency | quote }}
+            - '--disable-web-server'
+            - {{ .Values.mildomGrab.username | quote }}
+          resources:
+            {{ toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: cache-volume
+              mountPath: /grab/data
+          imagePullPolicy: Always
+      terminationGracePeriodSeconds: 300
+      volumes:
+        - name: cache-volume
+          persistentVolumeClaim:
+            claimName: mildom-grab-{{ .Values.persistence.name }}

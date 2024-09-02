@@ -1,0 +1,23 @@
+---
+replicas: 1
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 2Gi
+  requests:
+    cpu: 100m
+    memory: 512Mi
+
+mildomGrab:
+  username: drewburr
+  concurrency: '10'
+
+persistence:
+  name: cache-volume
+  storageClass: zfs-nvmeof
+  resources:
+    requests:
+      storage: 1Ti
+  accessModes:
+    - ReadWriteOnce
