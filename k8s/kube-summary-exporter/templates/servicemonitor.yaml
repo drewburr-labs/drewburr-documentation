@@ -13,14 +13,13 @@ spec:
     scheme: http
     scrapeTimeout: 30s
     relabelings:
-    - action: labelmap
-      regex: __meta_kubernetes_node_label_(.+)
-    - source_labels: [__meta_kubernetes_node_name]
-      regex: (.+)
-      target_label: __metrics_path__
-      replacement: /node/${1}
-    - target_label: __address__
-      replacement: kube-summary-exporter:9779
+      - action: labelmap
+        regex: __meta_kubernetes_node_label_(.+)
+      - action: replace
+        regex: (.+)
+        replacement: /node/${1}
+      - action: replace
+        replacement: kube-summary-exporter:9779
   namespaceSelector:
     matchNames:
     - {{ .Release.Namespace }}
