@@ -5,7 +5,7 @@
 
 image: atdr.meo.ws/archiveteam/mildom-grab
 
-replicas: 9
+replicas: 30
 
 resources:
   limits:
