@@ -21,7 +21,6 @@ spec:
           args:
             - '--concurrent'
             - {{ .Values.grabArgs.concurrency | quote }}
-            - '--disable-web-server'
             - {{ .Values.grabArgs.username | quote }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
