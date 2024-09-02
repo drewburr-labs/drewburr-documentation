@@ -6,8 +6,8 @@ metadata:
   name: grab-data
 spec:
   accessModes:
-    {{ toYaml .Values.persistence.accessModes | nindent 4 }}
+    {{- toYaml .Values.persistence.accessModes | nindent 4 }}
   resources:
-    {{ toYaml .Values.persistence.resources | nindent 4 }}
+    {{- toYaml .Values.persistence.resources | nindent 4 }}
   storageClassName: {{ .Values.persistence.storageClass }}
 {{- end }}

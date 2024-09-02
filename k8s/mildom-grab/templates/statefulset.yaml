@@ -24,7 +24,7 @@ spec:
             - '--disable-web-server'
             - {{ .Values.grabArgs.username | quote }}
           resources:
-            {{ toYaml .Values.resources | nindent 12 }}
+            {{- toYaml .Values.resources | nindent 12 }}
           securityContext:
             allowPrivilegeEscalation: false
           volumeMounts:
@@ -48,8 +48,8 @@ spec:
       name: grab-data
     spec:
       accessModes:
-        {{ toYaml .Values.persistence.accessModes | nindent 4 }}
+        {{- toYaml .Values.persistence.accessModes | nindent 8 }}
       resources:
-        {{ toYaml .Values.persistence.resources | nindent 4 }}
+        {{- toYaml .Values.persistence.resources | nindent 8 }}
       storageClassName: {{ .Values.persistence.storageClass }}
   {{- end }}
