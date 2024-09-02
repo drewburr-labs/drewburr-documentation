@@ -19,9 +19,7 @@ resources:
 # SIGINT is preferrable, but not supported.
 terminationGracePeriodSeconds: 3600
 
-updateStrategy:
-  rollingUpdate:
-    maxUnavailable: 100%
+podManagementPolicy: parallel
 
 grabArgs:
   concurrency: '1'
