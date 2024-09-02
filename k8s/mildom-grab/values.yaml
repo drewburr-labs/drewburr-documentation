@@ -16,7 +16,7 @@ resources:
     memory: 512Mi
 
 # See: https://wiki.archiveteam.org/index.php/Running_Archive_Team_Projects_with_Docker#Stopping_containers
-# SIGINTis preferrable, but not supported.
+# SIGINT is preferrable, but not supported.
 terminationGracePeriodSeconds: 3600
 
 updateStrategy:
