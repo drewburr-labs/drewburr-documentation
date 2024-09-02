@@ -55,6 +55,8 @@ spec:
           persistentVolumeClaim:
             claimName: grab-data
       {{- end }}
+  updateStrategy:
+    {{- toYaml .Values.updateStrategy | nindent 4 }}
   {{- if not .Values.persistence.unified }}
   volumeClaimTemplates:
   - metadata:
