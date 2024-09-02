@@ -27,7 +27,7 @@ spec:
         - operator: Exists
       containers:
         - name: app
-          image: kubelet-summary-exporter/exporter
+          image: ghcr.io/salesforce/kubelet-summary-exporter:0.2
           resources:
             limits:
               memory: 50Mi
