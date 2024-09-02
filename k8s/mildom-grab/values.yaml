@@ -1,5 +1,6 @@
 ---
-# name defaults to the name of the image beliw (e.g. mildom-grab)
+# name defaults to "archiveteam-grab"
+# TODO: Parse the image name to generate a default name
 # nameOverride:
 
 image: atdr.meo.ws/archiveteam/mildom-grab
@@ -19,7 +20,9 @@ grabArgs:
   concurrency: '10'
 
 persistence:
-  name: cache-volume
+  # By default, each pod will receive its own PVC.
+  # If `unified: true`, all pods will share one PVC.
+  unified: false
   storageClass: zfs-nvmeof
   resources:
     requests:
