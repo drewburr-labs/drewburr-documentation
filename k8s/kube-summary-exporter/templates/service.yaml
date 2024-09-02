@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kubelet-summary-exporter
+  labels:
+    name: kubelet-summary-exporter
+spec:
+  ports:
+  - name: metrics
+    port: 9091
+    protocol: TCP
+    targetPort: 9091
+  selector:
+    name: kubelet-summary-exporter
+  type: ClusterIP
