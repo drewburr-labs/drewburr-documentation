@@ -18,7 +18,6 @@
     "editable": true,
     "fiscalYearStartMonth": 0,
     "graphTooltip": 0,
-    "id": 195,
     "links": [],
     "panels": [
       {
@@ -39,7 +38,7 @@
               "axisPlacement": "auto",
               "barAlignment": 0,
               "drawStyle": "line",
-              "fillOpacity": 10,
+              "fillOpacity": 0,
               "gradientMode": "none",
               "hideFrom": {
                 "legend": false,
@@ -260,6 +259,6 @@
     "timezone": "utc",
     "title": "Kubernetes / Ephemeral Storage / Namespace (Pods)",
     "uid": "adwpouz0lr9xcb",
-    "version": 1,
+    "version": 2,
     "weekStart": ""
   }
