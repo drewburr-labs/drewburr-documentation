@@ -1,15 +1,20 @@
 ---
+# name defaults to the name of the image beliw (e.g. mildom-grab)
+# nameOverride:
+
+image: atdr.meo.ws/archiveteam/mildom-grab
+
 replicas: 9
 
 resources:
   limits:
-    cpu: 500m
+    cpu: 2
     memory: 2Gi
   requests:
-    cpu: 100m
+    cpu: 250m
     memory: 512Mi
 
-mildomGrab:
+grabArgs:
   username: drewburr
   concurrency: '10'
 
