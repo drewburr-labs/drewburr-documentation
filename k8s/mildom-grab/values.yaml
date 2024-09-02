@@ -20,8 +20,8 @@ resources:
 terminationGracePeriodSeconds: 3600
 
 grabArgs:
+  concurrency: '1'
   username: drewburr
-  concurrency: '10'
 
 persistence:
   # By default, each pod will receive its own PVC.
