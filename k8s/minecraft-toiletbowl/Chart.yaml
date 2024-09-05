@@ -6,4 +6,4 @@ version: 0.1.0
 dependencies:
   - name: minecraft # https://github.com/itzg/minecraft-server-charts/tree/master/charts/minecraft
     repository: https://itzg.github.io/minecraft-server-charts/
-    version: ^4.19.0
+    version: ^4.22.1
