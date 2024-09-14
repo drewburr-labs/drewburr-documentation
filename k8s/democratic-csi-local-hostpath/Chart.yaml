@@ -1,9 +1,0 @@
-apiVersion: v2
-name: democratic-csi
-description: A Helm chart for Kubernetes
-type: application
-version: 0.1.0
-dependencies:
-  - name: democratic-csi # https://github.com/democratic-csi/charts
-    version: ^0.14.4
-    repository: https://democratic-csi.github.io/charts/
