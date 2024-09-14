@@ -7,4 +7,4 @@ version: 0.1.0
 dependencies:
   - name: metallb # https://github.com/metallb/metallb/tree/main/charts/metallb
     repository: https://metallb.github.io/metallb
-    version: ^0.14.3
+    version: ^0.14.8
