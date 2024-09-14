@@ -115,3 +115,15 @@ kube-prometheus-stack:
     serviceMonitor:
       resource: true
       resource_path: /metrics/resource
+
+  ## Component scraping etcd
+  ##
+  kubeEtcd:
+    enabled: true
+
+    ## If your etcd is not deployed as a pod, specify IPs it can be found on
+    ##
+    endpoints:
+    - 192.168.4.41
+    - 192.168.4.42
+    - 192.168.4.43
