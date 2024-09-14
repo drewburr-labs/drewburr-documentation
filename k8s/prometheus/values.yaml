@@ -13,11 +13,11 @@ kube-prometheus-stack:
         cert-manager.io/cluster-issuer: letsencrypt
       ingressClassName: traefik
       hosts:
-      - prometheus.drewburr.com
-      tls:
-      - secretName: prometheus-tls
-        hosts:
         - prometheus.drewburr.com
+      tls:
+        - secretName: prometheus-tls
+          hosts:
+            - prometheus.drewburr.com
       pathType: ImplementationSpecific
 
     prometheusSpec:
@@ -39,7 +39,7 @@ kube-prometheus-stack:
       resources: {}
 
       externalLabels:
-        cluster: "k3s"
+        cluster: 'k3s'
 
     #   additionalScrapeConfigs:
     #   - job_name: kube-etcd
@@ -80,7 +80,7 @@ kube-prometheus-stack:
 
   grafana:
     admin:
-      existingSecret: "prometheus-grafana"
+      existingSecret: 'prometheus-grafana'
 
     # https://grafana.com/docs/grafana/latest/setup-grafana/configure-grafana/#override-configuration-with-environment-variables
     env:
@@ -92,11 +92,11 @@ kube-prometheus-stack:
         cert-manager.io/cluster-issuer: letsencrypt
       ingressClassName: traefik
       hosts:
-      - grafana.drewburr.com
-      tls:
-      - secretName: grafana-tls
-        hosts:
         - grafana.drewburr.com
+      tls:
+        - secretName: grafana-tls
+          hosts:
+            - grafana.drewburr.com
 
     persistence:
       enabled: true
@@ -104,9 +104,9 @@ kube-prometheus-stack:
       size: 20Gi
 
     resources:
-     limits:
-       cpu: 1000m
-       memory: 1Gi
+      limits:
+        cpu: 1000m
+        memory: 1Gi
     #  requests:
     #    cpu: 100m
     #    memory: 128Mi
@@ -124,6 +124,6 @@ kube-prometheus-stack:
     ## If your etcd is not deployed as a pod, specify IPs it can be found on
     ##
     endpoints:
-    - 192.168.4.41
-    - 192.168.4.42
-    - 192.168.4.43
+      - 192.168.4.41
+      - 192.168.4.42
+      - 192.168.4.43
