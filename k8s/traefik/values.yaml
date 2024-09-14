@@ -27,7 +27,8 @@ traefik:
       service:
         enabled: true # Enable dedicated Prometheus metrics service
 
-      serviceMonitor: # Setup default ServiceMonitor
+      serviceMonitor:
+        enabled: true
         metricRelabelings:
           - sourceLabels: [__name__]
             separator: ;
