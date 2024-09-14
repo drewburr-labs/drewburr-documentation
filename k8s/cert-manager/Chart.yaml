@@ -5,6 +5,6 @@ type: application
 version: 0.1.0
 dependencies:
   - name: cert-manager # https://cert-manager.io/docs/installation/helm/
-    version: ^1.13.0
+    version: ^1.15.3
     repository: https://charts.jetstack.io
     condition: cert-manager.enabled
