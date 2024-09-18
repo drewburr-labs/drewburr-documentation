@@ -48,3 +48,55 @@ spec:
         syncOptions:
           {{ toYaml .syncOptions | nindent 6 }}'
         {{- end }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: drewburr-namespaced-apps
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ['missingkey=invalid']
+  generators:
+  - git:
+      repoURL: git@github.com:drewburr-labs/drewburr-documentation.git
+      revision: main
+      files:
+        - path: k8s/**/**/config.yaml # .../namespace/app/...
+      values:
+        defaultProject: default
+        defaultServer: https://kubernetes.default.svc
+        namespace: '{{index .path.segments 1}}'
+        appName: '{{index .path.segments 1}}-{{index .path.segments 2}}'
+  syncPolicy:
+    preserveResourcesOnDeletion: true
+  template:
+    metadata:
+      name: '{{.values.appName}}'
+    spec:
+      project: '{{default .values.defaultProject .project}}'
+      source:
+        path: '{{.path.path}}'
+        repoURL: git@github.com:drewburr-labs/drewburr-documentation.git
+        targetRevision: main
+      destination:
+        server: '{{default .values.defaultServer .server}}'
+        namespace: '{{default .values.namespace .namespace}}'
+  templatePatch: |
+    spec:
+      ignoreDifferences:
+      - kind: "*"
+        group: "*"
+        jsonPointers:
+          - /metadata/labels/app.kubernetes.io~1version
+          - /metadata/labels/helm.sh~1chart
+          - /spec/template/metadata/labels/app.kubernetes.io~1version
+          - /spec/template/metadata/labels/helm.sh~1chart
+        {{- if .ignoreDifferences }}
+        {{ toYaml .ignoreDifferences | nindent 2 }}
+        {{- end }}
+      syncPolicy:
+        {{- if .syncOptions }}
+        syncOptions:
+          {{ toYaml .syncOptions | nindent 6 }}'
+        {{- end }}
