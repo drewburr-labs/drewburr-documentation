@@ -3,6 +3,10 @@ argocd:
   global:
     addPrometheusAnnotations: true
 
+  configs:
+    params:
+      applicationsetcontroller.enable.new.git.file.globbing: "true"
+
   redis-ha:
     enabled: true
     metrics:
