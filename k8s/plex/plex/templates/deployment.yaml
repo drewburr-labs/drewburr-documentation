@@ -56,6 +56,11 @@ spec:
               port: 32400
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            {{- range $name, $conf := .Values.persistence }}
+            - name: {{ $name }}
+              mountPath: /{{ $name }}
+            {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -68,3 +73,9 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      volumes:
+        {{- range $name, $conf := .Values.persistence }}
+        - name: {{ $name }}
+          persistentVolumeClaim:
+            caimName: {{ $name }}
+        {{- end }}
