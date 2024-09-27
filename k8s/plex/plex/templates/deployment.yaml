@@ -77,5 +77,5 @@ spec:
         {{- range $name, $conf := .Values.persistence }}
         - name: {{ $name }}
           persistentVolumeClaim:
-            caimName: {{ $name }}
+            claimName: {{ $name }}
         {{- end }}
