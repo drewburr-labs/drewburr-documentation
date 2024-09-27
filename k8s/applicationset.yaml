@@ -12,7 +12,7 @@ spec:
       repoURL: git@github.com:drewburr-labs/drewburr-documentation.git
       revision: main
       files:
-        - path: k8s/**/config.yaml
+        - path: k8s/*/config.yaml
       values:
         defaultProject: default
         defaultServer: https://kubernetes.default.svc
@@ -62,7 +62,7 @@ spec:
       repoURL: git@github.com:drewburr-labs/drewburr-documentation.git
       revision: main
       files:
-        - path: k8s/**/**/config.yaml # .../namespace/app/...
+        - path: k8s/*/*/config.yaml # .../namespace/app/...
       values:
         defaultProject: default
         defaultServer: https://kubernetes.default.svc
