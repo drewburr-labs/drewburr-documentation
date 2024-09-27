@@ -4,4 +4,4 @@ description: A Helm chart for deploying plex, based on linuxserver/docker-plex
 type: application
 version: 0.1.0
 # https://github.com/linuxserver/docker-plex?tab=readme-ov-file#application-setup
-appVersion: "public"
+appVersion: "latest"
