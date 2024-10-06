@@ -30,9 +30,9 @@ podSecurityContext:
   fsUser: 1001
 
 securityContext:
-  capabilities:
-    drop:
-    - ALL
+  # capabilities:
+  #   drop:
+  #   - ALL
   runAsNonRoot: true
   runAsUser: 1001
 
