@@ -136,14 +136,17 @@ tolerations: []
 
 affinity: {}
 
+startupProbe:
+  httpGet:
+    path: /
+    port: 32400
+  failureThreshold: 30
+  periodSeconds: 10
 livenessProbe:
   httpGet:
     path: /
     port: 32400
 readinessProbe:
-  initialDelaySeconds: 30
-  periodSeconds: 5
-  failureThreshold: 12
   httpGet:
     path: /
     port: 32400
