@@ -108,7 +108,7 @@ envVars:
   HOSTNAME: plex.drewburr.com
   CHANGE_CONFIG_DIR_OWNERSHIP: false
   ADVERTISE_IP: http://192.168.4.54:32400
-  PLEX_CLAIM: claim-N7wvarJ646pM7qjUC3u4
+  PLEX_CLAIM: claim-4Awx1qZJ1zMtMPPyrY25
   ALLOWED_NETWORKS: "127.0.0.1/32"
 
 
