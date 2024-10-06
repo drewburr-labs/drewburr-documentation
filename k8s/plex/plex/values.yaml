@@ -45,6 +45,19 @@ services:
       - name: plex
         port: 32400
         protocol: TCP
+    ingress:
+      className: traefik
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt
+      hosts:
+        - host: plex.drewburr.com
+          paths:
+            - path: /
+              pathType: ImplementationSpecific
+      tls:
+      - secretName: plex-ingress
+        hosts:
+          - plex.drewburr.com
   # # The following additional ports are also used within the local network for different services
   # local:
   #   type: ClusterIP
@@ -70,21 +83,6 @@ services:
   #     - name: dlnaTcp
   #       port: 32469
   #       protocol: TCP
-
-ingress:
-  enabled: true
-  className: traefik
-  annotations:
-    cert-manager.io/cluster-issuer: letsencrypt
-  hosts:
-    - host: plex.drewburr.com
-      paths:
-        - path: /
-          pathType: ImplementationSpecific
-  tls:
-   - secretName: plex-ingress
-     hosts:
-       - plex.drewburr.com
 
 resources: {}
   # limits:
