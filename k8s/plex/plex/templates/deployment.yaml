@@ -47,13 +47,9 @@ spec:
             {{-  end }}
             {{- end }}
           livenessProbe:
-            httpGet:
-              path: /
-              port: 32400
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
           readinessProbe:
-            httpGet:
-              path: /
-              port: 32400
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
