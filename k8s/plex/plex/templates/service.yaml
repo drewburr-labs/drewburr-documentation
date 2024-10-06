@@ -15,14 +15,10 @@ metadata:
 spec:
   type: {{ $conf.type }}
   ports:
-    {{- range $conf.ports }}
-    - port: {{ .port }}
-      targetPort: {{ default $conf.port $conf.name }}
+    - port: {{ $conf.port }}
+      targetPort: {{ $name }}
       protocol: {{ $conf.protocol }}
-      {{- if $conf.name }}
-      name: {{ $conf.name }}
-      {{- end }}
-    {{- end }}
+      name: {{ $name }}
   selector:
     {{- include "plex.selectorLabels" $ | nindent 4 }}
 {{- end }}

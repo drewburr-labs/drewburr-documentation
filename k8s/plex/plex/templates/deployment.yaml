@@ -38,13 +38,9 @@ spec:
             {{- end }}
           ports:
             {{- range $name, $conf := .Values.services }}
-            {{-  range $conf.ports }}
-            - containerPort: {{ default .port .containerPort }}
-              protocol: {{ .protocol }}
-              {{- if $conf.name }}
-              name: {{ $conf.name }}
-              {{- end }}
-            {{-  end }}
+            - containerPort: {{ $conf.port }}
+              protocol: {{ $conf.protocol }}
+              name: {{ $name }}
             {{- end }}
           livenessProbe:
             {{- toYaml .Values.livenessProbe | nindent 12 }}
