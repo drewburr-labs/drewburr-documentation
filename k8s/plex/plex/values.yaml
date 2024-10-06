@@ -40,9 +40,7 @@ securityContext:
 # https://support.plex.tv/articles/201543147-what-network-ports-do-i-need-to-allow-through-my-firewall/
 services:
   plex:
-    annotations:
-      metallb.universe.tf/loadBalancerIPs: 192.168.4.54
-    type: LoadBalancer
+    type: ClusterIP
     ports:
       - name: plex
         port: 32400
@@ -74,41 +72,19 @@ services:
   #       protocol: TCP
 
 ingress:
-  enabled: false
-  className: ""
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
+  enabled: true
+  className: traefik
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
   hosts:
-    - host: chart-example.local
+    - host: plex.drewburr.com
       paths:
         - path: /
           pathType: ImplementationSpecific
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
-
-certificate:
-  enabled: true
-
-  dnsNames:
-    - plex.drewburr.com
-
-  secretName: plex-tls
-
-  keystores:
-    pkcs12:
-      create: true
-      passwordSecretRef:
-        name: plex-tls-keystore
-        key: password
-      profile: Modern2023
-
-  issuerRef:
-    group: cert-manager.io
-    kind: ClusterIssuer
-    name: letsencrypt
+  tls:
+   - secretName: plex-ingress
+     hosts:
+       - plex.drewburr.com
 
 resources: {}
   # limits:
