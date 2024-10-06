@@ -135,3 +135,15 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+livenessProbe:
+  httpGet:
+    path: /
+    port: 32400
+readinessProbe:
+  initialDelaySeconds: 30
+  periodSeconds: 5
+  failureThreshold: 12
+  httpGet:
+    path: /
+    port: 32400
