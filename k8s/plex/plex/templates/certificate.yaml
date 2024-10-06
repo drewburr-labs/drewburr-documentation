@@ -1,0 +1,14 @@
+{{- if .Values.certificate.enabled }}
+{{- with .Values.certificate }}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: example-com
+spec:
+  dnsNames:
+    {{- toYaml .dnsNames | nindent 4 }}
+  secretName: {{ .secretName }}
+  keystores:
+    {{- toYaml .keystores | nindent 4 }}
+{{- end }}
+{{- end }}

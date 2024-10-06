@@ -89,6 +89,22 @@ ingress:
   #    hosts:
   #      - chart-example.local
 
+certificate:
+  enabled: true
+
+  dnsNames:
+    - plex.drewburr.com
+
+  secretName: plex-tls
+
+  keystores:
+    pkcs12:
+      create: true
+      passwordSecretRef:
+        name: plex-tls-keystore
+        key: password
+      profile: Modern2023
+
 resources: {}
   # limits:
   #   cpu: 100m
