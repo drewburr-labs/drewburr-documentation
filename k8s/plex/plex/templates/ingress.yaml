@@ -1,32 +1,24 @@
 {{- range $name, $conf := .Values.services }}
 {{- if $conf.ingress }}
-{{- $fullName := include "plex.fullname" . -}}
-{{- $svcPort := $conf.ports[0].port -}}
-{{- if and $conf.ingress.className (not (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion)) }}
+{{- $fullName := include "plex.fullname" $ -}}
+{{- $svcPort := $conf.port -}}
+{{- if $conf.ingress.className }}
   {{- if not (hasKey $conf.ingress.annotations "kubernetes.io/ingress.class") }}
   {{- $_ := set $conf.ingress.annotations "kubernetes.io/ingress.class" $conf.ingress.className}}
   {{- end }}
 {{- end }}
-{{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion -}}
 apiVersion: networking.k8s.io/v1
-{{- else if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
-apiVersion: networking.k8s.io/v1beta1
-{{- else -}}
-apiVersion: extensions/v1beta1
-{{- end }}
 kind: Ingress
 metadata:
   name: {{ $fullName }}-{{ $name }}
   labels:
-    {{- include "plex.labels" . | nindent 4 }}
+    {{- include "plex.labels" $ | nindent 4 }}
   {{- with $conf.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  {{- if and $conf.ingress.className (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion) }}
   ingressClassName: {{ $conf.ingress.className }}
-  {{- end }}
   {{- if $conf.ingress.tls }}
   tls:
     {{- range $conf.ingress.tls }}
@@ -44,19 +36,14 @@ spec:
         paths:
           {{- range .paths }}
           - path: {{ .path }}
-            {{- if and .pathType (semverCompare ">=1.18-0" $.Capabilities.KubeVersion.GitVersion) }}
+            {{- if .pathType }}
             pathType: {{ .pathType }}
             {{- end }}
             backend:
-              {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
               service:
                 name: {{ $fullName }}
                 port:
                   number: {{ $svcPort }}
-              {{- else }}
-              serviceName: {{ $fullName }}
-              servicePort: {{ $svcPort }}
-              {{- end }}
           {{- end }}
     {{- end }}
 {{- end }}
