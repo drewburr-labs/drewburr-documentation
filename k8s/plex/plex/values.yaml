@@ -41,10 +41,8 @@ securityContext:
 services:
   plex:
     type: ClusterIP
-    ports:
-      - name: plex
-        port: 32400
-        protocol: TCP
+    port: 32400
+    protocol: TCP
     ingress:
       className: traefik
       annotations:
