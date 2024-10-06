@@ -5,6 +5,13 @@ metadata:
   name: {{ include "plex.fullname" $ }}-{{ $name }}
   labels:
     {{- include "plex.labels" $ | nindent 4 }}
+    {{- with $conf.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with $conf.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   type: {{ $conf.type }}
   ports:
