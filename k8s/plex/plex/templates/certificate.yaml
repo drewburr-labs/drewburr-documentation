@@ -10,5 +10,7 @@ spec:
   secretName: {{ .secretName }}
   keystores:
     {{- toYaml .keystores | nindent 4 }}
+  issuerRef:
+    {{- toYaml .issuerRef | nindent 4 }}
 {{- end }}
 {{- end }}
