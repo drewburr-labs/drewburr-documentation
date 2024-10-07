@@ -1,5 +1,5 @@
 {{- range $name, $conf := .Values.persistence }}
-{{- if .requests }}
+{{- if (.).requests }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
