@@ -1,7 +1,7 @@
 {{- define "library.ingresses" -}}
 ---
-{{- range .Values.services }}
-{{- if (.).ingress }}
+{{- range $service := .Values.services }}
+{{- if ($service).ingress }}
 {{- $fullName := include "library.fullname" $ -}}
 {{- $svcPort := .port -}}
 {{- if .ingress.className }}
@@ -12,7 +12,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ $fullName }}-{{ .name }}
+  name: {{ $fullName }}-{{ $service.name }}
   labels:
     {{- include "library.labels" $ | nindent 4 }}
   {{- with .ingress.annotations }}
@@ -23,27 +23,27 @@ spec:
   ingressClassName: {{ .ingress.className }}
   {{- if .ingress.tls }}
   tls:
-    {{- range .ingress.tls }}
+    {{- range $tls := .ingress.tls }}
     - hosts:
-        {{- range .hosts }}
+        {{- range $tls.hosts }}
         - {{ . | quote }}
         {{- end }}
-      secretName: {{ .secretName }}
+      secretName: {{ $tls.secretName }}
     {{- end }}
   {{- end }}
   rules:
-    {{- range .ingress.hosts }}
-    - host: {{ .host | quote }}
+    {{- range $host := .ingress.hosts }}
+    - host: {{ $host.host | quote }}
       http:
         paths:
-          {{- range $path := .paths }}
+          {{- range $path := $host.paths }}
           - path: {{ $path.path }}
             {{- if $path.pathType }}
             pathType: {{ $path.pathType }}
             {{- end }}
             backend:
               service:
-                name: {{ $fullName }}-{{ $path.name }}
+                name: {{ $fullName }}-{{ $service.name }}
                 port:
                   number: {{ $svcPort }}
           {{- end }}
