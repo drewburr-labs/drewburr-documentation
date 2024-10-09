@@ -1,18 +1,1 @@
-{{- range $name, $conf := .Values.persistence }}
-{{- if (.).requests }}
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: {{ include "plex.fullname" $ }}-{{ $name }}
-  labels:
-    {{- include "plex.labels" $ | nindent 4 }}
-spec:
-  accessModes:
-    {{ toYaml $conf.accessModes | nindent 4 }}
-  resources:
-    requests:
-      storage: {{ $conf.requests }}
-  storageClassName: {{ $conf.storageClassName }}
-{{- end }}
-{{- end }}
+{{- include "library.pvcs" . -}}

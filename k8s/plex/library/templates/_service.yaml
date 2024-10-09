@@ -1,0 +1,27 @@
+{{- define "library.services" -}}
+{{- range .Values.services }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "library.fullname" $ }}-{{ .name }}
+  labels:
+    {{- include "library.labels" $ | nindent 4 }}
+    {{- with .labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .type }}
+  ports:
+    - port: {{ .port }}
+      targetPort: {{ .name }}
+      protocol: {{ .protocol }}
+      name: {{ .name }}
+  selector:
+    {{- include "library.selectorLabels" $ | nindent 4 }}
+{{- end }}
+{{- end -}}
