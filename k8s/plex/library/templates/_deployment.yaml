@@ -38,10 +38,10 @@ spec:
               value: {{ $v | quote }}
             {{- end }}
           ports:
-            {{- range $name, $conf := .Values.services }}
-            - containerPort: {{ $conf.port }}
-              protocol: {{ $conf.protocol }}
-              name: {{ $name }}
+            {{- range .Values.services }}
+            - containerPort: {{ .port }}
+              protocol: {{ .protocol }}
+              name: {{ .name }}
             {{- end }}
           livenessProbe:
             {{- toYaml .Values.livenessProbe | nindent 12 }}
@@ -52,9 +52,9 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
-            {{- range $name, $conf := .Values.persistence }}
-            - name: {{ $name }}
-              mountPath: /{{ default $name $conf.mountPath }}
+            {{- range .Values.persistence }}
+            - name: {{ .name }}
+              mountPath: /{{ default .name .mountPath }}
             {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
@@ -69,10 +69,10 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       volumes:
-        {{- range $name, $conf := .Values.persistence }}
-        - name: {{ $name }}
+        {{- range .Values.persistence }}
+        - name: {{ .name }}
           persistentVolumeClaim:
-            claimName: {{ include "library.fullname" $ }}-{{ $name }}
+            claimName: {{ .name }}
         {{- end }}
 {{- end -}}
 {{- define "library.deployment" -}}
