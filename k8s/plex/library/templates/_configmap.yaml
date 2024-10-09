@@ -1,0 +1,10 @@
+{{- define "library.configmap.tpl" -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name | printf "%s-%s" .Chart.Name }}
+data: {}
+{{- end -}}
+{{- define "library.configmap" -}}
+{{- include "library.util.merge" (append . "library.configmap.tpl") -}}
+{{- end -}}

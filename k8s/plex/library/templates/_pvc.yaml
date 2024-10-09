@@ -1,0 +1,20 @@
+{{- define "library.pvcs" -}}
+---
+{{- range .Values.persistence }}
+{{-  if (.).requests }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "library.fullname" $ }}-{{ .name }}
+  labels:
+    {{- include "library.labels" $ | nindent 4 }}
+spec:
+  accessModes:
+    {{- toYaml .accessModes | nindent 4 }}
+  resources:
+    requests:
+      storage: {{ .requests }}
+  storageClassName: {{ .storageClassName }}
+{{- end }}
+{{- end }}
+{{- end -}}
