@@ -1,7 +1,7 @@
 {{- define "library.ingresses" -}}
----
 {{- range $service := .Values.services }}
 {{- if ($service).ingress }}
+---
 {{- $fullName := include "library.fullname" $ -}}
 {{- $svcPort := .port -}}
 {{- if .ingress.className }}

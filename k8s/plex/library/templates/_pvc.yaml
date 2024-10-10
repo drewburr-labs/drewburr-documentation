@@ -1,7 +1,7 @@
 {{- define "library.pvcs" -}}
----
 {{- range .Values.persistence }}
 {{-  if (.).requests }}
+---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
