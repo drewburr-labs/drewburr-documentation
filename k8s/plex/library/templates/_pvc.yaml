@@ -5,7 +5,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ include "library.fullname" $ }}-{{ .name }}
+  name: {{ .name }}
   labels:
     {{- include "library.labels" $ | nindent 4 }}
 spec:
