@@ -1,4 +1,4 @@
-# https://hotio.dev/containers/radarr/#__tabbed_3_1
+# https://hub.docker.com/r/linuxserver/sabnzbd
 replicaCount: 1
 
 image:
