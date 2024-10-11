@@ -16,8 +16,6 @@ spec:
       values:
         defaultProject: default
         defaultServer: https://kubernetes.default.svc
-  syncPolicy:
-    preserveResourcesOnDeletion: true
   template:
     metadata:
       name: '{{.path.basename}}'
@@ -44,6 +42,7 @@ spec:
         {{ toYaml .ignoreDifferences | nindent 2 }}
         {{- end }}
       syncPolicy:
+        preserveResourcesOnDeletion: {{ default true .preserveResourcesOnDeletion }}
         {{- if .syncOptions }}
         syncOptions:
           {{ toYaml .syncOptions | nindent 6 }}'
@@ -68,8 +67,6 @@ spec:
         defaultServer: https://kubernetes.default.svc
         namespace: '{{index .path.segments 1}}'
         appName: '{{index .path.segments 1}}-{{index .path.segments 2}}'
-  syncPolicy:
-    preserveResourcesOnDeletion: true
   template:
     metadata:
       name: '{{.values.appName}}'
@@ -96,6 +93,7 @@ spec:
         {{ toYaml .ignoreDifferences | nindent 2 }}
         {{- end }}
       syncPolicy:
+        preserveResourcesOnDeletion: {{ default true .preserveResourcesOnDeletion }}
         {{- if .syncOptions }}
         syncOptions:
           {{ toYaml .syncOptions | nindent 6 }}'
