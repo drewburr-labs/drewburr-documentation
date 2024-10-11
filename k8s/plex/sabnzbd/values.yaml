@@ -2,7 +2,7 @@
 replicaCount: 1
 
 image:
-  repository: lscr.io/linuxserver/sabnzbd:latest
+  repository: lscr.io/linuxserver/sabnzbd
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
