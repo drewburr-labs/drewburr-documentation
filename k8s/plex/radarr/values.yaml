@@ -22,8 +22,8 @@ serviceAccount:
 
 podAnnotations: {}
 
-podSecurityContext:
-  # fsGroup: 1001
+podSecurityContext: # TODO: Needs same runAs as Plex (PVCs)
+  fsGroup: 1001
 
 securityContext:
   # capabilities:
