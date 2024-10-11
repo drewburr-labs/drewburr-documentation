@@ -1,3 +1,0 @@
-{{- include "library.deployment" (list . "nabhydra.deployment") -}}
-{{- define "nabhydra.deployment" -}}
-{{- end -}}
