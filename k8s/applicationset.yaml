@@ -42,7 +42,6 @@ spec:
         {{ toYaml .ignoreDifferences | nindent 2 }}
         {{- end }}
       syncPolicy:
-        preserveResourcesOnDeletion: {{ default true .preserveResourcesOnDeletion }}
         {{- if .syncOptions }}
         syncOptions:
           {{ toYaml .syncOptions | nindent 6 }}'
@@ -93,7 +92,6 @@ spec:
         {{ toYaml .ignoreDifferences | nindent 2 }}
         {{- end }}
       syncPolicy:
-        preserveResourcesOnDeletion: {{ default true .preserveResourcesOnDeletion }}
         {{- if .syncOptions }}
         syncOptions:
           {{ toYaml .syncOptions | nindent 6 }}'
