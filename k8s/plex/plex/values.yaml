@@ -119,7 +119,7 @@ persistence:
   - name: data
     accessModes:
       - ReadWriteOnce
-    requests: 10Gi
+    requests: 200Gi
     storageClassName: zfs-nvmeof
 
 
