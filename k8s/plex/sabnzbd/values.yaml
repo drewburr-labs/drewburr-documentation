@@ -50,7 +50,7 @@ services:
             - path: /
               pathType: ImplementationSpecific
       tls:
-      - secretName: radarr-ingress
+      - secretName: sabnzbd-ingress
         hosts:
           - sabnzbd.drewburr.com
 
