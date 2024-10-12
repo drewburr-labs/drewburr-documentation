@@ -13,7 +13,7 @@ democratic-csi:
   storageClasses:
   - name: zfs-nvmeof
     defaultClass: false
-    reclaimPolicy: Retain
+    reclaimPolicy: Delete
     volumeBindingMode: Immediate
     allowVolumeExpansion: true
     parameters:
