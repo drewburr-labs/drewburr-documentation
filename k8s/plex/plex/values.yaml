@@ -114,7 +114,7 @@ persistence:
   - name: transcode
     accessModes:
       - ReadWriteMany
-    requests: 50Gi
+    requests: 200Gi
     storageClassName: zfs-nfs
   - name: data
     accessModes:
