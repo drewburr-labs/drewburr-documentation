@@ -108,19 +108,19 @@ envVars:
 persistence:
   - name: config
     accessModes:
-      - ReadWriteOnce
-    requests: 100Gi
-    storageClassName: zfs-nvmeof
+      - ReadWriteMany
+    requests: 10Gi
+    storageClassName: zfs-nfs
   - name: transcode
     accessModes:
-      - ReadWriteOnce
+      - ReadWriteMany
     requests: 50Gi
-    storageClassName: zfs-nvmeof
+    storageClassName: zfs-nfs
   - name: data
     accessModes:
-      - ReadWriteOnce
-    requests: 200Gi
-    storageClassName: zfs-nvmeof
+      - ReadWriteMany
+    requests: 1Ti
+    storageClassName: zfs-nfs
 
 
 nodeSelector: {}
