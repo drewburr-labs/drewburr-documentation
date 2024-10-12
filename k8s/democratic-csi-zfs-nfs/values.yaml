@@ -1,0 +1,108 @@
+# https://github.com/democratic-csi/charts/blob/master/stable/democratic-csi/examples/zfs-generic-nfs.yaml
+democratic-csi:
+  fullnameOverride: democratic-csi-zfs-nfs
+
+  # driver only works with 1.16+
+  csiDriver:
+    # should be globally unique for a given cluster
+    name: "org.democratic-csi.zfs-nfs"
+    attachRequired: false
+    storageCapacity: true
+    fsGroupPolicy: File
+
+  storageClasses:
+  - name: zfs-nfs
+    defaultClass: false
+    reclaimPolicy: Retain
+    volumeBindingMode: Immediate
+    allowVolumeExpansion: true
+    parameters:
+      # for block-based storage can be ext3, ext4, xfs
+      # for nfs should be nfs
+      fsType: nfs
+
+      # if true, volumes created from other snapshots will be
+      # zfs send/received instead of zfs cloned
+      # detachedVolumesFromSnapshots: "false"
+
+      # if true, volumes created from other volumes will be
+      # zfs send/received instead of zfs cloned
+      # detachedVolumesFromVolumes: "false"
+
+    mountOptions: []
+    secrets:
+      provisioner-secret:
+      controller-publish-secret:
+      node-stage-secret:
+      node-publish-secret:
+      controller-expand-secret:
+
+  # if your cluster supports snapshots you may enable below
+  volumeSnapshotClasses:
+  - name: zfs-nfs
+  #  secrets:
+  #    snapshotter-secret:
+
+  # It's not yet possible to inject env variables
+  # https://github.com/democratic-csi/democratic-csi/issues/400
+  # controller:
+  #   driver:
+  #     extraEnv:
+  #     - name: SERVER_HOST
+  #       valueFrom:
+  #         secretKeyRef:
+  #           name: server-connection-details
+  #           key: host
+  #     - name: SERVER_USERNAME
+  #       valueFrom:
+  #         secretKeyRef:
+  #           name: server-connection-details
+  #           key: username
+  #     - name: SERVER_PRIVATE_KEY
+  #       valueFrom:
+  #         secretKeyRef:
+  #           name: server-connection-details
+  #           key: private_key
+
+  driver:
+    # It's not yet possible to inject env variables
+    # https://github.com/democratic-csi/democratic-csi/issues/400
+    existingConfigSecret: custom-driver-config
+
+    config:
+      driver: zfs-generic-nfs
+      # nfs:
+      #   # https://docs.oracle.com/cd/E23824_01/html/821-1448/gayne.html
+      #   # https://www.hiroom2.com/2016/05/18/ubuntu-16-04-share-zfs-storage-via-nfs-smb/
+      #   shareStrategy: "setDatasetProperties"
+      #   shareStrategySetDatasetProperties:
+      #     properties:
+      #       #sharenfs: "rw,no_subtree_check,no_root_squash"
+      #       sharenfs: "on"
+      #       # share: ""
+      #   shareHost: "storage01.drewburr.com"
+      # sshConnection:
+      #   host: storage01.drewburr.com
+      #   port: 22
+      #   username: ubuntu
+      #   privateKey: |
+      #     -----BEGIN OPENSSH PRIVATE KEY-----
+      #     ...
+      #     -----END OPENSSH PRIVATE KEY-----
+      # zfs:
+      #   cli:
+      #     sudoEnabled: true
+      #   datasetParentName: sas-pool/k8s/nvmeof/dataset
+      #   detachedSnapshotsDatasetParentName: sas-pool/k8s/nvmeof/snapshots
+      #   zvolBlocksize: null
+      #   zvolCompression: null
+      #   zvolDedup: null
+      #   zvolEnableReservation: false
+      #   datasetEnableQuotas: true
+      #   datasetEnableReservation: false
+      #   datasetPermissionsMode: "0777"
+      #   datasetPermissionsUser: 0
+      #   datasetPermissionsGroup: 0
+      #   #datasetPermissionsAcls:
+      #   #- "-m everyone@:full_set:allow"
+      #   #- "-m u:kube:full_set:allow"
