@@ -29,7 +29,9 @@ democratic-csi:
       # zfs send/received instead of zfs cloned
       # detachedVolumesFromVolumes: "false"
 
-    mountOptions: []
+    mountOptions:
+      - nfsvers=3
+
     secrets:
       provisioner-secret:
       controller-publish-secret:
