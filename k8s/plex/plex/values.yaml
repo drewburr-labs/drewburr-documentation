@@ -143,6 +143,10 @@ initContainers:
       - mkdir -p /data/downloads/usenet/incomplete
       - mkdir -p /data/downloads/usenet/complete/{movies,tv}
       - mkdir -p /data/media/{movies,tv}
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 1001
+      runAsGroup: 1001
 
 startupProbe:
   httpGet:
