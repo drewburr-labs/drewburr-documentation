@@ -38,7 +38,7 @@ securityContext:
 services:
   - name: http
     type: ClusterIP
-    port: 7878
+    port: 8989
     protocol: TCP
     ingress:
       className: traefik
@@ -90,14 +90,14 @@ affinity: {}
 startupProbe:
   httpGet:
     path: /
-    port: 7878
+    port: 8989
   failureThreshold: 30
   periodSeconds: 10
 livenessProbe:
   httpGet:
     path: /
-    port: 7878
+    port: 8989
 readinessProbe:
   httpGet:
     path: /
-    port: 7878
+    port: 8989
