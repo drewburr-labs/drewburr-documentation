@@ -75,7 +75,6 @@ envVars:
 # Expected to be created already for Plex
 persistence:
   - name: config
-  - name: transcode
   - name: data
 
 nodeSelector: {}
