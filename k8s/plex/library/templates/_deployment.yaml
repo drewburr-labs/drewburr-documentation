@@ -62,10 +62,10 @@ spec:
               mountPath: /{{ default .name .mountPath }}
             {{- end }}
       initContainers:
-      {{- range $initContainer := $.Values.initContainers }}
+      {{- range $initContainer := .Values.initContainers }}
       - name: {{ $initContainer.name }}
         securityContext:
-          {{- toYaml (default "{}" ($initContainer).securityContext) | nindent 10 }}
+          {{- toYaml $initContainer.securityContext | nindent 10 }}
         image: "{{ $initContainer.image.repository }}:{{ $initContainer.image.tag | default $.Chart.AppVersion }}"
         imagePullPolicy: {{ $initContainer.image.pullPolicy }}
         command:
@@ -80,7 +80,7 @@ spec:
             value: {{ $v | quote }}
           {{- end }}
         resources:
-          {{- toYaml (default "{}" $initContainer.resources) | nindent 10 }}
+          {{- toYaml $initContainer.resources | nindent 10 }}
         volumeMounts:
           {{- range $.Values.persistence }}
           - name: {{ .name }}
