@@ -1,7 +1,7 @@
 Setup
 
-
 Delete default K3s Traefik install
+
 ```shell
 kubens kube-system
 kubectl delete helmchart traefik traefik-crd
@@ -15,6 +15,7 @@ kubectl delete jobs.batch helm-delete-traefik
 ```
 
 Installation
+
 ```shell
 kubectl create ns traefik
 kubens traefik
