@@ -1,6 +1,6 @@
 apiVersion: v2
-name: radarr
-description: A Helm chart for deploying radarr
+name: sonarr
+description: A Helm chart for deploying sonarr
 type: application
 version: 0.1.0
 appVersion: "latest"
