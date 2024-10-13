@@ -129,6 +129,21 @@ tolerations: []
 
 affinity: {}
 
+initContainers:
+  - name: mkdir
+    image:
+      repository: plexinc/pms-docker
+      pullPolicy: Always
+      # Overrides the image tag whose default is the chart appVersion.
+      tag: ""
+    command:
+      - sh
+      - -c
+      - mkdir -p /data/downloads/torrents/{movies,tv}
+      - mkdir -p /data/downloads/usenet/incomplete
+      - mkdir -p /data/downloads/usenet/complete/{movies,tv}
+      - mkdir -p /data/media/{movies,tv}
+
 startupProbe:
   httpGet:
     path: /web
