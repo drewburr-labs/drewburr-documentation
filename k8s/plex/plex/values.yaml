@@ -119,7 +119,7 @@ persistence:
   - name: data
     accessModes:
       - ReadWriteMany
-    requests: 1Ti
+    requests: 2Ti
     storageClassName: zfs-nfs
 
 
