@@ -121,7 +121,11 @@ persistence:
       - ReadWriteMany
     requests: 2Ti
     storageClassName: zfs-nfs
-
+  - name: backups
+    accessModes:
+      - ReadWriteMany
+    requests: 50Gi
+    storageClassName: zfs-nfs
 
 nodeSelector: {}
 
