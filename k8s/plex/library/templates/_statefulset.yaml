@@ -1,6 +1,6 @@
 {{- define "library.deployment.tpl" -}}
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: {{ include "library.fullname" . }}
   labels:
