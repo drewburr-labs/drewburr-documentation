@@ -147,7 +147,8 @@ initContainers:
         mkdir -p /data/downloads/torrents/{movies,tv,anime} &&
         mkdir -p /data/downloads/usenet/incomplete &&
         mkdir -p /data/downloads/usenet/complete/{movies,tv,anime} &&
-        mkdir -p /data/media/{movies,tv,anime}
+        mkdir -p /data/media/{movies,tv,anime} &&
+        mkdir -p /backups/{overseerr,plex,radarr,sabnzbd,sonarr,sonarr-anime}
     securityContext:
       runAsNonRoot: true
       runAsUser: 1001
