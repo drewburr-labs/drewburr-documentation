@@ -49,10 +49,15 @@ services:
           paths:
             - path: /
               pathType: ImplementationSpecific
+        - host: requests.drewburr.com
+          paths:
+            - path: /
+              pathType: ImplementationSpecific
       tls:
       - secretName: overseerr-ingress
         hosts:
           - overseerr.drewburr.com
+          - requests.drewburr.com
 
 resources: {}
   # limits:
