@@ -80,6 +80,7 @@ persistence:
     requests: 10Gi
     storageClassName: zfs-nvmeof
   - name: data
+  - name: backups
 
 nodeSelector: {}
 

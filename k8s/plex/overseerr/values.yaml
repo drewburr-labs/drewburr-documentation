@@ -79,6 +79,7 @@ persistence:
       - ReadWriteOnce
     requests: 10Gi
     storageClassName: zfs-nvmeof
+  - name: backups
 
 nodeSelector: {}
 
