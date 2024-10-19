@@ -73,7 +73,12 @@ envVars:
 
 # Expected to be created already for Plex
 persistence:
-  - name: config
+  - name: sabnzbd-config
+    mountPath: config
+    accessModes:
+      - ReadWriteOnce
+    requests: 10Gi
+    storageClassName: zfs-nvmeof
   - name: data
 
 nodeSelector: {}
