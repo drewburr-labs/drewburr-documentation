@@ -44,7 +44,7 @@ spec:
       source:
         helm:
           {{- with .helm }}
-            {{- toYaml .skipCrds | nindent 6 }}'
+          {{- toYaml .helm | nindent 6 }}'
           {{- end }}
       syncPolicy:
         {{- if .syncOptions }}
