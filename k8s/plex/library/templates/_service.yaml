@@ -18,7 +18,7 @@ spec:
   type: {{ .type }}
   ports:
     - port: {{ .port }}
-      targetPort: {{ .name }}
+      targetPort: {{ .port }}
       protocol: {{ .protocol }}
       name: {{ .name }}
   selector:
