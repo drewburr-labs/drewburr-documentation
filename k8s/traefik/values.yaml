@@ -51,6 +51,11 @@ traefik:
 
   ingressClass:
     isDefaultClass: false
+    name: traefik
+
+  providers:
+    kubernetesIngress:
+      ingressClass: traefik
 
   ports:
     web:
