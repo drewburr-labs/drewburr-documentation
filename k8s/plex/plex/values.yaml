@@ -66,14 +66,14 @@ services:
         traefik.ingress.kubernetes.io/router.entrypoints: plexsecure
         # # Use above cert
         # cert-manager.io/cluster-issuer: letsencrypt
-    hosts:
-      - paths:
-          - path: /
-            pathType: ImplementationSpecific
-    tls:
-      - secretName: plex-ingress
-        hosts:
-          - plex.drewburr.com
+      hosts:
+        - paths:
+            - path: /
+              pathType: ImplementationSpecific
+      tls:
+        - secretName: plex-ingress
+          hosts:
+            - plex.drewburr.com
 
   # # The following additional ports are also used within the local network for different services
   # local:
