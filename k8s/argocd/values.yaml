@@ -28,6 +28,7 @@ argocd:
         requests:
           cpu: 100m
           memory: 100Mi
+
   controller:
     replicas: 2
     metrics:
