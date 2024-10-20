@@ -56,7 +56,7 @@ services:
       - secretName: plex-ingress
         hosts:
           - plex.drewburr.com
-  - name: mediaserver-remote
+  - name: remote
     type: ClusterIP
     port: 32400
     protocol: TCP
