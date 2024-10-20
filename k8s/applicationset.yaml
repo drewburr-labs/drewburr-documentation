@@ -46,6 +46,11 @@ spec:
         syncOptions:
           {{ toYaml .syncOptions | nindent 6 }}'
         {{- end }}
+      source:
+        helm:
+        {{- if .helm }}
+          {{ toYaml .helm | nindent 6 }}'
+        {{- end }}
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
