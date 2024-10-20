@@ -42,9 +42,12 @@ spec:
         {{ toYaml .ignoreDifferences | nindent 2 }}
         {{- end }}
       source:
-        {{- if .helm }}
+        {{- with .helm }}
         helm:
-          {{- toYaml .helm | nindent 6 }}'
+          {{- toYaml . | nindent 6 }}'
+          {{- if eq .skipCrds "true" }}
+          skipCrds: true
+          {{- end }}
         {{- end }}
       syncPolicy:
         {{- if .syncOptions }}
