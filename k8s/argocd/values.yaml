@@ -6,6 +6,7 @@ argocd:
   configs:
     params:
       applicationsetcontroller.enable.new.git.file.globbing: "true"
+      controller.sharding.algorithm: round-robin
 
   redis-ha:
     enabled: true
