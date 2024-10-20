@@ -42,10 +42,10 @@ spec:
         {{ toYaml .ignoreDifferences | nindent 2 }}
         {{- end }}
       source:
+        {{- if .helm }}
         helm:
-          {{- with .helm }}
           {{- toYaml .helm | nindent 6 }}'
-          {{- end }}
+        {{- end }}
       syncPolicy:
         {{- if .syncOptions }}
         syncOptions:
