@@ -52,6 +52,15 @@ traefik:
   ingressClass:
     isDefaultClass: false
 
+  ports:
+    plexsecure:
+      port: 32443
+      expose:
+        default: true
+      exposedPort: 32443
+      tls:
+        enabled: true
+
   experimental:
     plugins:
       # https://plugins.traefik.io/plugins/628c9f24ffc0cd18356a97bd/query-paramter-modification
