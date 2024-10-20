@@ -41,15 +41,15 @@ spec:
         {{- if .ignoreDifferences }}
         {{ toYaml .ignoreDifferences | nindent 2 }}
         {{- end }}
+      source:
+        helm:
+          {{- with .helm }}
+            {{- toYaml .skipCrds | nindent 6 }}'
+          {{- end }}
       syncPolicy:
         {{- if .syncOptions }}
         syncOptions:
-          {{ toYaml .syncOptions | nindent 6 }}'
-        {{- end }}
-      source:
-        helm:
-        {{- if .helm }}
-          {{ toYaml .helm | nindent 6 }}'
+          {{- toYaml .syncOptions | nindent 6 }}'
         {{- end }}
 ---
 apiVersion: argoproj.io/v1alpha1
