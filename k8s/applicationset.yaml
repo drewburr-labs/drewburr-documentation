@@ -42,8 +42,8 @@ spec:
         {{ toYaml .ignoreDifferences | nindent 2 }}
         {{- end }}
       source:
-        {{- with .helm }}
         helm:
+        {{- with .helm }}
           {{- if .skipCrds }}
           skipCrds: true
           {{- end }}
