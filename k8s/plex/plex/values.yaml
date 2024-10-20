@@ -57,7 +57,7 @@ services:
         hosts:
           - plex.drewburr.com
   - name: remote
-    type: ClusterIP
+    type: LoadBalancer
     port: 32400
     protocol: TCP
     ingress:
