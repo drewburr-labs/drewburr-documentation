@@ -53,6 +53,10 @@ traefik:
     isDefaultClass: false
 
   ports:
+    web:
+      redirectTo:
+        port: websecure
+        permanent: true
     plexsecure:
       port: 32443
       expose:
