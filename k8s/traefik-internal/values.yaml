@@ -11,6 +11,11 @@ traefik:
     general:
       level: INFO
 
+  providers:
+    kubernetesCRD:
+      # Public ingress to manage CRDs
+      enabled: false
+
   service:
     annotations:
       metallb.universe.tf/loadBalancerIPs: 192.168.4.60 # Ensure static IP
