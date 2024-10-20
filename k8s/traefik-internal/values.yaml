@@ -11,6 +11,9 @@ traefik:
     general:
       level: INFO
 
+  deployment:
+    kind: DaemonSet
+
   providers:
     kubernetesCRD:
       # Public ingress to manage CRDs
