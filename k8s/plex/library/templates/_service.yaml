@@ -23,5 +23,8 @@ spec:
       name: {{ .name }}
   selector:
     {{- include "library.selectorLabels" $ | nindent 4 }}
+  {{- with .externalTrafficPolicy }}
+  externalTrafficPolicy: {{ . }}
+  {{- end }}
 {{- end }}
 {{- end -}}
