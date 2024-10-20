@@ -60,6 +60,7 @@ services:
     type: LoadBalancer
     port: 32400
     protocol: TCP
+    externalTrafficPolicy: Local
     ingress:
       className: traefik
       annotations:
