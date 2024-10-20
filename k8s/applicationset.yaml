@@ -100,4 +100,7 @@ spec:
         {{- if .syncOptions }}
         syncOptions:
           {{ toYaml .syncOptions | nindent 6 }}'
+          {{- if eq .syncOptions.skipCRDs "true" }}
+          skipCRDs: true
+          {{- else }}
         {{- end }}
