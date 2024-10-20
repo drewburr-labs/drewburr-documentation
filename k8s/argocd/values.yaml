@@ -11,14 +11,22 @@ argocd:
     enabled: true
     metrics:
       enabled: true
-    resources:
-      limits:
-        cpu: 2
-        memory: 256Mi
-      requests:
-        cpu: 500m
-        memory: 100Mi
-
+    redis:
+      resources:
+        limits:
+          cpu: 2
+          memory: 256Mi
+        requests:
+          cpu: 500m
+          memory: 100Mi
+    haproxy:
+      resources:
+        limits:
+          cpu: 250m
+          memory: 256Mi
+        requests:
+          cpu: 100m
+          memory: 100Mi
   controller:
     replicas: 2
     metrics:
