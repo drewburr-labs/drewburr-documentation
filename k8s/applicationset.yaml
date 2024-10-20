@@ -44,7 +44,7 @@ spec:
       source:
         {{- with .helm }}
         helm:
-          {{- if eq .skipCrds "true" }}
+          {{- if .skipCrds }}
           skipCrds: true
           {{- end }}
         {{- end }}
