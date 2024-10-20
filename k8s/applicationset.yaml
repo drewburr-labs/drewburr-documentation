@@ -98,8 +98,8 @@ spec:
         {{- end }}
       source:
         helm:
-          {{- if .helm }}
-          {{- toYaml .syncOptions | nindent 6 }}'
+          {{- with .helm }}
+            {{- toYaml .skipCrds | nindent 6 }}'
           {{- end }}
       syncPolicy:
         {{- if .syncOptions }}
