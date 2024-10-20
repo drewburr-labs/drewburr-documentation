@@ -96,11 +96,13 @@ spec:
         {{- if .ignoreDifferences }}
         {{ toYaml .ignoreDifferences | nindent 2 }}
         {{- end }}
+      source:
+        helm:
+          {{- if .helm }}
+          {{- toYaml .syncOptions | nindent 6 }}'
+          {{- end }}
       syncPolicy:
         {{- if .syncOptions }}
         syncOptions:
-          {{ toYaml .syncOptions | nindent 6 }}'
-          {{- if eq .syncOptions.skipCRDs "true" }}
-          skipCrds: true
-          {{- end }}
+          {{- toYaml .syncOptions | nindent 6 }}'
         {{- end }}
