@@ -44,7 +44,7 @@ spec:
       source:
         {{- with .helm }}
         helm:
-          {{- toYaml . | nindent 6 }}'
+          {{- toYaml . | nindent 6 }}
           {{- if eq .skipCrds "true" }}
           skipCrds: true
           {{- end }}
