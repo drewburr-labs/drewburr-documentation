@@ -145,7 +145,7 @@ persistence:
 additionalVolumes:
   - name: transcode
     emptyDir:
-      meduim: Memory
+      medium: Memory
       sizeLimit: 6Gi
 
 additionalVolumeMounts:
