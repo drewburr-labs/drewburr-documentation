@@ -129,7 +129,7 @@ persistence:
   - name: config
     accessModes:
       - ReadWriteMany
-    requests: 30i
+    requests: 30Gi
     storageClassName: zfs-nfs
   - name: data
     accessModes:
