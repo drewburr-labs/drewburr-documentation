@@ -68,7 +68,12 @@ services:
         # # Use above cert
         # cert-manager.io/cluster-issuer: letsencrypt
       hosts:
-        - paths:
+        - host: plex.drewburr.com
+          paths:
+            - path: /
+              pathType: ImplementationSpecific
+        - host: "*.plex.direct"
+          paths:
             - path: /
               pathType: ImplementationSpecific
       tls:
