@@ -61,6 +61,9 @@ spec:
             - name: {{ .name }}
               mountPath: /{{ default .name .mountPath }}
             {{- end }}
+            {{- range $.Values.additionalVolumeMounts }}
+            {{ list . | toYaml | nindent 12 }}
+            {{- end }}
       initContainers:
       {{- range $initContainer := .Values.initContainers }}
       - name: {{ $initContainer.name }}
@@ -104,6 +107,9 @@ spec:
         - name: {{ .name }}
           persistentVolumeClaim:
             claimName: {{ .name }}
+        {{- end }}
+        {{- range .Values.additionalVolumes }}
+        {{ list . | toYaml | nindent 8 }}
         {{- end }}
 {{- end -}}
 {{- define "library.deployment" -}}

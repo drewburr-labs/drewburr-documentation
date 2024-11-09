@@ -129,12 +129,7 @@ persistence:
   - name: config
     accessModes:
       - ReadWriteMany
-    requests: 10Gi
-    storageClassName: zfs-nfs
-  - name: transcode
-    accessModes:
-      - ReadWriteMany
-    requests: 200Gi
+    requests: 30i
     storageClassName: zfs-nfs
   - name: data
     accessModes:
@@ -146,6 +141,16 @@ persistence:
       - ReadWriteMany
     requests: 50Gi
     storageClassName: zfs-nfs
+
+additionalVolumes:
+  - name: transcode
+    emptyDir:
+      meduim: Memory
+      sizeLimit: 6Gi
+
+additionalVolumeMounts:
+  - name: transcode
+    mountPath: /transcode
 
 nodeSelector: {}
 
