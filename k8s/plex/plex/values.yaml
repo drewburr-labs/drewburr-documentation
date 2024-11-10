@@ -68,12 +68,7 @@ services:
         # # Use above cert
         # cert-manager.io/cluster-issuer: letsencrypt
       hosts:
-        - host: plex.drewburr.com
-          paths:
-            - path: /
-              pathType: ImplementationSpecific
-        - host: "*.plex.direct"
-          paths:
+        - paths:
             - path: /
               pathType: ImplementationSpecific
       tls:
@@ -188,16 +183,16 @@ startupProbe:
   httpGet:
     path: /identity
     port: 32400
-    scheme: https
+    scheme: HTTPS
   failureThreshold: 30
   periodSeconds: 10
 livenessProbe:
   httpGet:
     path: /identity
     port: 32400
-    scheme: https
+    scheme: HTTPS
 readinessProbe:
   httpGet:
     path: /identity
     port: 32400
-    scheme: https
+    scheme: HTTPS
