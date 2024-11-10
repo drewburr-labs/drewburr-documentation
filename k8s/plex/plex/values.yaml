@@ -186,15 +186,18 @@ initContainers:
 
 startupProbe:
   httpGet:
-    path: /web
+    path: /identity
     port: 32400
+    scheme: https
   failureThreshold: 30
   periodSeconds: 10
 livenessProbe:
   httpGet:
-    path: /web
+    path: /identity
     port: 32400
+    scheme: https
 readinessProbe:
   httpGet:
-    path: /web
+    path: /identity
     port: 32400
+    scheme: https
