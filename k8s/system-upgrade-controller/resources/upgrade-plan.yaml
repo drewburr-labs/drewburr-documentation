@@ -7,7 +7,7 @@ metadata:
   labels:
     k3s-upgrade: v1.31.2
 spec:
-  concurrency: 1
+  concurrency: 2
   version: v1.31.2+k3s1
   nodeSelector:
     matchExpressions:
@@ -15,8 +15,9 @@ spec:
         operator: In
         values: [v1.31.2]
   serviceAccountName: system-upgrade
-  # drain:
-  #   force: true
-  # cordon: true
+  drain:
+    ignoreDaemonSets: true
+    deleteEmptydirData: true
+  cordon: true
   upgrade:
     image: rancher/k3s-upgrade
