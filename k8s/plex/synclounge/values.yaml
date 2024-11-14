@@ -73,16 +73,16 @@ envVars:
   AUTHENTICATION: >-
     {
       "mechanism":"plex",
-      "type":["server"],
-      "authorized":["MACHINE_ID"]
+      "type":["server", "user"],
+      "authorized":["0a615bc2afb2d4cefe5918e018ae2bc73c3bdad3"]
     }
-  SERVERS: >-
-    [{
-      "name":"Drewburr",
-      "location":"Drewburr's Lab",
-      "url":"https://plex.drewburr.com",
-      "image":"synclounge-white.png"
-    }]'
+  # SERVERS: >-
+  #   [{
+  #     "name":"drewburr",
+  #     "location":"Drewburr's Lab",
+  #     "url":"https://plex.drewburr.com",
+  #     "image":"synclounge-white.png"
+  #   }]'
 
 # All are mounted under fsroot `/`. Supports additions
 # Expected to be created already for Plex
