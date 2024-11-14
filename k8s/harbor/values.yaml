@@ -1,0 +1,67 @@
+harbor:
+  expose:
+    type: ingress
+    tls:
+      certSource: secret
+      secret:
+        secretName: "harbor-tls"
+    ingress:
+      hosts:
+        core: harbor.drewburr.com
+      className: "traefik-internal"
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt
+  externalURL: https://harbor.drewburr.com
+
+  persistence:
+    enabled: true
+    resourcePolicy: "keep"
+    persistentVolumeClaim:
+      registry:
+        storageClass: "zfs-nvmeof"
+        size: 50Gi
+      jobservice:
+        jobLog:
+          storageClass: "zfs-nvmeof"
+          size: 1Gi
+      # If external database is used, the following settings for database will
+      # be ignored
+      database:
+        storageClass: "zfs-nvmeof"
+        size: 1Gi
+      # If external Redis is used, the following settings for Redis will
+      # be ignored
+      redis:
+        storageClass: "zfs-nvmeof"
+        accessMode: ReadWriteOnce
+        size: 1Gi
+      trivy:
+        storageClass: "zfs-nvmeof"
+        accessMode: ReadWriteOnce
+        size: 5Gi
+
+  # The initial password of Harbor admin. Change it from portal after launching Harbor
+  # or give an existing secret for it
+  # key in secret is given via (default to HARBOR_ADMIN_PASSWORD)
+  # existingSecretAdminPassword:
+  existingSecretAdminPasswordKey: HARBOR_ADMIN_PASSWORD
+  harborAdminPassword: "Harbor12345"
+
+  ipFamily:
+    ipv6:
+      enabled: false
+    ipv4:
+      enabled: true
+
+  # debug, info, warning, error or fatal
+  logLevel: info
+
+  # The secret key used for encryption. Must be a string of 16 chars.
+  secretKey: "not-a-secure-key"
+  # If using existingSecretSecretKey, the key must be secretKey
+  existingSecretSecretKey: ""
+
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
