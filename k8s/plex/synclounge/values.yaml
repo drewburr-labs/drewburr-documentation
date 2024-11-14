@@ -1,4 +1,4 @@
-# https://hotio.dev/containers/sonarr/
+# https://github.com/synclounge/synclounge/
 replicaCount: 1
 
 image:
