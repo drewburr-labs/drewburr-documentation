@@ -1,0 +1,11 @@
+---
+# https://access.crunchydata.com/documentation/postgres-operator/latest/installation/helm#the-crunchy-container-registry
+apiVersion: v2
+name: crunchydata-pgo
+description: A Helm chart for installing CrunchyData's Postgres Operator
+type: application
+version: 0.1.0
+dependencies:
+  - name: pgo # https://github.com/CrunchyData/postgres-operator-examples/tree/main/helm/install
+    repository: oci://registry.developers.crunchydata.com/crunchydata
+    version: ^5.7.0
