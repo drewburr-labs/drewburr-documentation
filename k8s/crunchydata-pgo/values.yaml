@@ -1,0 +1,6 @@
+---
+pgo:
+  replicas: 2
+
+  resources:
+    controller: {}
