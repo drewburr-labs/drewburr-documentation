@@ -45,11 +45,11 @@ postgrescluster:
 
   pgBackRestConfig:
     global:
-      repo-retention-archive: '14' # Keep 14 backups worth of WAL
-      repo-retention-archive-type: incr # Consider all backup types when counting
-      repo-retention-diff: '14' # Keep 14 differential backups
-      repo-retention-full: '30' # Keep at least 30 days worth of full backups
-      repo-retention-full-type: time
+      repo1-retention-archive: '14' # Keep 14 backups worth of WAL
+      repo1-retention-archive-type: incr # Consider all backup types when counting
+      repo1-retention-diff: '14' # Keep 14 differential backups
+      repo1-retention-full: '30' # Keep at least 30 days worth of full backups
+      repo1-retention-full-type: time
 
     jobs:
       ttlSecondsAfterFinished: 86400 # Keep backup pods for 24 hours
