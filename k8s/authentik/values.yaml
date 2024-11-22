@@ -66,6 +66,10 @@ authentik:
 postgrescluster:
   postgresVersion: 17
 
+  metadata:
+    annotations:
+      postgres-operator.crunchydata.com/autoCreateUserSchema: true
+
   instances:
     - name: postgres
       replicas: 2
