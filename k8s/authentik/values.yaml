@@ -68,7 +68,7 @@ postgrescluster:
 
   metadata:
     annotations:
-      postgres-operator.crunchydata.com/autoCreateUserSchema: true
+      postgres-operator.crunchydata.com/autoCreateUserSchema: 'true'
 
   instances:
     - name: postgres
