@@ -1,7 +1,7 @@
 authentik:
   postgresql:
-    host: postgres.domain.tld
-    user: file:///postgres-creds/username
+    host: file:///postgres-creds/pgbouncer-host
+    user: file:///postgres-creds/user
     password: file:///postgres-creds/password
   redis:
     host: redis.domain.tld
@@ -18,7 +18,7 @@ authentik:
     volumes:
       - name: postgres-creds
         secret:
-          secretName: authentik-postgres-credentials
+          secretName: authentik-pguser-authentik
     volumeMounts:
       - name: postgres-creds
         mountPath: /postgres-creds
