@@ -1,0 +1,14 @@
+---
+# https://access.crunchydata.com/documentation/postgres-operator/latest/tutorials/basic-setup/create-cluster
+apiVersion: v2
+name: authentik
+description: A Helm chart for Authentik and surrounding services
+type: application
+version: 0.1.0
+dependencies:
+  - name: authentik # https://artifacthub.io/packages/helm/goauthentik/authentik
+    repository: https://charts.goauthentik.io/
+    version: 2024.10.2
+  - name: postgrescluster # https://github.com/CrunchyData/postgres-operator-examples/tree/main/helm/postgres
+    repository: oci://ghcr.io/drewburr-labs/helm-charts
+    version: ^5.6.0
