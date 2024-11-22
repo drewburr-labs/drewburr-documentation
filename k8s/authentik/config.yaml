@@ -3,4 +3,4 @@ ignoreDifferences:
     group: ''
     name: authentik-redis
     jsonPointers:
-      - /spec/data/redis-password
+      - /data/redis-password
