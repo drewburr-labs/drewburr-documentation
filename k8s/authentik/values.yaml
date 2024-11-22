@@ -55,7 +55,7 @@ postgrescluster:
       ttlSecondsAfterFinished: 86400 # Keep backup pods for 24 hours
 
     repos:
-      - name: local-nfs
+      - name: repo1
         schedules:
           full: 0 23 * * 5 # 23:00+00 Friday
           differential: 0 23 * * 0-4,6-7 # 23:00+00 excluding Friday
