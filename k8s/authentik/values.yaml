@@ -2,8 +2,10 @@ authentik:
   authentik:
     postgresql:
       host: file:///postgres-creds/pgbouncer-host
+      name: file:///postgres-creds/dbname
       user: file:///postgres-creds/user
       password: file:///postgres-creds/password
+      use-pgbouncer: 'true'
     redis:
       password: file:///redis-creds/redis-password
 
