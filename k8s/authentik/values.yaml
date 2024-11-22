@@ -60,6 +60,8 @@ authentik:
     enabled: true
     auth:
       enabled: true
+      existingSecret: authentik-redis
+      existingSecretPasswordKey: redis-password
 
 postgrescluster:
   postgresVersion: 17
