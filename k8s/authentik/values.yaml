@@ -32,15 +32,9 @@ authentik:
       - name: postgres-creds
         secret:
           secretName: authentik-postgres-credentials
-      - name: redis-creds
-        secret:
-          secretName: authentik-redis
     volumeMounts:
       - name: postgres-creds
         mountPath: /postgres-creds
-        readOnly: true
-      - name: redis-creds
-        mountPath: /redis-creds
         readOnly: true
   worker:
     envFrom:
@@ -51,9 +45,15 @@ authentik:
       - name: postgres-creds
         secret:
           secretName: authentik-pguser-authentik
+      - name: redis-creds
+        secret:
+          secretName: authentik-redis
     volumeMounts:
       - name: postgres-creds
         mountPath: /postgres-creds
+        readOnly: true
+      - name: redis-creds
+        mountPath: /redis-creds
         readOnly: true
 
   redis:
