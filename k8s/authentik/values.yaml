@@ -28,7 +28,7 @@ postgrescluster:
   postgresVersion: 17
 
   instances:
-    - name: authentik
+    - name: postgres
       replicas: 2
       resources:
         # requests:
@@ -42,6 +42,9 @@ postgrescluster:
         resources:
           requests:
             storage: 10Gi
+
+  users:
+    - name: authentik
 
   pgBackRestConfig:
     global:
