@@ -1,11 +1,27 @@
 authentik:
-  postgresql:
-    host: file:///postgres-creds/pgbouncer-host
-    user: file:///postgres-creds/user
-    password: file:///postgres-creds/password
-  redis:
-    host: redis.domain.tld
+  authentik:
+    postgresql:
+      host: file:///postgres-creds/pgbouncer-host
+      user: file:///postgres-creds/user
+      password: file:///postgres-creds/password
+
   server:
+    metrics:
+      enabled: true
+      serviceMonitor:
+        enabled: true
+
+    ingress:
+      enabled: true
+      ingressClassName: traefik-internal
+      hosts: ['authentik.drewburr.com']
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt
+      tls:
+        - secretName: authentik-tls
+          hosts: ['authentik.drewburr.com']
+      https: true
+
     volumes:
       - name: postgres-creds
         secret:
@@ -23,6 +39,11 @@ authentik:
       - name: postgres-creds
         mountPath: /postgres-creds
         readOnly: true
+
+  redis:
+    enabled: true
+    auth:
+      enabled: true
 
 postgrescluster:
   postgresVersion: 17
