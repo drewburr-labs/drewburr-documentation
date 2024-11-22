@@ -6,6 +6,10 @@ authentik:
       password: file:///postgres-creds/password
 
   server:
+    envFrom:
+      - secretRef:
+          name: authentik-secret-key
+
     metrics:
       enabled: true
       serviceMonitor:
@@ -31,6 +35,10 @@ authentik:
         mountPath: /postgres-creds
         readOnly: true
   worker:
+    envFrom:
+      - secretRef:
+          name: authentik-secret-key
+
     volumes:
       - name: postgres-creds
         secret:
@@ -58,7 +66,7 @@ postgrescluster:
           memory: 2Gi
       dataVolumeClaimSpec:
         accessModes:
-        - "ReadWriteOnce"
+          - 'ReadWriteOnce'
         storageClassName: zfs-nvmeof
         resources:
           requests:
@@ -87,7 +95,7 @@ postgrescluster:
           volumeClaimSpec:
             storageClassName: zfs-nfs
             accessModes:
-            - "ReadWriteMany"
+              - 'ReadWriteMany'
             resources:
               requests:
                 storage: 20Gi
