@@ -74,6 +74,7 @@ postgrescluster:
 
   users:
     - name: authentik
+      databases: [authentik]
 
   pgBackRestConfig:
     global:
