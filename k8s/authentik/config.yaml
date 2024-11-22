@@ -1,6 +1,0 @@
-ignoreDifferences:
-  - kind: 'Secret'
-    group: ''
-    name: authentik-redis
-    jsonPointers:
-      - /data/redis-password
