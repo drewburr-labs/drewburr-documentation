@@ -1,0 +1,74 @@
+authentik:
+  postgresql:
+    host: postgres.domain.tld
+    user: file:///postgres-creds/username
+    password: file:///postgres-creds/password
+  redis:
+    host: redis.domain.tld
+  server:
+    volumes:
+      - name: postgres-creds
+        secret:
+          secretName: authentik-postgres-credentials
+    volumeMounts:
+      - name: postgres-creds
+        mountPath: /postgres-creds
+        readOnly: true
+  worker:
+    volumes:
+      - name: postgres-creds
+        secret:
+          secretName: authentik-postgres-credentials
+    volumeMounts:
+      - name: postgres-creds
+        mountPath: /postgres-creds
+        readOnly: true
+
+postgrescluster:
+  postgresVersion: 17
+
+  instances:
+    - name: authentik
+      replicas: 2
+      resources:
+        # requests:
+        limits:
+          cpu: 1
+          memory: 2Gi
+      dataVolumeClaimSpec:
+        accessModes:
+        - "ReadWriteOnce"
+        storageClassName: zfs-nvmeof
+        resources:
+          requests:
+            storage: 10Gi
+
+  pgBackRestConfig:
+    global:
+      repo-retention-archive: 14 # Keep 14 backups worth of WAL
+      repo-retention-archive-type: incr # Consider all backup types when counting
+      repo-retention-diff: 14 # Keep 14 differential backups
+      repo-retention-full: 30 # Keep at least 30 days worth of full backups
+      repo-retention-full-type: time
+
+    jobs:
+      ttlSecondsAfterFinished: 86400 # Keep backup pods for 24 hours
+
+    repos:
+      - name: local-nfs
+        schedules:
+          full: 0 23 * * 5 # 23:00+00 Friday
+          differential: 0 23 * * 0-4,6-7 # 23:00+00 excluding Friday
+        volume:
+          volumeClaimSpec:
+            storageClassName: zfs-nfs
+            accessModes:
+            - "ReadWriteMany"
+            resources:
+              requests:
+                storage: 20Gi
+
+  pgBouncerReplicas: 1
+  pgBouncerConfig: {}
+
+  monitoring: true
