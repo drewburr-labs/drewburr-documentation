@@ -4,6 +4,8 @@ authentik:
       host: file:///postgres-creds/pgbouncer-host
       user: file:///postgres-creds/user
       password: file:///postgres-creds/password
+    redis:
+      password: file:///redis-creds/redis-password
 
   server:
     envFrom:
@@ -30,9 +32,15 @@ authentik:
       - name: postgres-creds
         secret:
           secretName: authentik-postgres-credentials
+      - name: redis-creds
+        secret:
+          secretName: authentik-redis
     volumeMounts:
       - name: postgres-creds
         mountPath: /postgres-creds
+        readOnly: true
+      - name: redis-creds
+        mountPath: /redis-creds
         readOnly: true
   worker:
     envFrom:
