@@ -114,9 +114,6 @@ initContainers:
       - name: wg-tcp
         protocol: TCP
         containerPort: 51820
-    startupProbe:
-      tcpSocket:
-        port: wg-tcp
     securityContext:
       privileged: true
       capabilities:
