@@ -5,11 +5,11 @@ image:
   repository: linuxserver/wireguard
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  tag: ''
 
 imagePullSecrets: []
-nameOverride: ""
-fullnameOverride: ""
+nameOverride: ''
+fullnameOverride: ''
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -18,7 +18,7 @@ serviceAccount:
   annotations: {}
   # The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
-  name: ""
+  name: ''
 
 podAnnotations: {}
 
@@ -26,9 +26,9 @@ podSecurityContext:
   fsGroup: 1001
 
 securityContext:
-  # capabilities:
-  #   drop:
-  #   - ALL
+  capabilities:
+    add:
+      - NET_ADMIN
   # runAsNonRoot: true
   # runAsUser: 1001
   # runAsGroup: 1001
@@ -50,11 +50,12 @@ services:
             - path: /
               pathType: ImplementationSpecific
       tls:
-      - secretName: qbittorrent-ingress
-        hosts:
-          - qbittorrent.drewburr.com
+        - secretName: qbittorrent-ingress
+          hosts:
+            - qbittorrent.drewburr.com
 
-resources: {}
+resources:
+  {}
   # limits:
   #   cpu: 100m
   #   memory: 128Mi
@@ -79,12 +80,6 @@ persistence:
     accessModes:
       - ReadWriteOnce
     requests: 10Gi
-    storageClassName: zfs-nvmeof
-  - name: wireguard-modules
-    mountPath: /lib/modules
-    accessModes:
-      - ReadWriteOnce
-    requests: 2Gi
     storageClassName: zfs-nvmeof
 
 nodeSelector: {}
