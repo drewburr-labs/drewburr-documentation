@@ -2,7 +2,7 @@
 replicaCount: 1
 
 image:
-  repository: lscr.io/linuxserver/jackett:latest
+  repository: lscr.io/linuxserver/jackett
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
