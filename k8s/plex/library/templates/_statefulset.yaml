@@ -82,6 +82,8 @@ spec:
             - name: {{ $k | quote }}
               value: {{ $v | quote }}
             {{- end }}
+          ports:
+            {{- toYaml $initContainer.ports | nindent 12 }}
           resources:
             {{- toYaml $initContainer.resources | nindent 12 }}
           volumeMounts:
