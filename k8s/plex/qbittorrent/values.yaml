@@ -108,9 +108,15 @@ initContainers:
       # Overrides the image tag whose default is the chart appVersion.
       tag: ''
     ports:
-      - name: wireguard
+      - name: wg-udp
         protocol: UDP
         containerPort: 51820
+      - name: wg-tcp
+        protocol: TCP
+        containerPort: 51820
+    startupProbe:
+      tcpSocket:
+        port: wg-tcp
     securityContext:
       privileged: true
       capabilities:
