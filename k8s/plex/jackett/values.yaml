@@ -44,7 +44,7 @@ services:
       className: traefik
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt
-        traefik.ingress.kubernetes.io/router.middlewares: jackett-ssl-proxy-headers@kubernetescrd
+        traefik.ingress.kubernetes.io/router.middlewares: jackett-proxy-headers@kubernetescrd
       hosts:
         - host: jackett.drewburr.com
           paths:
