@@ -107,6 +107,10 @@ initContainers:
       pullPolicy: Always
       # Overrides the image tag whose default is the chart appVersion.
       tag: ''
+    ports:
+      - name: wireguard
+        protocol: UDP
+        containerPort: 51820
     securityContext:
       privileged: true
       capabilities:
@@ -118,7 +122,6 @@ initContainers:
         mountPath: /config/wg_confs
         secret:
           secretName: wireguard-conf
-
 
 startupProbe:
   httpGet:
