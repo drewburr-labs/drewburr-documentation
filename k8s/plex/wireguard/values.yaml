@@ -45,14 +45,14 @@ services:
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt
       hosts:
-        - host: qbittorrent.drewburr.com
+        - host: wireguard.drewburr.com
           paths:
             - path: /
               pathType: ImplementationSpecific
       tls:
-        - secretName: qbittorrent-ingress
+        - secretName: wireguard-ingress
           hosts:
-            - qbittorrent.drewburr.com
+            - wireguard.drewburr.com
 
 resources:
   {}
