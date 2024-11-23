@@ -120,8 +120,6 @@ initContainers:
     volumeMountsOverride:
       - name: wireguard-conf
         mountPath: /config/wg_confs
-        secret:
-          secretName: wireguard-conf
 
 startupProbe:
   httpGet:
