@@ -1,0 +1,3 @@
+{{- include "library.deployment" (list . "wireguard.deployment") -}}
+{{- define "wireguard.deployment" -}}
+{{- end -}}
