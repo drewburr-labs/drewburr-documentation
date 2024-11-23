@@ -1,0 +1,3 @@
+{{- include "library.deployment" (list . "radarr.deployment") -}}
+{{- define "radarr.deployment" -}}
+{{- end -}}
