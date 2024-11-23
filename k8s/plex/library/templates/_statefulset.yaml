@@ -71,6 +71,9 @@ spec:
             {{- toYaml $initContainer.securityContext | nindent 12 }}
           image: "{{ $initContainer.image.repository }}:{{ $initContainer.image.tag | default $.Chart.AppVersion }}"
           imagePullPolicy: {{ $initContainer.image.pullPolicy }}
+          {{- if $initContainer.restartPolicy }}
+          restartPolicy: {{ $initContainer.restartPolicy }}
+          {{- end }}
           command:
             {{- toYaml $initContainer.command | nindent 12 }}
           env:
