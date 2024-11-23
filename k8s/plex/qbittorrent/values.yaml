@@ -5,11 +5,11 @@ image:
   repository: lscr.io/linuxserver/qbittorrent
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  tag: ''
 
 imagePullSecrets: []
-nameOverride: ""
-fullnameOverride: ""
+nameOverride: ''
+fullnameOverride: ''
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -18,7 +18,7 @@ serviceAccount:
   annotations: {}
   # The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
-  name: ""
+  name: ''
 
 podAnnotations: {}
 
@@ -50,11 +50,12 @@ services:
             - path: /
               pathType: ImplementationSpecific
       tls:
-      - secretName: qbittorrent-ingress
-        hosts:
-          - qbittorrent.drewburr.com
+        - secretName: qbittorrent-ingress
+          hosts:
+            - qbittorrent.drewburr.com
 
-resources: {}
+resources:
+  {}
   # limits:
   #   cpu: 100m
   #   memory: 128Mi
@@ -80,14 +81,45 @@ persistence:
       - ReadWriteOnce
     requests: 10Gi
     storageClassName: zfs-nvmeof
+  - name: wireguard-config
+    mountPath: config
+    accessModes:
+      - ReadWriteOnce
+    requests: 10Gi
+    storageClassName: zfs-nvmeof
   - name: data
   - name: backups
+
+additionalVolumes:
+  - name: wireguard-conf
+    mountPath: config
+    secret:
+      secretName: wireguard-conf
 
 nodeSelector: {}
 
 tolerations: []
 
 affinity: {}
+
+initContainers:
+  # - name: wireguard-init
+  #   command:
+  #     - sysctl -w net.ipv4.ip_forward=1
+  #   image: linuxserver/wireguard
+  - name: wireguard
+    restartPolicy: Always # Use as sidecar
+    image:
+      repository: linuxserver/wireguard
+      pullPolicy: Always
+      # Overrides the image tag whose default is the chart appVersion.
+      tag: ''
+    securityContext:
+      privileged: true
+      capabilities:
+        add:
+          - NET_ADMIN
+          - SYS_MODULE
 
 startupProbe:
   httpGet:
