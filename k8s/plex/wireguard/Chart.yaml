@@ -1,6 +1,6 @@
 apiVersion: v2
-name: qbittorrent
-description: A Helm chart for deploying qbittorrent
+name: wireguard
+description: A Helm chart for deploying wireguard
 type: application
 version: 0.1.0
 appVersion: "latest"
