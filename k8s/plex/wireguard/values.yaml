@@ -38,7 +38,7 @@ securityContext:
 services:
   - name: http
     type: ClusterIP
-    port: 51820
+    port: 8080
     protocol: TCP
     ingress:
       className: traefik-internal
@@ -71,6 +71,7 @@ envVars:
   PUID: 1001
   PGID: 1001
   TZ: America/New_York
+  WEBUI_PORT: 8080
 
 # All are mounted under fsroot `/`. Supports additions
 # Expected to be created already for Plex
@@ -91,12 +92,12 @@ affinity: {}
 startupProbe:
   httpGet:
     path: /
-    port: 51820
+    port: 8080
 livenessProbe:
   httpGet:
     path: /
-    port: 51820
+    port: 8080
 readinessProbe:
   httpGet:
     path: /
-    port: 51820
+    port: 8080
