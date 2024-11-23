@@ -115,7 +115,7 @@ initContainers:
           - SYS_MODULE
     volumeMountsOverride:
       - name: wireguard-conf
-        mountPath: config
+        mountPath: /config
         secret:
           secretName: wireguard-conf
 
