@@ -85,12 +85,18 @@ spec:
           resources:
             {{- toYaml $initContainer.resources | nindent 12 }}
           volumeMounts:
-            {{- range $.Values.persistence }}
+            {{- if $initContainer.volumeMountsOverride }}
+            {{-  range $initContainer.volumeMountsOverride }}
+            {{   list . | toYaml | nindent 12 }}
+            {{-  end }}
+            {{- else }}
+            {{-  range $.Values.persistence }}
             - name: {{ .name }}
               mountPath: /{{ default .name .mountPath }}
-            {{- end }}
-            {{- range $.Values.additionalVolumeMounts }}
-            {{ list . | toYaml | nindent 12 }}
+            {{-  end }}
+            {{-  range $.Values.additionalVolumeMounts }}
+            {{   list . | toYaml | nindent 12 }}
+            {{-  end }}
             {{- end }}
       {{- end }}
       {{- with .Values.nodeSelector }}

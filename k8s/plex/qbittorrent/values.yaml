@@ -81,18 +81,11 @@ persistence:
       - ReadWriteOnce
     requests: 10Gi
     storageClassName: zfs-nvmeof
-  - name: wireguard-config
-    mountPath: config
-    accessModes:
-      - ReadWriteOnce
-    requests: 10Gi
-    storageClassName: zfs-nvmeof
   - name: data
   - name: backups
 
 additionalVolumes:
   - name: wireguard-conf
-    mountPath: config
     secret:
       secretName: wireguard-conf
 
@@ -120,6 +113,12 @@ initContainers:
         add:
           - NET_ADMIN
           - SYS_MODULE
+    volumeMountsOverride:
+      - name: wireguard-conf
+        mountPath: config
+        secret:
+          secretName: wireguard-conf
+
 
 startupProbe:
   httpGet:
