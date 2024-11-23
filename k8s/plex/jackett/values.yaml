@@ -96,14 +96,11 @@ tolerations: []
 affinity: {}
 
 startupProbe:
-  httpGet:
-    path: /UI/Dashboard
+  tcpSocket:
     port: 9117
 livenessProbe:
-  httpGet:
-    path: /UI/Dashboard
+  tcpSocket:
     port: 9117
 readinessProbe:
-  httpGet:
-    path: /UI/Dashboard
+  tcpSocket:
     port: 9117
