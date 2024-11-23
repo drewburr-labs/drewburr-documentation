@@ -96,13 +96,13 @@ affinity: {}
 
 startupProbe:
   httpGet:
-    path: /
+    path: /UI/Dashboard
     port: 9117
 livenessProbe:
   httpGet:
-    path: /
+    path: /UI/Dashboard
     port: 9117
 readinessProbe:
   httpGet:
-    path: /
+    path: /UI/Dashboard
     port: 9117
