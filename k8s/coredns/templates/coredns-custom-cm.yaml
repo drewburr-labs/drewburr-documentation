@@ -4,6 +4,6 @@ metadata:
   name: coredns-custom
 data:
   forward.override: |-
-    forward . /etc/resolv.conf {
+    forward . /run/systemd/resolve/resolv.conf {
       policy sequential
     }
