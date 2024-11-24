@@ -19,11 +19,13 @@ spec:
       labels:
         {{- include "library.selectorLabels" . | nindent 8 }}
     spec:
-      dnsPolicy: None
+      {{- with .Values.dnsPolicy }}
+      dnsPolicy: {{ . }}
+      {{- end }}
+      {{- with .Values.dnsConfig }}
       dnsConfig:
-        nameservers:
-          - 192.168.4.1
-          - 1.1.1.1
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
