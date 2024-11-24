@@ -4,6 +4,4 @@ metadata:
   name: coredns-custom
 data:
   forward.override: |-
-    forward . /run/systemd/resolve/resolv.conf {
-      policy sequential
-    }
+    forward . 192.168.4.1
