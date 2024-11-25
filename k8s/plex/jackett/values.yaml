@@ -53,6 +53,8 @@ services:
           paths:
             - path: /api/v2.0/indexers/
               pathType: ImplementationSpecific
+            - path: /dl/
+              pathType: ImplementationSpecific
       tls:
       - secretName: jackett-ingress
         hosts:
