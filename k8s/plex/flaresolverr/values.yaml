@@ -71,9 +71,43 @@ envVars:
   PGID: 1001
   TZ: America/New_York
 
+initContainers:
+  - name: mkdir
+    image:
+      repository: ghcr.io/flaresolverr/flaresolverr
+      pullPolicy: Always
+      # Overrides the image tag whose default is the chart appVersion.
+      tag: ""
+    command:
+      - /bin/bash
+      - -c
+      - >-
+        mv /app /app-volume &&
+        mv /flaresolverr-service /app-volume &&
+        ls -la /app-volume
+    securityContext:
+      runAsUser: 0
+    volumeMountsOverride:
+      - name: app
+        mountPath: /app-volume
+      - name: flaresolverr-service
+        mountpath: /flaresolverr-service
+
 # All are mounted under fsroot `/`. Supports additions
 # Expected to be created already for Plex
 persistence: []
+
+additionalVolumes:
+  - name: app
+    emptyDir:
+  - name: flaresolverr-service
+    configMap:
+      name: flaresolverr-service
+      defaultMode: 0644
+
+additionalVolumeMounts:
+  - name: app
+    mountPath: /app
 
 nodeSelector: {}
 
