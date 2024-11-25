@@ -185,19 +185,13 @@ initContainers:
       runAsGroup: 1001
 
 startupProbe:
-  httpGet:
-    path: /web
+  tcpSocket:
     port: 32400
-    scheme: HTTPS
   failureThreshold: 30
   periodSeconds: 10
 livenessProbe:
-  httpGet:
-    path: /web
+  tcpSocket:
     port: 32400
-    scheme: HTTPS
 readinessProbe:
-  httpGet:
-    path: /web
+  tcpSocket:
     port: 32400
-    scheme: HTTPS
