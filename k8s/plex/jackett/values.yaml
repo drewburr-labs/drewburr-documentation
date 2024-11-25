@@ -45,14 +45,19 @@ services:
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt
       hosts:
-        - host: jackett.drewburr.com
+        - host: jackett.drewburr.com # TODO: Make internal only
           paths:
             - path: /
+              pathType: ImplementationSpecific
+        - host: jacketfeed.drewburr.com
+          paths:
+            - path: /api/v2.0/indexers/
               pathType: ImplementationSpecific
       tls:
       - secretName: jackett-ingress
         hosts:
           - jackett.drewburr.com
+          - jacketfeed.drewburr.com
 
 resources: {}
   # limits:
