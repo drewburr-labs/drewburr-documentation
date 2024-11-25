@@ -83,7 +83,7 @@ initContainers:
       - -c
       - >-
         cp -rp /app/* /app-volume &&
-        cp -rp /flaresolverr-service/* /app-volume &&
+        cp -Lrp /flaresolverr-service/* /app-volume &&
         ls -la /app-volume
     securityContext:
       runAsUser: 0
