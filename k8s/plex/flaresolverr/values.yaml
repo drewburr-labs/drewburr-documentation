@@ -2,7 +2,7 @@
 replicaCount: 1
 
 image:
-  repository: ghcr.io/flaresolverr/flaresolverr
+  repository: ghcr.io/yoori/flare-bypasser
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
@@ -38,7 +38,7 @@ securityContext:
 services:
   - name: http
     type: ClusterIP
-    port: &httpPort 8191
+    port: &httpPort 8080
     protocol: TCP
     # ingress:
     #   className: traefik
@@ -71,43 +71,13 @@ envVars:
   PGID: 1001
   TZ: America/New_York
 
-initContainers:
-  - name: mkdir
-    image:
-      repository: ghcr.io/flaresolverr/flaresolverr
-      pullPolicy: Always
-      # Overrides the image tag whose default is the chart appVersion.
-      tag: ""
-    command:
-      - /bin/bash
-      - -c
-      - >-
-        cp -rp /app/* /app-volume &&
-        cp -Lrp /flaresolverr-service/* /app-volume &&
-        ls -la /app-volume
-    securityContext:
-      runAsUser: 0
-    volumeMountsOverride:
-      - name: app
-        mountPath: /app-volume
-      - name: flaresolverr-service
-        mountPath: /flaresolverr-service
+initContainers: []
 
 # All are mounted under fsroot `/`. Supports additions
 # Expected to be created already for Plex
 persistence: []
 
-additionalVolumes:
-  - name: app
-    emptyDir:
-  - name: flaresolverr-service
-    configMap:
-      name: flaresolverr-service
-      defaultMode: 0644
-
-additionalVolumeMounts:
-  - name: app
-    mountPath: /app
+additionalVolumeMounts: []
 
 nodeSelector: {}
 
