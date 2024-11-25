@@ -91,7 +91,7 @@ initContainers:
       - name: app
         mountPath: /app-volume
       - name: flaresolverr-service
-        mountpath: /flaresolverr-service
+        mountPath: /flaresolverr-service
 
 # All are mounted under fsroot `/`. Supports additions
 # Expected to be created already for Plex
