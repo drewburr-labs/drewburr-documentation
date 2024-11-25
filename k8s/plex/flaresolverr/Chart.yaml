@@ -1,6 +1,6 @@
 apiVersion: v2
-name: flaresolverr
-description: A Helm chart for deploying flaresolverr
+name: flare-bypasser
+description: A Helm chart for deploying flare-bypasser
 type: application
 version: 0.1.0
 appVersion: "latest"
