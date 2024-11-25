@@ -86,14 +86,11 @@ tolerations: []
 affinity: {}
 
 startupProbe:
-  httpGet:
-    path: /
+  tcpSocket:
     port: *httpPort
 livenessProbe:
-  httpGet:
-    path: /
+  tcpSocket:
     port: *httpPort
 readinessProbe:
-  httpGet:
-    path: /
+  tcpSocket:
     port: *httpPort
