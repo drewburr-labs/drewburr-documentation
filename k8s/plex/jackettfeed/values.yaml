@@ -5,11 +5,11 @@ image:
   repository: lscr.io/linuxserver/jackett
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  tag: ''
 
 imagePullSecrets: []
-nameOverride: ""
-fullnameOverride: ""
+nameOverride: ''
+fullnameOverride: ''
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -18,7 +18,7 @@ serviceAccount:
   annotations: {}
   # The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
-  name: ""
+  name: ''
 
 podAnnotations: {}
 
@@ -41,27 +41,40 @@ services:
     port: 9117
     protocol: TCP
     ingress:
+      className: traefik-internal
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt
+      hosts:
+        - host: jackettfeed.drewburr.com
+          paths:
+            - path: /
+              pathType: ImplementationSpecific
+      tls:
+        - secretName: jackettfeed-ingress
+          hosts:
+            - jackettfeed.drewburr.com
+  - name: http-ext
+    type: ClusterIP
+    port: 9117
+    protocol: TCP
+    ingress:
       className: traefik
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt
       hosts:
-        - host: jackett.drewburr.com # TODO: Make internal only
-          paths:
-            - path: /
-              pathType: ImplementationSpecific
-        - host: jacketfeed.drewburr.com
+        - host: jackettfeed.drewburr.com
           paths:
             - path: /api/v2.0/indexers/
               pathType: ImplementationSpecific
             - path: /dl/
               pathType: ImplementationSpecific
       tls:
-      - secretName: jackett-ingress
-        hosts:
-          - jackett.drewburr.com
-          - jacketfeed.drewburr.com
+        - secretName: jackettfeed-ingress
+          hosts:
+            - jackettfeed.drewburr.com
 
-resources: {}
+resources:
+  {}
   # limits:
   #   cpu: 100m
   #   memory: 128Mi
