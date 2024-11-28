@@ -133,7 +133,7 @@ envVars:
 persistence:
   - name: plex-config
     accessModes:
-      - ReadWriteMany
+      - ReadWriteOnce
     requests: 30Gi
     storageClassName: zfs-nvmeof
   - name: data
