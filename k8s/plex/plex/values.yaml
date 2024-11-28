@@ -135,7 +135,7 @@ persistence:
     accessModes:
       - ReadWriteMany
     requests: 30Gi
-    storageClassName: zfs-nfs
+    storageClassName: zfs-nvmeof
   - name: data
     accessModes:
       - ReadWriteMany
