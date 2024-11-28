@@ -131,7 +131,7 @@ envVars:
 
 # All are mounted under fsroot `/`. Supports additions
 persistence:
-  - name: config
+  - name: plex-config
     accessModes:
       - ReadWriteMany
     requests: 30Gi
