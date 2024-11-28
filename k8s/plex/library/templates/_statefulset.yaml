@@ -44,6 +44,9 @@ spec:
             - name: {{ $k | quote }}
               value: {{ $v | quote }}
             {{- end }}
+            {{- toYaml .Values.env | nindent 12 }}
+          envFrom:
+            {{- toYaml .Values.envFrom | nindent 12 }}
           ports:
             {{- range .Values.services }}
             - containerPort: {{ .port }}
@@ -87,6 +90,9 @@ spec:
             - name: {{ $k | quote }}
               value: {{ $v | quote }}
             {{- end }}
+            {{- toYaml .Values.env | nindent 12 }}
+          envFrom:
+            {{- toYaml .Values.envFrom | nindent 12 }}
           ports:
             {{- toYaml $initContainer.ports | nindent 12 }}
           resources:
