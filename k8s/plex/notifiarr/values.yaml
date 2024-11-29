@@ -45,12 +45,12 @@ services:
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt
       hosts:
-        - host: &dnsName flaresolverr.drewburr.com
+        - host: &dnsName notifiarr.drewburr.com
           paths:
             - path: /
               pathType: ImplementationSpecific
       tls:
-        - secretName: flaresolverr-ingress
+        - secretName: notifiarr-ingress
           hosts:
             - *dnsName
 
