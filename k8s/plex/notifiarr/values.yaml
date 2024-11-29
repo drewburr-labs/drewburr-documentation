@@ -82,7 +82,7 @@ initContainers: []
 # All are mounted under fsroot `/`. Supports additions
 # Expected to be created already for Plex
 persistence:
-  - name: overseerr-config
+  - name: notifiarr-config
     mountPath: config
     accessModes:
       - ReadWriteOnce
