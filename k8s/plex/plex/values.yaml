@@ -140,7 +140,7 @@ persistence:
   - name: data
     accessModes:
       - ReadWriteMany
-    requests: 2Ti
+    requests: 2.2Ti
     storageClassName: zfs-nfs
   - name: backups
     accessModes:
