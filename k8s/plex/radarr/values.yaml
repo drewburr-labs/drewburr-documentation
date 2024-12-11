@@ -80,7 +80,8 @@ persistence:
       - ReadWriteOnce
     requests: 10Gi
     storageClassName: zfs-nvmeof
-  - name: data
+  - name: plex-data
+    mountPath: data
   - name: backups
 
 nodeSelector: {}
