@@ -138,21 +138,17 @@ persistence:
     requests: 30Gi
     storageClassName: zfs-nvmeof
   - name: data
+    mountPath: data-old
     accessModes:
       - ReadWriteMany
     requests: 2300Gi
     storageClassName: zfs-nfs
   - name: plex-data
-    mountPath: plex-data
+    mountPath: data
     accessModes:
       - ReadWriteMany
     requests: 15Ti
     storageClassName: nfs-lake
-  - name: backups
-    accessModes:
-      - ReadWriteMany
-    requests: 50Gi
-    storageClassName: zfs-nfs
 
 additionalVolumes:
   - name: transcode
