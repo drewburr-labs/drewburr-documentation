@@ -94,11 +94,11 @@ spec:
             - name: {{ $k | quote }}
               value: {{ $v | quote }}
             {{- end }}
-            {{- with .Values.env }}
+            {{- with $.Values.env }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
           envFrom:
-            {{- with .Values.envFrom }}
+            {{- with $.Values.envFrom }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
           ports:
