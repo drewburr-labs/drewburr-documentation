@@ -9,7 +9,7 @@ spec:
   resources:
     requests:
       storage: 10Gi
-  storageClassName: zfs-nfs
+  storageClassName: nfs-lake
 ---
 apiVersion: apps/v1
 kind: Deployment
