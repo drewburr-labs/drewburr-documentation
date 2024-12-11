@@ -94,9 +94,13 @@ spec:
             - name: {{ $k | quote }}
               value: {{ $v | quote }}
             {{- end }}
-            {{- toYaml .Values.env | nindent 12 }}
+            {{- with .Values.env }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
           envFrom:
-            {{- toYaml .Values.envFrom | nindent 12 }}
+            {{- with .Values.envFrom }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
           ports:
             {{- toYaml $initContainer.ports | nindent 12 }}
           resources:
