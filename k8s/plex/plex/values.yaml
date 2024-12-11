@@ -149,6 +149,11 @@ persistence:
       - ReadWriteMany
     requests: 15Ti
     storageClassName: nfs-lake
+  - name: backups
+    accessModes:
+      - ReadWriteMany
+    requests: 50Gi
+    storageClassName: zfs-nfs
 
 additionalVolumes:
   - name: transcode
