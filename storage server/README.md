@@ -15,6 +15,105 @@ sudo apt install zfsutils-linux
 sudo zpool create sas-pool raidz3 /dev/sdd /dev/sdb /dev/sde /dev/sdi /dev/sdc /dev/sdf /dev/sdm /dev/sdj /dev/sdh /dev/sdk /dev/sdg /dev/sdl
 ```
 
+### Helpful commands
+
+View all PCI devices:
+`lspci`
+
+Get all block devices
+`ls -l /sys/block/`
+
+View block device metadata
+`sg_format /dev/<name>`
+
+#### Adding a new PCI device to the storage VM
+
+Added a SATA device, need to identify what the device is named
+
+```sh
+# Show PCI devices to identify SATA controller
+$ lspci
+00:11.0 SATA controller: Advanced Micro Devices, Inc. [AMD] FCH SATA Controller [AHCI mode] (rev 51)
+
+# Get block devices, filter for SATA controller's PCI address
+$ ls -l /sys/block/ | grep 00:11.0
+lrwxrwxrwx 1 root root 0 Dec  7 21:28 sdn -> ../devices/pci0000:00/0000:00:11.0/ata5/host6/target6:0:0/6:0:0:0/block/sdn
+lrwxrwxrwx 1 root root 0 Dec  7 21:28 sdo -> ../devices/pci0000:00/0000:00:11.0/ata6/host7/target7:0:0/7:0:0:0/block/sdo
+
+# Show devices in lsblk
+$ lsblk | grep -e sdn -e sdo
+sdn       8:208  1  10.9T  0 disk
+sdo       8:224  1  10.9T  0 disk
+
+# Show device in sg_format
+$ sudo sg_format /dev/sdn
+ ...
+Mode Sense (block descriptor) data, prior to changes:
+  Number of blocks=0 [0x0]
+  Block size=512 [0x200]
+Read Capacity (16) results:
+   Protection: prot_en=0, p_type=0, p_i_exponent=0
+   Logical block provisioning: lbpme=0, lbprz=0
+   Logical blocks per physical block exponent=3
+   Lowest aligned logical block address=0
+   Number of logical blocks=23437770752
+   Logical block size=512 bytes
+```
+
+#### Removing and readding a disk to ZFS
+
+While disks attached to the SAS controller are physically ordered top-to-bottom, where device 0 is phsically located at the top and device 24 at the bottom, this is not actually honored when reviewing PCI addresses. The best way to identify a drive is by its serial number. I am passing the PCI device directly to my storage server, providing transparency required to get this information.
+
+Start by reviewing the label on the device intended to be removed. If using a JBOD, this may not be possible and the pool will need to be placed offline. It is reccommended to ensure all drives have safely visible serial numbers, or are labeled with the last 4 or 5 letters of the serial number to ensure it's identifiable. In this example, the last 5 of my serial is `10740`.
+
+In the case where your ZFS pool is created using `/dev/disk/by-id/*` instead of `/dev/*`, you will be able to identify the drive directly using `zpool status`. I am in the process of migrating to disk ids, and will need to translate the serial to a mount point:
+
+```sh
+$ lsblk -o NAME,SERIAL | grep 10740
+sdi     .........10740
+```
+
+```sh
+# Validate health of ZFS pool
+$ zpool status
+  pool: sas-pool
+ state: ONLINE
+```
+
+```sh
+# Offline the disk
+$ sudo zpool offline sas-pool sdi
+```
+
+```sh
+# Validate disk is offline
+$ zpool status
+  pool: sas-pool
+ state: DEGRADED
+ ...
+config:
+
+        NAME        STATE     READ WRITE CKSUM
+        sas-pool    DEGRADED     0     0     0
+          raidz3-0  DEGRADED     0     0     0
+            sdi     OFFLINE      0     0     0
+            ...
+```
+
+In this state, the disk is safe to phsically disconnect from the system. Continue once reattached
+
+```sh
+# Online the disk
+$ sudo zpool online sas-pool sdi
+```
+
+```sh
+# Validate health of ZFS pool
+$ zpool status
+  pool: sas-pool
+ state: ONLINE
+```
+
 ## nvmeof setup
 
 ### Client
