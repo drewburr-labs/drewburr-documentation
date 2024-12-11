@@ -140,8 +140,15 @@ persistence:
   - name: data
     accessModes:
       - ReadWriteMany
-    requests: 2.2Ti
+    requests: 2300Gi
     storageClassName: zfs-nfs
+  - name: plex-data
+    mountPath: data
+    accessModes:
+      - ReadWriteMany
+    requests:
+      requests: 15Ti
+    storageClassName: nfs-lake
   - name: backups
     accessModes:
       - ReadWriteMany
