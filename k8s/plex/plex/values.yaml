@@ -143,7 +143,7 @@ persistence:
     requests: 2300Gi
     storageClassName: zfs-nfs
   - name: plex-data
-    mountPath: data
+    mountPath: plex-data
     accessModes:
       - ReadWriteMany
     requests: 15Ti
