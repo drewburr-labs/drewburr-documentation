@@ -1,0 +1,109 @@
+# https://hub.docker.com/r/linuxserver/sabnzbd
+replicaCount: 1
+
+image:
+  repository: lscr.io/linuxserver/sabnzbd
+  pullPolicy: Always
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext:
+  fsGroup: 1001
+
+securityContext:
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # runAsNonRoot: true
+  # runAsUser: 1001
+  # runAsGroup: 1001
+
+# Ports to be exposed, grouped by services
+# https://support.plex.tv/articles/201543147-what-network-ports-do-i-need-to-allow-through-my-firewall/
+services:
+  - name: http
+    type: ClusterIP
+    port: 8080
+    protocol: TCP
+    ingress:
+      className: traefik-internal
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt
+      hosts:
+        - host: sabnzbd-flex.drewburr.com
+          paths:
+            - path: /
+              pathType: ImplementationSpecific
+      tls:
+      - secretName: sabnzbd-flex-ingress
+        hosts:
+          - sabnzbd-flex.drewburr.com
+
+resources: {}
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+# Appended to env. Supports envFrom
+env: []
+
+# Key: value environment variables to be appended to env
+envVars:
+  PUID: 1001
+  PGID: 1001
+  TZ: America/New_York
+
+# Expected to be created already for Plex
+persistence:
+  - name: sabnzbd-flex-config
+    mountPath: config
+    accessModes:
+      - ReadWriteOnce
+    requests: 10Gi
+    storageClassName: zfs-nvmeof
+  - name: sabnzbd-flex-data
+    mountPath: data
+    accessModes:
+      - ReadWriteOnce
+    requests: 100Gi
+    storageClassName: zfs-nvmeof
+  - name: backups
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+startupProbe:
+  httpGet:
+    path: /
+    port: 8080
+  failureThreshold: 30
+  periodSeconds: 10
+livenessProbe:
+  httpGet:
+    path: /
+    port: 8080
+readinessProbe:
+  httpGet:
+    path: /
+    port: 8080
