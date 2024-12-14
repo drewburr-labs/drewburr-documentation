@@ -62,13 +62,12 @@ traefik:
       redirectTo:
         port: websecure
         permanent: true
-    plexsecure:
-      port: 32443
+    sftp:
+      port: 5657
       expose:
         default: true
-      exposedPort: 32443
-      tls:
-        enabled: true
+      # tls:
+      #   enabled: true
 
   experimental:
     plugins:

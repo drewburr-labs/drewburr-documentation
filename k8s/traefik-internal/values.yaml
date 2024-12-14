@@ -67,6 +67,10 @@ traefik:
       redirectTo:
         port: websecure
         permanent: true
+    sftp:
+      port: 5657
+      expose:
+        default: true
 
   experimental:
     plugins:
