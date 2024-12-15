@@ -99,7 +99,6 @@ minecraft:
       command:
         - mc-monitor
         - status
-        - -use-proxy
     initialDelaySeconds: 30
     failureThreshold: 36
     periodSeconds: 5
@@ -108,7 +107,6 @@ minecraft:
       command:
         - mc-monitor
         - status
-        - -use-proxy
     failureThreshold: 10
     periodSeconds: 5
 
