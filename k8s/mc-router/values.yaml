@@ -20,7 +20,7 @@ mc-router:
         external-dns.alpha.kubernetes.io/hostname: '*.mc.drewburr.com'
         external-dns.alpha.kubernetes.io/target: ip.drewburr.com
       labels:
-        cloudflare-dns: 'true'
+        cloudflare-dns: 'true' # Not supported by chart. Do manually for now
 
   resources:
     limits:
