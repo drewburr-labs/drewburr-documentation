@@ -90,6 +90,7 @@ kube-prometheus-stack:
       enabled: true
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt
+        external-dns.alpha.kubernetes.io/target: ip.drewburr.com
       ingressClassName: traefik
       hosts:
         - grafana.drewburr.com
