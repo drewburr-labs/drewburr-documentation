@@ -40,8 +40,10 @@ services:
     type: ClusterIP
     port: 7878
     protocol: TCP
+    annotations:
+      external-dns.alpha.kubernetes.io/target: ip.drewburr.com
     ingress:
-      className: traefik
+      className: traefik-internal
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt
       hosts:
