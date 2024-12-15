@@ -1,7 +1,7 @@
 ---
 ingress-nginx:
   ingressClassResource:
-    name: nginx-internal
+    name: nginx-external
 
   controller:
     kind: Daemonset
@@ -13,7 +13,7 @@ ingress-nginx:
 
     service:
       annotations:
-        metallb.universe.tf/loadBalancerIPs: '192.168.4.61'
+        metallb.universe.tf/loadBalancerIPs: '192.168.4.62'
 
     metrics:
       enabled: true
