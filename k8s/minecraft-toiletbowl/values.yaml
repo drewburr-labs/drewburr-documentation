@@ -65,7 +65,7 @@ minecraft:
     INIT_MEMORY: 2G
     MAX_MEMORY: 5G
     PLAYER_IDLE_TIMEOUT: "30"
-    # USES_PROXY_PROTOCOL: "true"
+    USES_PROXY_PROTOCOL: "false"
     # Autopause settings
     MAX_TICK_TIME: "-1"
     ENABLE_AUTOPAUSE: "true"
