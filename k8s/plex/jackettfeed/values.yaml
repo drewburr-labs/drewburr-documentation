@@ -45,7 +45,7 @@ services:
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt
       hosts:
-        - host: jackettfeed.drewburr.com
+        - host: jackett-ext.drewburr.com
           paths:
             - path: /
               pathType: ImplementationSpecific
