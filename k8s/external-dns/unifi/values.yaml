@@ -11,7 +11,7 @@ external-dns:
         tag: v0.3.3
       env:
         - name: UNIFI_HOST
-          value: https://192.168.4.1
+          value: https://192.168.5.148
         - name: UNIFI_EXTERNAL_CONTROLLER
           value: 'false'
         - name: UNIFI_USER
