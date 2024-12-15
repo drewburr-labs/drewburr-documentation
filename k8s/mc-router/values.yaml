@@ -6,7 +6,7 @@ mc-router:
   securityContext:
     capabilities:
       drop:
-      - ALL
+        - ALL
     readOnlyRootFilesystem: true
     runAsNonRoot: true
     runAsUser: 1000
@@ -17,6 +17,10 @@ mc-router:
       port: 25565
       annotations:
         metallb.universe.tf/loadBalancerIPs: 192.168.4.53 # Ensure static IP
+        external-dns.alpha.kubernetes.io/hostname: '*.mc.drewburr.com'
+        external-dns.alpha.kubernetes.io/target: ip.drewburr.com
+      labels:
+        cloudflare-dns: 'true'
 
   resources:
     limits:
