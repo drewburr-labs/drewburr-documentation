@@ -6,7 +6,7 @@ home-assistant:
 
   ingress:
     enabled: true
-    className: traefik
+    className: traefik-internal
     annotations:
       cert-manager.io/cluster-issuer: letsencrypt
     hosts:

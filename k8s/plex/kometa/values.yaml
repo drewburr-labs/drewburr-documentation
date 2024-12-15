@@ -41,7 +41,7 @@ services:
     port: 7878
     protocol: TCP
     ingress:
-      className: traefik
+      className: traefik-internal
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt
       hosts:
