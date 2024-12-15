@@ -40,6 +40,7 @@ minecraft:
           enabled: true
           annotations:
             cert-manager.io/cluster-issuer: letsencrypt
+            external-dns.alpha.kubernetes.io/target: ip.drewburr.com
           hosts:
             - name: toiletbowl.map.drewburr.com
               path: /

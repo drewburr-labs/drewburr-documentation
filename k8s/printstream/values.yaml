@@ -13,6 +13,7 @@ ingress:
   ingressClassName: traefik
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt
+    external-dns.alpha.kubernetes.io/target: ip.drewburr.com
     traefik.frontend.passHostHeader: "false"
     traefik.ingress.kubernetes.io/redirect-regex: ^https://printstream.drewburr.com
     traefik.ingress.kubernetes.io/redirect-replacement: http://k1c.drewburr.com/
