@@ -13,13 +13,15 @@ external-dns:
   extraArgs:
     - --ingress-class=traefik
     - --ingress-class=nginx-external
+    - --managed-record-types=CNAME
   policy: sync
   sources: ['ingress', 'service']
   txtOwnerId: default
   txtPrefix: k8s.
   domainFilters: ['drewburr.com']
-  managedRecordTypes:
-    - CNAME
+  # Not supported in Helm v1.15.0
+  # managedRecordTypes:
+  #   - CNAME
 
   serviceMonitor:
     enabled: true
