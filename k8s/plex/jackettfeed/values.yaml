@@ -52,7 +52,7 @@ services:
       tls:
         - secretName: jackettfeed-ingress
           hosts:
-            - jackettfeed.drewburr.com
+            - jackett-ext.drewburr.com
   - name: http-ext
     type: ClusterIP
     port: 9117
