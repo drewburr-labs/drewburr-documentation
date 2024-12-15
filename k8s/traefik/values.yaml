@@ -2,6 +2,7 @@
 traefik:
   additionalArguments:
   - "--serversTransport.insecureskipverify=true"
+  - "--providers.kubernetesingress.ingressendpoint.hostname=ip.drewburr.com" # Set hostname to suppport external CNAMEs
   - "--providers.kubernetesingress.ingressendpoint.publishedservice=traefik/traefik" # Kubernetes service to copy status from
   - "--providers.kubernetescrd.allowemptyservices=true"
   - "--providers.kubernetescrd.allowexternalnameservices=true"
