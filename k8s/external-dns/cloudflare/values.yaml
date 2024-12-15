@@ -1,0 +1,19 @@
+# https://github.com/kashalls/external-dns-unifi-webhook
+---
+external-dns:
+  provider:
+    name: cloudflare
+  labelFilter:
+    dnsProvider: cloudflare
+  env:
+    - name: CF_API_TOKEN
+      valueFrom:
+        secretKeyRef:
+          name: cloudflare-api-key
+          key: apiKey
+  # extraArgs:
+  policy: sync
+  sources: ['ingress', 'service']
+  txtOwnerId: default
+  txtPrefix: k8s.
+  domainFilters: ['drewburr.com']
