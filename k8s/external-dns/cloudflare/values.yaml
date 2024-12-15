@@ -17,3 +17,8 @@ external-dns:
   txtOwnerId: default
   txtPrefix: k8s.
   domainFilters: ['drewburr.com']
+  managedRecordTypes:
+    - CNAME
+
+  serviceMonitor:
+    enabled: true
