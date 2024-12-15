@@ -44,6 +44,7 @@ services:
       className: traefik
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt
+        external-dns.alpha.kubernetes.io/target: ip.drewburr.com
       hosts:
         - host: synclounge.drewburr.com
           paths:
