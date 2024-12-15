@@ -4,6 +4,9 @@ ingress-nginx:
   controller:
     kind: Daemonset
 
+    admissionWebhooks:
+      enabled: false
+
     ingressClassResource:
       name: nginx-internal
       controllerValue: k8s.io/ingress-nginx-internal
