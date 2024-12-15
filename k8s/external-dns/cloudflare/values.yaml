@@ -3,15 +3,16 @@
 external-dns:
   provider:
     name: cloudflare
-  labelFilter:
-    dnsProvider: cloudflare
+  labelFilter: cloudflare-dns='true'
   env:
     - name: CF_API_TOKEN
       valueFrom:
         secretKeyRef:
           name: cloudflare-api-key
           key: apiKey
-  # extraArgs:
+  extraArgs:
+    - --ingress-class=traefik
+    - --ingress-class=nginx-external
   policy: sync
   sources: ['ingress', 'service']
   txtOwnerId: default
