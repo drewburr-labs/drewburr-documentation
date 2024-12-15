@@ -1,11 +1,12 @@
 ---
 ingress-nginx:
-  ingressClassResource:
-    name: nginx-internal
-  ingressClass: nginx-internal
 
   controller:
     kind: Daemonset
+
+    ingressClassResource:
+      name: nginx-internal
+    ingressClass: nginx-internal
 
     resources:
       requests:
