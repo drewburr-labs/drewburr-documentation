@@ -1,0 +1,18 @@
+---
+ingress-nginx:
+  ingressClassResource:
+    name: nginx-internal
+
+  controller:
+    kind: Daemonset
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 90Mi
+
+    metrics:
+      enabled: true
+
+      serviceMonitor:
+        enabled: true
