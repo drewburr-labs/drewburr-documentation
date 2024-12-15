@@ -3,7 +3,7 @@
 external-dns:
   provider:
     name: cloudflare
-  labelFilter: cloudflare-dns='true'
+  # labelFilter: cloudflare-dns='true' # Not supported in Helm v1.15.0
   env:
     - name: CF_API_TOKEN
       valueFrom:
@@ -14,6 +14,7 @@ external-dns:
     - --ingress-class=traefik
     - --ingress-class=nginx-external
     - --managed-record-types=CNAME
+    # - --label-filter=cloudflare-dns='true'
   policy: sync
   sources: ['ingress', 'service']
   txtOwnerId: default
