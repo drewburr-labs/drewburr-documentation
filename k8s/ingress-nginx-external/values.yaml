@@ -6,8 +6,8 @@ ingress-nginx:
 
     ingressClassResource:
       name: nginx-external
+      controllerValue: k8s.io/ingress-nginx-external
     ingressClass: nginx-external
-    controllerValue: k8s.io/ingress-nginx-external
 
     resources:
       requests:
