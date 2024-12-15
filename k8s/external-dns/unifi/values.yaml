@@ -1,7 +1,7 @@
 # https://github.com/kashalls/external-dns-unifi-webhook
 ---
 external-dns:
-  # labelFilter: unifi-dns='true'
+  # labelFilter: unifi-dns='true' # Not supported in Helm v1.15.0
   provider:
     name: webhook
     webhook:
@@ -39,8 +39,10 @@ external-dns:
         timeoutSeconds: 5
   extraArgs:
     - --ignore-ingress-tls-spec
-  # - --ingress-class=traefik-internal
-  # - --ingress-class=nginx-internal
+    - --managed-record-types=CNAME
+    - --ingress-class=traefik-internal
+    - --ingress-class=nginx-internal
+    # - --label-filter=unifi-dns='true'
   policy: sync
   sources: ['ingress', 'service']
   txtOwnerId: default
