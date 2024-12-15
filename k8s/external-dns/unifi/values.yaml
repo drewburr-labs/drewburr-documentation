@@ -1,7 +1,7 @@
 # https://github.com/kashalls/external-dns-unifi-webhook
 ---
 external-dns:
-  labelFilter: unifi-dns='true'
+  # labelFilter: unifi-dns='true'
   provider:
     name: webhook
     webhook:
@@ -39,8 +39,8 @@ external-dns:
         timeoutSeconds: 5
   extraArgs:
     - --ignore-ingress-tls-spec
-    - --ingress-class=traefik-internal
-    - --ingress-class=nginx-internal
+  # - --ingress-class=traefik-internal
+  # - --ingress-class=nginx-internal
   policy: sync
   sources: ['ingress', 'service']
   txtOwnerId: default
