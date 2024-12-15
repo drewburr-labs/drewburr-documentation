@@ -42,7 +42,7 @@ external-dns:
     - --managed-record-types=CNAME
     - --ingress-class=traefik-internal
     - --ingress-class=nginx-internal
-    # - --label-filter=unifi-dns='true'
+    - --label-filter=unifi-dns='true'
   policy: sync
   sources: ['ingress', 'service']
   txtOwnerId: default
