@@ -25,6 +25,8 @@ external-dns:
               key: password
         - name: LOG_LEVEL
           value: info
+        - name: REGEXP_DOMAIN_FILTER_EXCLUSION
+          value: \*.*
       livenessProbe:
         httpGet:
           path: /healthz
@@ -41,7 +43,6 @@ external-dns:
     - --ignore-ingress-tls-spec
     - --ingress-class=traefik-internal
     - --ingress-class=nginx-internal
-    - --regex-domain-filter=[^\*].*
     # - --label-filter=unifi-dns=true
   policy: sync
   sources: ['ingress', 'service']
