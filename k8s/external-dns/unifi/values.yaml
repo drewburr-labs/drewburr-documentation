@@ -41,7 +41,8 @@ external-dns:
     - --ignore-ingress-tls-spec
     - --ingress-class=traefik-internal
     - --ingress-class=nginx-internal
-    - --label-filter=unifi-dns=true
+    - --regex-domain-filter=[^\*].*
+    # - --label-filter=unifi-dns=true
   policy: sync
   sources: ['ingress', 'service']
   txtOwnerId: default
