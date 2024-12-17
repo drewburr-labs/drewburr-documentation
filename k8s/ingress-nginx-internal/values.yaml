@@ -2,7 +2,7 @@
 ingress-nginx:
 
   controller:
-    kind: Daemonset
+    kind: DaemonSet
 
     admissionWebhooks:
       enabled: false
