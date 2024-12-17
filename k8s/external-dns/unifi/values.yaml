@@ -39,7 +39,6 @@ external-dns:
         timeoutSeconds: 5
   extraArgs:
     - --ignore-ingress-tls-spec
-    - --managed-record-types=CNAME
     - --ingress-class=traefik-internal
     - --ingress-class=nginx-internal
     - --label-filter=unifi-dns=true
