@@ -32,9 +32,9 @@ kube-prometheus-stack:
             storageClassName: zfs-nvmeof
             resources:
               requests:
-                storage: 50Gi
+                storage: 150Gi
 
-      retention: 30d
+      retention: 90d
 
       resources: {}
 
