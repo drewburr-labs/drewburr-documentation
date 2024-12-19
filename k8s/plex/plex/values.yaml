@@ -119,12 +119,6 @@ persistence:
       - ReadWriteOnce
     requests: 30Gi
     storageClassName: zfs-nvmeof
-  - name: data
-    mountPath: data-old
-    accessModes:
-      - ReadWriteMany
-    requests: 2300Gi
-    storageClassName: zfs-nfs
   - name: plex-data
     mountPath: data
     accessModes:
