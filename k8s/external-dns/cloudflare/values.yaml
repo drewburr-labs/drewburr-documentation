@@ -14,7 +14,6 @@ external-dns:
     - --ingress-class=traefik
     - --ingress-class=nginx-external
     - --managed-record-types=CNAME
-    - --label-filter=cloudflare-dns=true
   policy: sync
   sources: ['ingress', 'service']
   txtOwnerId: default
