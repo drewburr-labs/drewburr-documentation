@@ -9,7 +9,7 @@ kube-prometheus-stack:
       enabled: true
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt
-      ingressClassName: traefik-internal
+      ingressClassName: nginx-internal
       hosts:
         - prometheus.drewburr.com
       tls:

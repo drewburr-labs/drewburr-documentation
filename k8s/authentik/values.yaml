@@ -21,7 +21,7 @@ authentik:
 
     ingress:
       enabled: true
-      ingressClassName: traefik-internal
+      ingressClassName: nginx-internal
       hosts: ['authentik.drewburr.com']
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt
