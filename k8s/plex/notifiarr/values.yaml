@@ -41,7 +41,7 @@ services:
     port: &httpPort 5454
     protocol: TCP
     ingress:
-      className: traefik-internal
+      className: nginx-internal
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt
       hosts:

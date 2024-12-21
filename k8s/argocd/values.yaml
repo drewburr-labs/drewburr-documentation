@@ -59,7 +59,7 @@ argocd:
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt
       hostname: argocd.drewburr.com
-      ingressClassName: traefik-internal
+      ingressClassName: nginx-internal
       tls: true
 
   repoServer:

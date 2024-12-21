@@ -8,7 +8,7 @@ harbor:
     ingress:
       hosts:
         core: harbor.drewburr.com
-      className: "traefik-internal"
+      className: "nginx-internal"
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt
   externalURL: https://harbor.drewburr.com
