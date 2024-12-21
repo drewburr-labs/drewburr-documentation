@@ -7,6 +7,9 @@ ingress-nginx:
     admissionWebhooks:
       enabled: false
 
+    config:
+      proxy-body-size: 64m # Fafaults to 1m
+
     ingressClassResource:
       name: nginx-internal
       controllerValue: k8s.io/ingress-nginx-internal
