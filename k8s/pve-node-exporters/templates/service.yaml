@@ -1,16 +1,15 @@
-{{- range .Values.endpoints }}
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: {{ .name | quote }}
   labels:
-    {{- toYaml $.Values.labels | nindent 4 }}
+    {{- toYaml .Values.labels | nindent 4 }}
 spec:
   type: ClusterIP
   ports:
-    - port: {{ $.Values.port }}
-      targetPort: {{ $.Values.port }}
+    - port: {{ .Values.port }}
+      targetPort: {{ .Values.port }}
       protocol: TCP
       name: http
 ---
@@ -19,11 +18,12 @@ kind: Endpoints
 metadata:
   name: {{ .name | quote }}
   labels:
-    {{- toYaml $.Values.labels | nindent 4 }}
+    {{- toYaml .Values.labels | nindent 4 }}
 subsets:
 - addresses:
-  - ip: {{ .ip }}
+  {{- range .Values.ips }}
+  - ip: {{ . }}
+  {{- end }}
   ports:
   - name: http
     port: 9100
-{{- end }}
