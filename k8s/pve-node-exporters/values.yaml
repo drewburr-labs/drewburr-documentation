@@ -1,15 +1,19 @@
 ---
-ips:
-  - 192.168.4.21
-  - 192.168.4.22
-  - 192.168.4.23
-  - 192.168.4.24
-  - 192.168.4.25
-  - 192.168.4.26
-  - 192.168.4.27
-  - 192.168.4.28
-  - 192.168.4.29
-  - 192.168.4.31
+services:
+  - name: pve-node-exporter
+    ips:
+      - 192.168.4.21
+      - 192.168.4.22
+      - 192.168.4.23
+      - 192.168.4.24
+      - 192.168.4.25
+      - 192.168.4.26
+      - 192.168.4.27
+      - 192.168.4.28
+      - 192.168.4.29
+  - name: storage-node-exporter
+    ips:
+      - 192.168.4.31
 
 endpoint:
   honorLabels: true
@@ -19,4 +23,4 @@ endpoint:
   scrapeTimeout: 30s
 port: 9100
 labels:
-  app: proxmox-node-exporter
+  app: node-exporter
