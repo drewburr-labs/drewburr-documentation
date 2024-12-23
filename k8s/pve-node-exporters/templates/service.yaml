@@ -1,4 +1,4 @@
-{{-- range .Values.services }}
+{{- range .Values.services }}
 ---
 apiVersion: v1
 kind: Service
