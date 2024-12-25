@@ -58,6 +58,7 @@ argocd:
       https: true
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt
+        nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
       hostname: argocd.drewburr.com
       ingressClassName: nginx-internal
       tls: true
