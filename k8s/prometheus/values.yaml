@@ -20,7 +20,7 @@ kube-prometheus-stack:
 
     prometheusSpec:
       serviceMonitorSelector:
-        matchLabels: null
+        matchLabels: {}
 
       storageSpec:
         volumeClaimTemplate:
