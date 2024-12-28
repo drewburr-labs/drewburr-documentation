@@ -50,7 +50,7 @@ services:
             - path: /
               pathType: ImplementationSpecific
       tls:
-        - secretName: jackettfeed-ingress
+        - secretName: jackett-ext-ingress
           hosts:
             - jackett-ext.drewburr.com
   - name: http-ext
