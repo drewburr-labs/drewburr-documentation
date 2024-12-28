@@ -14,12 +14,12 @@ imagePullSecrets: []
 nameOverride: ''
 fullnameOverride: ''
 
-livenessProbe:
-  tcpSocket:
-    port: 24642
-readinessProbe:
-  tcpSocket:
-    port: 24642
+livenessProbe: {}
+  # tcpSocket:
+  #   port: 24642
+readinessProbe: {}
+  # tcpSocket:
+  #   port: 24642
 startupProbe: {}
 
 persistence:
