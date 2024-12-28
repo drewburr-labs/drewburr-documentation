@@ -36,7 +36,7 @@ minecraft:
           type: ClusterIP
           port: 8100
         ingress:
-          ingressClassName: traefik
+          ingressClassName: nginx-external
           enabled: true
           annotations:
             cert-manager.io/cluster-issuer: letsencrypt
