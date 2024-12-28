@@ -1,0 +1,25 @@
+{{- range .Values.services }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "stardew.fullname" $ }}-{{ .name }}
+  labels:
+    {{- include "stardew.labels" $ | nindent 4 }}
+    {{- with .labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .type }}
+  ports:
+    {{- toYaml .ports | nindent 4 }}
+  selector:
+    {{- include "stardew.selectorLabels" $ | nindent 4 }}
+  {{- with .externalTrafficPolicy }}
+  externalTrafficPolicy: {{ . }}
+  {{- end }}
+{{- end }}
