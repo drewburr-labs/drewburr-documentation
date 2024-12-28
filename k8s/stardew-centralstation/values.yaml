@@ -64,6 +64,7 @@ services:
     type: LoadBalancer
     annotations:
       metallb.universe.tf/loadBalancerIPs: 192.168.4.54
+      external-dns.alpha.kubernetes.io/hostname: 'stardew-centralstation.drewburr.com'
       external-dns.alpha.kubernetes.io/target: ip.drewburr.com
       cloudflare-dns: 'true'
     ports:
