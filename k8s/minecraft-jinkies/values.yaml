@@ -99,6 +99,7 @@ services:
       className: nginx-internal
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt
+        nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
       hosts:
         - host: jinkies.crafty.drewburr.com
           paths:
