@@ -16,10 +16,10 @@ fullnameOverride: ''
 
 livenessProbe:
   tcpSocket:
-    port: 5902
+    port: 24642
 readinessProbe:
   tcpSocket:
-    port: 5902
+    port: 24642
 startupProbe: {}
 
 persistence:
