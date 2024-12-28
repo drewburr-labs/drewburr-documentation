@@ -1,0 +1,18 @@
+{{- range .Values.persistence }}
+{{-  if (.).requests }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .name }}
+  labels:
+    {{- include "panel.labels" $ | nindent 4 }}
+spec:
+  accessModes:
+    {{- toYaml .accessModes | nindent 4 }}
+  resources:
+    requests:
+      storage: {{ .requests }}
+  storageClassName: {{ .storageClassName }}
+{{- end }}
+{{- end }}
