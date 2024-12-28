@@ -41,7 +41,7 @@ services:
     port: 8088
     protocol: TCP
     ingress:
-      className: traefik
+      className: nginx-external
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt
         external-dns.alpha.kubernetes.io/target: ip.drewburr.com
