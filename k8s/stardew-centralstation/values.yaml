@@ -1,0 +1,230 @@
+# Default values for panel.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: ghcr.io/drewburr/stardew-valley-server
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ''
+
+imagePullSecrets: []
+nameOverride: ''
+fullnameOverride: ''
+
+livenessProbe:
+  tcpSocket:
+    port: 5902
+readinessProbe:
+  tcpSocket:
+    port: 5902
+startupProbe: {}
+
+persistence:
+  - name: saves
+    mountPath: /config/xdg/config/StardewValley/Saves
+    accessModes:
+      - ReadWriteOnce
+    requests: 50Gi
+    storageClassName: zfs-nvmeof
+
+additionalVolumes: []
+
+additionalVolumeMounts: []
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ''
+
+podAnnotations: {}
+
+podSecurityContext:
+  # {}
+
+securityContext:
+  # {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1001
+
+initContainers: []
+
+services:
+  - name: game
+    type: LoadBalancer
+    annotations:
+      metallb.universe.tf/loadBalancerIPs: 192.168.4.54
+      external-dns.alpha.kubernetes.io/target: ip.drewburr.com
+      cloudflare-dns: 'true'
+    ports:
+      - name: game
+        port: 24642
+        protocol: UDP
+  - name: novnc-web
+    type: ClusterIP
+    ports:
+      - name: novnc-web
+        port: 5800
+        protocol: TCP
+    ingress:
+      className: traefik-internal
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt
+      hosts:
+        - host: stardew-vnc.drewburr.com
+          paths:
+            - path: /
+              pathType: ImplementationSpecific
+      tls:
+        - secretName: stardew-vnc-ingress
+          hosts:
+            - stardew-vnc.drewburr.com
+  - name: vnc
+    type: ClusterIP
+    ports:
+      - name: vnc
+        port: 5900
+        protocol: TCP
+
+resources:
+  {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+envVars:
+  # VNC
+  VNC_PASSWORD: insecure
+  DISPLAY_HEIGHT: 900
+  DISPLAY_WIDTH: 1200
+  X11VNC_EXTRA_OPTS: -noxdamage -reopen -forever
+
+  # Always On Server mod
+  ## Removing this will probably defeat the point of ever using this?
+  ENABLE_ALWAYSONSERVER_MOD: "true"
+  ALWAYS_ON_SERVER_HOTKEY: "F9"
+  ALWAYS_ON_SERVER_PROFIT_MARGIN: "100"
+  ALWAYS_ON_SERVER_UPGRADE_HOUSE: "0"
+  ALWAYS_ON_SERVER_PET_NAME: "Rufus"
+  ALWAYS_ON_SERVER_FARM_CAVE_CHOICE_MUSHROOMS: "true"
+  ALWAYS_ON_SERVER_COMMUNITY_CENTER_RUN: "true"
+  ALWAYS_ON_SERVER_TIME_OF_DAY_TO_SLEEP: "2200"
+  ALWAYS_ON_SERVER_LOCK_PLAYER_CHESTS: "false"
+  ALWAYS_ON_SERVER_CLIENTS_CAN_PAUSE: "true"
+  ALWAYS_ON_SERVER_COPY_INVITE_CODE_TO_CLIPBOARD: "false"
+
+  ALWAYS_ON_SERVER_FESTIVALS_ON: "true"
+  ALWAYS_ON_SERVER_EGG_HUNT_COUNT_DOWN: "600"
+  ALWAYS_ON_SERVER_FLOWER_DANCE_COUNT_DOWN: "600"
+  ALWAYS_ON_SERVER_LUAU_SOUP_COUNT_DOWN: "600"
+  ALWAYS_ON_SERVER_JELLY_DANCE_COUNT_DOWN: "600"
+  ALWAYS_ON_SERVER_GRANGE_DISPLAY_COUNT_DOWN: "600"
+  ALWAYS_ON_SERVER_ICE_FISHING_COUNT_DOWN: "600"
+
+  ALWAYS_ON_SERVER_END_OF_DAY_TIMEOUT: "300"
+  ALWAYS_ON_SERVER_FAIR_TIMEOUT: "1200"
+  ALWAYS_ON_SERVER_SPIRITS_EVE_TIMEOUT: "900"
+  ALWAYS_ON_SERVER_WINTER_STAR_TIMEOUT: "900"
+
+  ALWAYS_ON_SERVER_EGG_FESTIVAL_TIMEOUT: "120"
+  ALWAYS_ON_SERVER_FLOWER_DANCE_TIMEOUT: "120"
+  ALWAYS_ON_SERVER_LUAU_TIMEOUT: "120"
+  ALWAYS_ON_SERVER_DANCE_OF_JELLIES_TIMEOUT: "120"
+  ALWAYS_ON_SERVER_FESTIVAL_OF_ICE_TIMEOUT: "120"
+
+  # Auto Load Game mod
+  ## Removing this will mean you need to VNC in to manually start the game each boot
+  ENABLE_AUTOLOADGAME_MOD: "true"
+  AUTO_LOAD_GAME_LAST_FILE_LOADED: "null"
+  AUTO_LOAD_GAME_FORGET_LAST_FILE_ON_TITLE: "true"
+  AUTO_LOAD_GAME_LOAD_INTO_MULTIPLAYER: "true"
+
+  # Unlimited Players Mod
+  ENABLE_UNLIMITEDPLAYERS_MOD: "true"
+  UNLIMITED_PLAYERS_PLAYER_LIMIT: "10"
+
+  # Chat Commands mod
+  ENABLE_CHATCOMMANDS_MOD: "false"
+
+  # Console Commands mod
+  ENABLE_CONSOLECOMMANDS_MOD: "false"
+
+  # Time Speed mod
+  ENABLE_TIMESPEED_MOD: "false"
+
+  ## Days are only 20 hours long
+  ##   7.0 :  14 mins per in game day (default)
+  ##  10.0 :  20 mins
+  ##  15.0 :  30 mins
+  ##  20.0 :  40 mins
+  ##  30.0 :  1 hour
+  ## 120.0 :  4 hours
+  ## 300.0 :  10 hours
+  ## 600.0 :  20 hours (realtime)
+  TIME_SPEED_DEFAULT_TICK_LENGTH: "7.0"
+  TIME_SPEED_TICK_LENGTH_BY_LOCATION_INDOORS: "7.0"
+  TIME_SPEED_TICK_LENGTH_BY_LOCATION_OUTDOORS: "7.0"
+  TIME_SPEED_TICK_LENGTH_BY_LOCATION_MINE: "7.0"
+
+  TIME_SPEED_ENABLE_ON_FESTIVAL_DAYS: "false"
+  TIME_SPEED_FREEZE_TIME_AT: "null"
+  TIME_SPEED_LOCATION_NOTIFY: "false"
+
+  TIME_SPEED_KEYS_FREEZE_TIME: "N"
+  TIME_SPEED_KEYS_INCREASE_TICK_INTERVAL: "OemPeriod"
+  TIME_SPEED_KEYS_DECREASE_TICK_INTERVAL: "OemComma"
+  TIME_SPEED_KEYS_RELOAD_CONFIG: "B"
+
+  # Crops Anytime Anywhere mod
+  ENABLE_CROPSANYTIMEANYWHERE_MOD: "false"
+
+  CROPS_ANYTIME_ANYWHERE_ENABLE_IN_SEASONS_SPRING: "true"
+  CROPS_ANYTIME_ANYWHERE_ENABLE_IN_SEASONS_SUMMER: "true"
+  CROPS_ANYTIME_ANYWHERE_ENABLE_IN_SEASONS_FALL: "true"
+  CROPS_ANYTIME_ANYWHERE_ENABLE_IN_SEASONS_WINTER: "true"
+
+  CROPS_ANYTIME_ANYWHERE_FARM_ANY_LOCATION: "true"
+
+  CROPS_ANYTIME_ANYWHERE_FORCE_TILLABLE_DIRT: "true"
+  CROPS_ANYTIME_ANYWHERE_FORCE_TILLABLE_GRASS: "true"
+  CROPS_ANYTIME_ANYWHERE_FORCE_TILLABLE_STONE: "false"
+  CROPS_ANYTIME_ANYWHERE_FORCE_TILLABLE_OTHER: "false"
+
+  # Friends Forever mod
+  ENABLE_FRIENDSFOREVER_MOD: "false"
+
+  FRIENDS_FOREVER_AFFECT_SPOUSE: "false"
+  FRIENDS_FOREVER_AFFECT_DATES: "true"
+  FRIENDS_FOREVER_AFFECT_EVERYONE_ELSE: "true"
+  FRIENDS_FOREVER_AFFECT_ANIMALS: "true"
+
+  # No Fence Decay mod
+  ENABLE_NOFENCEDECAY_MOD: "false"
+
+  # Non-destructive NPCs mod
+  ENABLE_NONDESTRUCTIVENPCS_MOD: "false"
+
+envFrom: []
