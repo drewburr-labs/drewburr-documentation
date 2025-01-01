@@ -25,3 +25,8 @@ ingress-nginx:
       enabled: true
       serviceMonitor:
         enabled: true
+
+  tcp: {}
+
+  udp:
+    24455: "minecraft-jinkies/minecraft:simple-vc"
