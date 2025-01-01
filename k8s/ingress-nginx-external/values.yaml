@@ -29,4 +29,4 @@ ingress-nginx:
   tcp: {}
 
   udp:
-    24455: "minecraft-jinkies/minecraft:simple-vc"
+    24455: "minecraft-jinkies/minecraft-jinkies-craftycontroller-minecraft:simple-vc"
