@@ -15,11 +15,14 @@ nameOverride: ''
 fullnameOverride: ''
 
 livenessProbe:
+  initialDelaySeconds: 30
   httpGet:
     path: /
     port: https
     scheme: HTTPS
 readinessProbe:
+  initialDelaySeconds: 30
+  failureThreshold: 9
   httpGet:
     path: /
     port: https
