@@ -120,6 +120,11 @@ services:
       - name: minecraft
         port: 25565
         protocol: TCP
+  - name: voice-chat
+    type: LoadBalancer
+    annotations:
+      metallb.universe.tf/loadBalancerIPs: '192.168.4.65'
+    ports:
       - name: simple-vc # Must be configured under ingress-nginx-external/values.yaml:ingress-nginx.udp
         port: 24455
         protocol: UDP
