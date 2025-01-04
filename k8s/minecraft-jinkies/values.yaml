@@ -99,7 +99,7 @@ services:
         port: 8443
         protocol: TCP
     ingress:
-      className: nginx-internal
+      className: nginx-external
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt
         nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
