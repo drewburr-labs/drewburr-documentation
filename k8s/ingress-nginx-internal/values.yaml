@@ -4,11 +4,16 @@ ingress-nginx:
   controller:
     kind: DaemonSet
 
+    # Permit snippets
+    allowSnippetAnnotations: true
+    config:
+      # Permit snippets
+      # https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations-risk/
+      annotation-risk-level: Critical
+      proxy-body-size: 64m # Fafaults to 1m
+
     admissionWebhooks:
       enabled: false
-
-    config:
-      proxy-body-size: 64m # Fafaults to 1m
 
     ingressClassResource:
       name: nginx-internal

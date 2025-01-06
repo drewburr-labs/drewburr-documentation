@@ -4,6 +4,13 @@ ingress-nginx:
   controller:
     kind: DaemonSet
 
+    # Permit snippets
+    allowSnippetAnnotations: true
+    config:
+      # Permit snippets
+      # https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations-risk/
+      annotation-risk-level: Critical
+
     admissionWebhooks:
       enabled: false
 
