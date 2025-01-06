@@ -1,7 +1,6 @@
 # https://github.com/kashalls/external-dns-unifi-webhook
 ---
 external-dns:
-  # labelFilter: unifi-dns='true' # Not supported in Helm v1.15.0
   provider:
     name: webhook
     webhook:
@@ -25,8 +24,6 @@ external-dns:
               key: password
         - name: LOG_LEVEL
           value: info
-        - name: REGEXP_DOMAIN_FILTER_EXCLUSION
-          value: \*.*
       livenessProbe:
         httpGet:
           path: /healthz
@@ -43,12 +40,11 @@ external-dns:
     - --ignore-ingress-tls-spec
     - --ingress-class=traefik-internal
     - --ingress-class=nginx-internal
-    # - --label-filter=unifi-dns=true
   policy: sync
-  sources: ['ingress', 'service']
+  sources: ['ingress']
+
   txtOwnerId: default
   txtPrefix: k8s.
   domainFilters: ['drewburr.com']
-
   serviceMonitor:
     enabled: true

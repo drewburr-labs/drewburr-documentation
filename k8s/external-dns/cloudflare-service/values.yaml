@@ -3,25 +3,20 @@
 external-dns:
   provider:
     name: cloudflare
-  # labelFilter: cloudflare-dns='true' # Not supported in Helm v1.15.0
+  labelFilter: cloudflare-dns='true'
   env:
     - name: CF_API_TOKEN
       valueFrom:
         secretKeyRef:
           name: cloudflare-api-key
           key: apiKey
-  extraArgs:
-    - --ingress-class=traefik
-    - --ingress-class=nginx-external
-    - --managed-record-types=CNAME
   policy: sync
-  sources: ['ingress', 'service']
+  sources: ['service']
   txtOwnerId: default
   txtPrefix: k8s.
   domainFilters: ['drewburr.com']
-  # Not supported in Helm v1.15.0
-  # managedRecordTypes:
-  #   - CNAME
+  managedRecordTypes:
+    - CNAME
 
   serviceMonitor:
     enabled: true
