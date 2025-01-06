@@ -18,6 +18,8 @@ traefik:
     kubernetesCRD:
       # Public ingress to manage CRDs
       enabled: false
+    kubernetesIngress:
+      ingressClass: traefik-internal
 
   service:
     annotations:
@@ -57,10 +59,6 @@ traefik:
   ingressClass:
     isDefaultClass: false
     name: traefik-internal
-
-  providers:
-    kubernetesIngress:
-      ingressClass: traefik-internal
 
   ports:
     web:
