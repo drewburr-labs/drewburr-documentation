@@ -8,8 +8,9 @@ ingress-nginx:
     allowSnippetAnnotations: true
     config:
       # Permit snippets
+      # https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/#annotations-risk-level
       # https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations-risk/
-      annotation-risk-level: Critical
+      annotations-risk-level: Critical
 
     admissionWebhooks:
       enabled: false
