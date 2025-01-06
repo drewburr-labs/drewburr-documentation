@@ -34,6 +34,4 @@ ingress-nginx:
         enabled: true
 
   tcp: {}
-
-  udp:
-    24455: "minecraft-jinkies/minecraft-jinkies-craftycontroller-minecraft:simple-vc"
+  udp: {}
