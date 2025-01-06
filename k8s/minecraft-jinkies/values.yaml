@@ -107,7 +107,7 @@ services:
         nginx.ingress.kubernetes.io/configuration-snippet: |
           sub_filter '<a class="nav-link" href="/panel/contribute">' '<a class="nav-link" href="/panel/contribute" hidden=true>';
           sub_filter '<a class="nav-link" href="/panel/credits">' '<a class="nav-link" href="/panel/credits" hidden=true>';
-          sub_filter '<a class="nav-link" href="https://discord.gg/9VJPhCE" target="_blank">' '<a class="nav-link" hidden=true>'
+          sub_filter '<a class="nav-link" href="https://discord.gg/9VJPhCE" target="_blank">' '<a class="nav-link" hidden=true>';
       hosts:
         - host: jinkies.crafty.drewburr.com
           paths:
