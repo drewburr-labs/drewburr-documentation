@@ -40,7 +40,7 @@ In order to have a resilient and effective environment, as well as to ensure ope
 
 [Cert-manager](https://cert-manager.io/) provides certificate creation and rotation methods. ACME with Let's Encrypt was preferred, noting the cost and ease of use.
 
-[Traefik](https://traefik.io/traefik/) provides proxying for web-based services. Its CRD-based  policies make it particularly attractive in the K8s environent. It also helps separate certificate management from the base service, minimizing the risk of service downtime due to incomplete rotations.
+Ingress-nginx provides proxying for web-based services. Its flexibility as a service and extensive usage make it notable over the alternatives.
 
 ### Observability
 

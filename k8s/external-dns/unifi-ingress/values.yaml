@@ -38,7 +38,6 @@ external-dns:
         timeoutSeconds: 5
   extraArgs:
     - --ignore-ingress-tls-spec
-    - --ingress-class=traefik-internal
     - --ingress-class=nginx-internal
   policy: sync
   sources: ['ingress']
