@@ -34,6 +34,11 @@ service:
   type: ClusterIP
   port: 9100
 
+serviceMonitor:
+  endpoint:
+    scrapeTimeout: 5s
+    interval: 5s
+
 resources:
   limits:
     cpu: 250m

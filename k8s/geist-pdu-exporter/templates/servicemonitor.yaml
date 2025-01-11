@@ -9,6 +9,8 @@ spec:
   endpoints:
   - port: http
     path: /
+    interval: {{ .Values.serviceMonitor.endpoint.interval }}
+    scrapeTimeout: {{ .Values.serviceMonitor.endpoint.scrapeTimeout }}
   namespaceSelector:
     matchNames:
     - {{ $.Release.Namespace }}
