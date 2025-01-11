@@ -10,7 +10,6 @@ external-dns:
           name: cloudflare-api-key
           key: apiKey
   extraArgs:
-    - --ingress-class=traefik
     - --ingress-class=nginx-external
   policy: sync
   sources: ['ingress']

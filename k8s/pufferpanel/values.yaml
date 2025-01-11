@@ -127,7 +127,6 @@ services:
       className: nginx-internal
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt
-        traefik.ingress.kubernetes.io/router.entrypoints: sftp
       hosts:
         - host: pufferpanel.drewburr.com
           paths:
