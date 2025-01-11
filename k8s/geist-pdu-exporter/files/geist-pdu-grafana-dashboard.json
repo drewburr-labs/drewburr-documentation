@@ -18,6 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
+  "id": 140,
   "links": [],
   "panels": [
     {
@@ -54,6 +55,7 @@
         "y": 0
       },
       "id": 3,
+      "interval": "5s",
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -71,7 +73,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.2.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -141,7 +143,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.2.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -205,6 +207,7 @@
         "y": 7
       },
       "id": 2,
+      "interval": "5s",
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -222,7 +225,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.2.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -307,6 +310,7 @@
         "y": 7
       },
       "id": 5,
+      "interval": "5s",
       "options": {
         "legend": {
           "calcs": [
@@ -324,7 +328,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -413,6 +417,7 @@
         "y": 7
       },
       "id": 4,
+      "interval": "5s",
       "options": {
         "legend": {
           "calcs": [
@@ -430,7 +435,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -514,6 +519,7 @@
         "y": 7
       },
       "id": 1,
+      "interval": "5s",
       "options": {
         "legend": {
           "calcs": [
@@ -531,7 +537,7 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -631,6 +637,7 @@
         "y": 17
       },
       "id": 9,
+      "interval": "5s",
       "options": {
         "legend": {
           "calcs": [
@@ -650,6 +657,7 @@
           "sort": "none"
         }
       },
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -736,6 +744,7 @@
         "y": 17
       },
       "id": 13,
+      "interval": "5s",
       "options": {
         "legend": {
           "calcs": [
@@ -755,6 +764,7 @@
           "sort": "none"
         }
       },
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -841,6 +851,7 @@
         "y": 28
       },
       "id": 16,
+      "interval": "5s",
       "options": {
         "legend": {
           "calcs": [
@@ -860,6 +871,7 @@
           "sort": "none"
         }
       },
+      "pluginVersion": "11.4.0",
       "targets": [
         {
           "datasource": {
@@ -892,8 +904,9 @@
       "type": "timeseries"
     }
   ],
-  "refresh": "",
-  "schemaVersion": 39,
+  "preload": false,
+  "refresh": "5s",
+  "schemaVersion": 40,
   "tags": [],
   "templating": {
     "list": [
@@ -902,19 +915,19 @@
         "hide": 2,
         "name": "kwh_cost",
         "query": "0.11661",
-        "skipUrlSync": false,
+        "skipUrlSync": true,
         "type": "constant"
       }
     ]
   },
   "time": {
-    "from": "now-6h",
+    "from": "now-24h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "browser",
   "title": "Geist PDU Usage Overview",
   "uid": "ddugii24e0poge",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }
