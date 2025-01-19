@@ -126,6 +126,6 @@ minecraft:
 bluemap:
   name: bluemap
   image: ghcr.io/bluemap-minecraft/bluemap
-  tag: v5.2
+  tag: v5.5
   ingress:
     host: map.drewburr.com
