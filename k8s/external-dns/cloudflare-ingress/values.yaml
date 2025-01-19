@@ -11,7 +11,7 @@ external-dns:
           key: apiKey
   extraArgs:
     - --ingress-class=nginx-external
-  policy: sync
+  policy: upsert-only
   sources: ['ingress']
   txtOwnerId: default
   txtPrefix: k8s.

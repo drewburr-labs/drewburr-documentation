@@ -10,7 +10,7 @@ external-dns:
         secretKeyRef:
           name: cloudflare-api-key
           key: apiKey
-  policy: sync
+  policy: upsert-only
   sources: ['service']
   txtOwnerId: default
   txtPrefix: k8s.
