@@ -31,7 +31,7 @@ minecraft:
 
   env:
     EULA: "TRUE"
-    VERSION: "1.21.3"
+    VERSION: "1.21.4"
     TZ: America/New_York
     # PAPER_CHANNEL: experimental
     # PAPER_BUILD: "38"
