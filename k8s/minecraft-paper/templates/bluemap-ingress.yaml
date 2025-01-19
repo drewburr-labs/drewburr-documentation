@@ -4,7 +4,7 @@ metadata:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt
     external-dns.alpha.kubernetes.io/target: ip.drewburr.com
-    nginx.ingress.kubernetes.io/configuration-snippet: |
+    nginx.ingress.kubernetes.io/server-snippet: |
         location /maps/ {
           # All high-res tile data and some json data is precompressed into *.gz files
           gzip_static always;
