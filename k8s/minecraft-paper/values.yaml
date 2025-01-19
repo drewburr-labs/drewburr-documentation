@@ -66,7 +66,7 @@ minecraft:
     VIEW_DISTANCE: "24"
     MAX_PLAYERS: "20"
     PLAYER_IDLE_TIMEOUT: "30"
-    MOTD: "Glory to the beans hole\nView the map at http://centralstation.map.drewburr.com"
+    MOTD: "Glory to the beans hole\nView the map at centralstation.map.drewburr.com"
     MAX_TICK_TIME: "-1"
     USES_PROXY_PROTOCOL: "false"
     ONLINE_MODE: "true"
