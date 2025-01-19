@@ -19,7 +19,7 @@ metadata:
           location ~* ^/maps/[^/]*/(live|assets)/ {
             proxy_read_timeout 2s;  # required if lazymc pauses the server instead of shutting it down
             error_page 502 504 = @server-offline;
-            proxy_pass http://minecraft-http:8100;  # the default port for the integrated webserver, adapt to your setup
+            proxy_pass http://minecraft-http.{{ .Release.Namespace }}.svc.cluster.local:8100;  # the default port for the integrated webserver, adapt to your setup
           }
         }
 
@@ -59,7 +59,7 @@ spec:
       #       name: minecraft-http
       #       port:
       #         name: minecraft-http
-      #   path: /maps/[^/]*/(live|assets)/
+      #   path: ^/maps/[^/]*/(live|assets)/
       #   pathType: Prefix
   tls:
   - hosts:
