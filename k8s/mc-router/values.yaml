@@ -1,7 +1,9 @@
 mc-router:
-  replicaCount: 1
-
   fullnameOverride: mc-router
+
+  replicaCount: 1
+  image:
+    tag: '1.25.0'
 
   securityContext:
     capabilities:
