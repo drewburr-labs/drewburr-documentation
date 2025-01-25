@@ -22,7 +22,8 @@ livenessProbe:
     scheme: HTTPS
 readinessProbe:
   initialDelaySeconds: 30
-  failureThreshold: 9
+  periodSeconds: 10
+  failureThreshold: 18
   httpGet:
     path: /
     port: https
