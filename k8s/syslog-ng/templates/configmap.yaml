@@ -5,5 +5,4 @@ metadata:
   labels:
     {{- include "syslog-ng.labels" . | nindent 4 }}
 data:
-  syslog-ng.conf: |
-    {{- .Values.config | nindent 4 }}
+  syslog-ng.conf: {{ tpl (toYaml .Values.config) . | indent 4 }}
