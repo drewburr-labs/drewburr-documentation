@@ -57,10 +57,25 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
-            - name: config
-              mountPath: /config
             - name: run
               mountPath: /run
+            - name: config
+              mountPath: /config
+      initContainers:
+        containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          command:
+            - sh
+            - -c
+            - cp /config-init/* /config/
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: config-init
+              mountPath: /config-init
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -74,9 +89,11 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       volumes:
-        - name: config
+        - name: config-init
           configMap:
             name: syslog-ng-config
             optional: false
+        - name: config
+          emptyDir: {}
         - name: run
           emptyDir: {}
