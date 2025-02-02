@@ -18,6 +18,13 @@ loki:
       # Default is 4, if you have enough memory and CPU you can increase, reduce if OOMing
       max_concurrent: 4
 
+    commonConfig:
+      ring:
+        kvstore:
+          # Backend storage to use for the ring
+          # CLI flag: -common.storage.ring.store
+          store: memberlist
+
   gateway:
     ingress:
       ingressClass: nginx-internal
