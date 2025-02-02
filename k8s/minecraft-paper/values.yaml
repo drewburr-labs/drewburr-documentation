@@ -109,6 +109,14 @@ minecraft:
     failureThreshold: 10
     periodSeconds: 5
 
+  # lifecycle:
+  #   preStop:
+  #     exec:
+  #       command:
+  #         - "/bin/sh"
+  #         - "-c"
+  #         - "nginx -s quit; while killall -0 nginx; do sleep 1; done"
+
   metrics:
     enabled: true # Default to false
     name: minecraft-monitor
