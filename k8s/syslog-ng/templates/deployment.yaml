@@ -49,13 +49,11 @@ spec:
               containerPort: 6514
               protocol: TCP
           livenessProbe:
-            httpGet:
-              path: /
-              port: http
+            tcpSocket:
+              port: syslogtcp
           readinessProbe:
-            httpGet:
-              path: /
-              port: http
+            tcpSocket:
+              port: syslogtcp
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
