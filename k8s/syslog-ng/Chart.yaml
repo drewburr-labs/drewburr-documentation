@@ -1,0 +1,6 @@
+apiVersion: v2
+name: syslog-ng
+description: A Helm chart for Kubernetes
+type: application
+version: 4.8.1
+appVersion: "1.16.0"
