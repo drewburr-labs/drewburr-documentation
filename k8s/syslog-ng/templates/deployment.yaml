@@ -62,8 +62,7 @@ spec:
             - name: config
               mountPath: /config
       initContainers:
-        containers:
-        - name: {{ .Chart.Name }}
+        - name: config-init
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
