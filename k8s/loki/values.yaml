@@ -27,7 +27,7 @@ loki:
 
   gateway:
     ingress:
-      ingressClass: nginx-internal
+      ingressClassName: nginx-internal
       enabled: true
       hosts:
         - host: loki.drewburr.com
