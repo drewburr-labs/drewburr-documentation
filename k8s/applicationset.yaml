@@ -51,7 +51,7 @@ spec:
       syncPolicy:
         {{- if .syncOptions }}
         syncOptions:
-          {{- toYaml .syncOptions | nindent 6 }}'
+          {{- toYaml .syncOptions | nindent 6 }}
         {{- end }}
 ---
 apiVersion: argoproj.io/v1alpha1
@@ -101,10 +101,10 @@ spec:
       source:
         helm:
           {{- with .helm }}
-            {{- toYaml .skipCrds | nindent 6 }}'
+            {{- toYaml .skipCrds | nindent 6 }}
           {{- end }}
       syncPolicy:
         {{- if .syncOptions }}
         syncOptions:
-          {{- toYaml .syncOptions | nindent 6 }}'
+          {{- toYaml .syncOptions | nindent 6 }}
         {{- end }}
