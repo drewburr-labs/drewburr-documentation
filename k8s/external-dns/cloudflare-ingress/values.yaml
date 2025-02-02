@@ -18,6 +18,5 @@ external-dns:
   domainFilters: ['drewburr.com']
   managedRecordTypes:
     - CNAME
-
   serviceMonitor:
     enabled: true
