@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "syslog-ng.fullname" . }}
+  labels:
+    {{- with .Values.service.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- include "syslog-ng.labels" . | nindent 4 }}
+  {{- with .Values.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+  {{- with .Values.service.ports }}
+    {{- if .syslogUDP }}
+    - port: {{ .syslogUDP }}
+      targetPort: syslogudp
+      protocol: UDP
+      name: syslogudp
+    {{- end }}
+    {{- if .syslogTCP }}
+    - port: {{ .syslogTCP }}
+      targetPort: syslogtcp
+      protocol: TCP
+      name: syslogtcp
+    {{- end }}
+    {{- if .syslogTLS }}
+    - port: {{ .syslogTLS }}
+      targetPort: syslogtls
+      protocol: TCP
+      name: syslogtls
+    {{- end }}
+  {{- end }}
+  selector:
+    {{- include "syslog-ng.selectorLabels" . | nindent 4 }}
