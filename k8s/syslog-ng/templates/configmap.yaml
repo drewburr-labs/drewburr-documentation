@@ -5,5 +5,5 @@ metadata:
   labels:
     {{- include "syslog-ng.labels" . | nindent 4 }}
 data:
-  config: |
+  syslog-ng.conf: |
     {{- .Values.config | nindent 4 }}
