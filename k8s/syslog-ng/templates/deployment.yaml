@@ -59,10 +59,8 @@ spec:
           volumeMounts:
             - name: config
               mountPath: /config
-              readOnly: true
             - name: run
               mountPath: /run
-              readOnly: false
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
