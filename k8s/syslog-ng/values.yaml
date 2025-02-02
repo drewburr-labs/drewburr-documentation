@@ -36,16 +36,13 @@ serviceAccount:
 
 podAnnotations: {}
 
-podSecurityContext:
-  fsGroup: 1001
+podSecurityContext: {}
 
 securityContext:
   capabilities:
     drop:
     - ALL
   readOnlyRootFilesystem: true
-  runAsNonRoot: true
-  runAsUser: 1001
 
 env:
   PUID: 1001
