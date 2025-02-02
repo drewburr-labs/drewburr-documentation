@@ -29,6 +29,8 @@ loki:
     ingress:
       ingressClassName: nginx-internal
       enabled: true
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt
       hosts:
         - host: loki.drewburr.com
           paths:
