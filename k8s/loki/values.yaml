@@ -25,22 +25,6 @@ loki:
           # CLI flag: -common.storage.ring.store
           store: memberlist
 
-  gateway:
-    ingress:
-      ingressClassName: nginx-internal
-      enabled: true
-      annotations:
-        cert-manager.io/cluster-issuer: letsencrypt
-      hosts:
-        - host: loki.drewburr.com
-          paths:
-            - path: /
-              pathType: Prefix
-      tls:
-        - secretName: loki-gateway-tls
-          hosts:
-            - loki.drewburr.com
-
   deploymentMode: SimpleScalable
 
   backend:
