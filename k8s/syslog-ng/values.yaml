@@ -57,7 +57,6 @@ service:
   ports:
     syslogUDP: 514
     syslogTCP: 601
-    syslogTLS: 6514
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious

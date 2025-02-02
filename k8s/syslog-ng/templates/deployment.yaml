@@ -45,9 +45,6 @@ spec:
             - name: syslogtcp
               containerPort: 6601
               protocol: TCP
-            - name: syslogtls
-              containerPort: 6514
-              protocol: TCP
           livenessProbe:
             tcpSocket:
               port: syslogtcp
