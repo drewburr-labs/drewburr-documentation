@@ -16,12 +16,21 @@ nameOverride: ""
 fullnameOverride: ""
 
 config: |
+  source s_network_udp {
+    syslog(transport(udp) port(5514));
+  };
+
+  source s_network_tcp {
+    syslog(transport(tcp) port(6601));
+  };
+
   destination d_loki {
     syslog("promtail-syslog.promtail.svc.cluster.local" transport("tcp") port(80));
   };
 
   log {
-    source(s_sys);
+    source(s_network_udp);
+    source(s_network_tcp);
     destination(d_loki);
   };
 
