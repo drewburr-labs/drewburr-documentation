@@ -70,3 +70,13 @@ loki:
     replicas: 0
   bloomGateway:
     replicas: 0
+
+  monitoring:
+    dashboards:
+      enabled: true
+
+    serviceMonitor:
+      enabled: true
+
+    metricsInstance:
+      enabled: false
