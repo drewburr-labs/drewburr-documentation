@@ -62,7 +62,16 @@ persistence:
     requests: 10Gi
     storageClassName: zfs-nvmeof
 
-additionalVolumes: []
+additionalVolumes:
+  - name: sftp-run
+    emptyDir: {}
+  - name: sftp-host-keys
+    secret:
+      secretName: sftp-host-keys
+  - name: sftp-scripts
+    configMap:
+      name: sftp-scripts
+      defaultMode: 0550
 
 additionalVolumeMounts: []
 
@@ -77,9 +86,7 @@ serviceAccount:
 
 podAnnotations: {}
 
-podSecurityContext:
-  # {}
-  fsGroup: 0
+podSecurityContext: {}
 
 securityContext:
   # {}
@@ -87,10 +94,47 @@ securityContext:
   #   drop:
   #   - ALL
   # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1001
+  runAsNonRoot: true
+  runAsUser: 1000 # Built-in Crafty user
 
-initContainers: []
+initContainers:
+  - name: sftp
+    image:
+      repository: atmoz/sftp
+      tag: alpine
+    ports:
+      - name: sftp
+        port: 22
+        protocol: TCP
+    resources: {}
+    env:
+      - name: SFTP_USERS
+        valueFrom:
+          secretKeyRef:
+            name: sftp-users
+            key: users
+    livenessProbe:
+      tcpSocket:
+        port: sftp
+    readinessProbe:
+      tcpSocket:
+        port: sftp
+    restartPolicy: Always
+    volumeMounts:
+      - name: sftp-run
+        mountPath: /var/run
+      - name: sftp-host-keys
+        mountPath: /etc/ssh-keys
+      - name: sftp-scripts
+        mountPath: /etc/sftp.d
+      - name: crafty-backups
+        mountPath: /home/crafty/backups
+      - name: crafty-logs
+        mountPath: /home/crafty/crafty-logs
+      - name: crafty-servers
+        mountPath: /home/crafty/servers
+      - name: crafty-import
+        mountPath: /home/crafty/import
 
 services:
   - name: https
@@ -135,6 +179,13 @@ services:
       - name: simple-vc # Must be configured under ingress-nginx-external/values.yaml:ingress-nginx.udp
         port: 24455
         protocol: UDP
+  - name: sftp
+    type: LoadBalancer
+    annotations: {}
+    ports:
+      - name: sftp
+        port: 22
+        protocol: TCP
 
 resources:
   limits:
