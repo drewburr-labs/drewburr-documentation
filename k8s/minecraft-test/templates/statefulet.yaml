@@ -69,6 +69,10 @@ spec:
           image: "{{ .image.repository }}:{{ .image.tag | default $.Chart.AppVersion }}"
           imagePullPolicy: {{ $initContainer.image.pullPolicy }}
           restartPolicy: {{ $initContainer.restartPolicy }}
+          {{- with $initContainer.env }}
+          env:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           ports:
             {{- range $initContainer.ports }}
             - name: {{ .name }}
