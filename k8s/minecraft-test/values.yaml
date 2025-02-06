@@ -62,7 +62,9 @@ persistence:
     requests: 5Gi
     storageClassName: zfs-nvmeof
 
-additionalVolumes: []
+additionalVolumes:
+  - name: sftp-run
+    emptyDir: {}
 
 additionalVolumeMounts: []
 
@@ -115,7 +117,9 @@ initContainers:
       tcpSocket:
         port: sftp
     restartPolicy: Always
-    volumeMounts: []
+    volumeMounts:
+      - name: sftp-run
+        mountPath: /var/run
 
 services:
   - name: https
