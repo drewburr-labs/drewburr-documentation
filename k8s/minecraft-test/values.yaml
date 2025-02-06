@@ -63,8 +63,8 @@ persistence:
     storageClassName: zfs-nvmeof
 
 additionalVolumes:
-  # - name: sftp-run
-  #   emptyDir: {}
+  - name: sftp-run
+    emptyDir: {}
   - name: sftp-host-keys
     secret:
       secretName: sftp-host-keys
@@ -123,8 +123,8 @@ initContainers:
         port: sftp
     restartPolicy: Always
     volumeMounts:
-      # - name: sftp-run
-      #   mountPath: /var/run
+      - name: sftp-run
+        mountPath: /var/run
       - name: sftp-host-keys
         mountPath: /etc/ssh-keys
       - name: sftp-scripts
