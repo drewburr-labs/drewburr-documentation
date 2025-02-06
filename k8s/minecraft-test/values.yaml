@@ -113,12 +113,9 @@ initContainers:
     #   runAsNonRoot: true
     #   runAsUser: 1000 # Built-in Crafty user
     livenessProbe:
-      initialDelaySeconds: 30
       tcpSocket:
         port: sftp
     readinessProbe:
-      initialDelaySeconds: 30
-      periodSeconds: 10
       tcpSocket:
         port: sftp
     restartPolicy: Always
