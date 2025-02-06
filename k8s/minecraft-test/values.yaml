@@ -93,8 +93,8 @@ securityContext:
   #   drop:
   #   - ALL
   # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000 # Built-in Crafty user
+  runAsNonRoot: true
+  runAsUser: 1000 # Built-in Crafty user
 
 initContainers:
   - name: sftp
@@ -109,9 +109,9 @@ initContainers:
     env:
       - name: SFTP_USERS
         value: 'foo:pass:::upload'
-    securityContext:
-      runAsNonRoot: true
-      runAsUser: 1000 # Built-in Crafty user
+    # securityContext:
+    #   runAsNonRoot: true
+    #   runAsUser: 1000 # Built-in Crafty user
     livenessProbe:
       initialDelaySeconds: 30
       tcpSocket:
