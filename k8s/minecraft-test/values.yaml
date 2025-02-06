@@ -129,6 +129,14 @@ initContainers:
         mountPath: /etc/ssh-keys
       - name: sftp-scripts
         mountPath: /etc/sftp.d
+      - name: crafty-backups
+        mountPath: /home/crafty/backups
+      - name: crafty-logs
+        mountPath: /home/crafty/crafty-logs
+      - name: crafty-servers
+        mountPath: /home/crafty/servers
+      - name: crafty-import
+        mountPath: /home/crafty/import
 
 services:
   - name: https
