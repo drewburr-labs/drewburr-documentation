@@ -93,7 +93,7 @@ initContainers:
   - name: sftp
     image:
       repository: atmoz/sftp
-      tag: apline
+      tag: alpine
     ports:
       - name: sftp
         port: 22
