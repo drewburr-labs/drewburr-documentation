@@ -114,6 +114,7 @@ initContainers:
       periodSeconds: 10
       tcpSocket:
         port: sftp
+    restartPolicy: Always
     volumeMounts: []
 
 services:
