@@ -71,7 +71,7 @@ additionalVolumes:
   - name: sftp-scripts
     configMap:
       name: sftp-scripts
-      defaultMode: 550
+      defaultMode: 0550
 
 additionalVolumeMounts: []
 
