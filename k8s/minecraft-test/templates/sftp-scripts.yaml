@@ -5,4 +5,4 @@ metadata:
 data:
   copy-certs.sh: |
     cp -Lr /etc/ssh-keys/* /etc/ssh/
-    chmod 600 /etc/ssh-keys/ssh_host*
+    chmod 600 /etc/ssh/ssh_host*
