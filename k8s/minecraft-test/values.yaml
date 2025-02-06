@@ -150,7 +150,13 @@ services:
       - name: minecraft
         port: 25565
         protocol: TCP
-
+  - name: sftp
+    type: LoadBalancer
+    annotations: {}
+    ports:
+      - name: sftp
+        port: 22
+        protocol: TCP
 resources:
   limits:
     cpu: 2
