@@ -176,12 +176,13 @@ services:
     annotations:
       metallb.universe.tf/loadBalancerIPs: '192.168.4.65'
     ports:
-      - name: simple-vc # Must be configured under ingress-nginx-external/values.yaml:ingress-nginx.udp
+      - name: simple-vc
         port: 24455
         protocol: UDP
   - name: sftp
     type: LoadBalancer
-    annotations: {}
+    annotations:
+      metallb.universe.tf/loadBalancerIPs: '192.168.4.52'
     ports:
       - name: sftp
         port: 22
