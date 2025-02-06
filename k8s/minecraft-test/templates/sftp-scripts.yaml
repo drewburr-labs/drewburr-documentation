@@ -4,4 +4,4 @@ metadata:
   name: sftp-scripts
 data:
   copy-certs.sh: |
-    cp -r /etc/ssh-keys/* /etc/ssh/
+    cp -Lr /etc/ssh-keys/* /etc/ssh/
