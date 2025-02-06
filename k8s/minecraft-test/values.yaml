@@ -108,7 +108,10 @@ initContainers:
     resources: {}
     env:
       - name: SFTP_USERS
-        value: 'crafty:pass:1000:0:'
+        valueFrom:
+          secretKeyRef:
+            name: sftp-users
+            key: users
     # securityContext:
     #   runAsNonRoot: true
     #   runAsUser: 1000 # Built-in Crafty user
