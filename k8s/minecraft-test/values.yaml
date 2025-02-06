@@ -103,7 +103,7 @@ initContainers:
     resources: {}
     env:
       - name: SFTP_USERS
-        value: 'test:password:1000:0:'
+        value: 'foo:pass:::upload'
     securityContext:
       runAsNonRoot: true
       runAsUser: 1000 # Built-in Crafty user
