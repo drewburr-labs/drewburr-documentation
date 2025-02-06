@@ -91,7 +91,9 @@ securityContext:
 
 initContainers:
   - name: sftp
-    image: atmoz/sftp:alpine
+    image:
+      repository: atmoz/sftp
+      tag: apline
     ports:
       - name: sftp
         conatinerPort: 22
