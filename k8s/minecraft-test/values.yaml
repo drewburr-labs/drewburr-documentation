@@ -65,6 +65,9 @@ persistence:
 additionalVolumes:
   - name: sftp-run
     emptyDir: {}
+  - name: sftp-host-keys
+    secret:
+      secretName: sftp-host-keys
 
 additionalVolumeMounts: []
 
@@ -120,6 +123,8 @@ initContainers:
     volumeMounts:
       - name: sftp-run
         mountPath: /var/run
+      - name: sftp-host-keys
+        mountPath: /etc/ssh/
 
 services:
   - name: https
