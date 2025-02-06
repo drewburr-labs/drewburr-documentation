@@ -68,6 +68,9 @@ additionalVolumes:
   - name: sftp-host-keys
     secret:
       secretName: sftp-host-keys
+  - name: sftp-scripts
+    configMap:
+      name: sftp-scripts
 
 additionalVolumeMounts: []
 
@@ -124,7 +127,9 @@ initContainers:
       - name: sftp-run
         mountPath: /var/run
       - name: sftp-host-keys
-        mountPath: /etc/ssh/
+        mountPath: /etc/ssh-keys
+      - name: sftp-scripts
+        mountPath: /etc/sftp.d
 
 services:
   - name: https

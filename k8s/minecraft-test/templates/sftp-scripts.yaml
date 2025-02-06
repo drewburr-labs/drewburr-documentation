@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sftp-scripts
+data:
+  copy-certs.sh: |
+    cp -r /etc/ssh-keys/* /etc/ssh/
