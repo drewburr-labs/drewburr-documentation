@@ -96,7 +96,7 @@ initContainers:
       tag: apline
     ports:
       - name: sftp
-        containerPort: 22
+        port: 22
         protocol: TCP
     resources: {}
     env:
