@@ -191,10 +191,10 @@ services:
 resources:
   limits:
     cpu: 5
-    memory: 9Gi
+    memory: 12Gi
   requests:
     cpu: 2
-    memory: 9Gi
+    memory: 12Gi
 
 nodeSelector: {}
 
