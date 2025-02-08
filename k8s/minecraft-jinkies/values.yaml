@@ -190,7 +190,7 @@ services:
 
 resources:
   limits:
-    cpu: 2
+    cpu: 5
     memory: 9Gi
   requests:
     cpu: 2
