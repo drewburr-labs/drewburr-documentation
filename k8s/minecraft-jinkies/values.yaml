@@ -187,6 +187,12 @@ services:
       - name: sftp
         port: 22
         protocol: TCP
+  - name: metrics
+    type: ClusterIP
+    ports:
+      - name: metrics
+        port: 19565
+        protocol: TCP
 
 resources:
   limits:
