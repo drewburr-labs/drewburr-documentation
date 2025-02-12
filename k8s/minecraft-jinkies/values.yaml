@@ -189,6 +189,8 @@ services:
         protocol: TCP
   - name: metrics
     type: ClusterIP
+    labels:
+      metrics: "true"
     ports:
       - name: metrics
         port: 19565
