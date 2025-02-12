@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    release: prometheus
+  name: minecraft-metrics
+spec:
+  endpoints:
+    - interval: 5s
+      path: /
+      port: metrics
+      scrapeTimeout: 5s
+  namespaceSelector:
+    matchNames:
+      - {{ .Release.Namespace }}
+  selector:
+    matchLabels:
+      metrics: "true"
