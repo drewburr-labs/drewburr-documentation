@@ -147,9 +147,9 @@ services:
       className: nginx-external
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt
-        nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+        nginx.ingress.kubernetes.io/backend-protocol: 'HTTPS'
         external-dns.alpha.kubernetes.io/target: ip.drewburr.com
-        nginx.ingress.kubernetes.io/proxy-body-size: "0" # Disable size check
+        nginx.ingress.kubernetes.io/proxy-body-size: '0' # Disable size check
         nginx.ingress.kubernetes.io/configuration-snippet: |
           sub_filter '<a class="nav-link" href="/panel/contribute">' '<a class="nav-link" href="/panel/contribute" hidden=true>';
           sub_filter '<a class="nav-link" href="/panel/credits">' '<a class="nav-link" href="/panel/credits" hidden=true>';
@@ -190,7 +190,7 @@ services:
   - name: metrics
     type: ClusterIP
     labels:
-      metrics: "true"
+      metrics: 'true'
     ports:
       - name: metrics
         port: 19565
@@ -206,6 +206,9 @@ resources:
 
 nodeSelector: {}
 
-tolerations: []
+tolerations:
+  - key: compute
+    operator: Exists
+    effect: PreferNoSchedule
 
 affinity: {}
