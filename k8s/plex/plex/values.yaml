@@ -8,11 +8,11 @@ image:
   repository: plexinc/pms-docker
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  tag: ''
 
 imagePullSecrets: []
-nameOverride: ""
-fullnameOverride: ""
+nameOverride: ''
+fullnameOverride: ''
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -21,7 +21,7 @@ serviceAccount:
   annotations: {}
   # The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
-  name: ""
+  name: ''
 
 podAnnotations: {}
 
@@ -47,7 +47,7 @@ services:
       className: nginx-external
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt
-        nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+        nginx.ingress.kubernetes.io/backend-protocol: 'HTTPS'
         external-dns.alpha.kubernetes.io/target: ip.drewburr.com
       hosts:
         - host: plex.drewburr.com
@@ -55,9 +55,9 @@ services:
             - path: /
               pathType: ImplementationSpecific
       tls:
-      - secretName: plex-ingress
-        hosts:
-          - plex.drewburr.com
+        - secretName: plex-ingress
+          hosts:
+            - plex.drewburr.com
 
   # # The following additional ports are also used within the local network for different services
   # local:
@@ -85,7 +85,8 @@ services:
   #       port: 32469
   #       protocol: TCP
 
-resources: {}
+resources:
+  {}
   # limits:
   #   cpu: 100m
   #   memory: 128Mi
@@ -104,7 +105,7 @@ envVars:
   HOSTNAME: plex.drewburr.com
   CHANGE_CONFIG_DIR_OWNERSHIP: false
   ADVERTISE_IP: https://plex.drewburr.com
-  ALLOWED_NETWORKS: "127.0.0.1/32"
+  ALLOWED_NETWORKS: '127.0.0.1/32'
 
 # dnsPolicy: None
 # dnsConfig:
@@ -149,7 +150,14 @@ tolerations:
     operator: Exists
     effect: PreferNoSchedule
 
-affinity: {}
+affinity:
+  preferredDuringSchedulingIgnoredDuringExecution:
+    nodeSelectorTerms:
+      - matchExpressions:
+          - key: compute
+            operator: In
+            values:
+              - 'true'
 
 initContainers:
   - name: mkdir
@@ -157,7 +165,7 @@ initContainers:
       repository: plexinc/pms-docker
       pullPolicy: Always
       # Overrides the image tag whose default is the chart appVersion.
-      tag: ""
+      tag: ''
     command:
       - /bin/bash
       - -c

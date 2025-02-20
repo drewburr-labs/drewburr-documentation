@@ -211,4 +211,11 @@ tolerations:
     operator: Exists
     effect: PreferNoSchedule
 
-affinity: {}
+affinity:
+  preferredDuringSchedulingIgnoredDuringExecution:
+    nodeSelectorTerms:
+      - matchExpressions:
+          - key: compute
+            operator: In
+            values:
+              - 'true'
