@@ -156,11 +156,10 @@ affinity:
       - weight: 100
         preference:
           matchExpressions:
-            - matchExpressions:
-                - key: compute
-                  operator: In
-                  values:
-                    - 'true'
+            - key: compute
+              operator: In
+              values:
+                - 'true'
 
 initContainers:
   - name: mkdir
