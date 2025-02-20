@@ -151,15 +151,16 @@ tolerations:
     effect: PreferNoSchedule
 
 affinity:
-  preferredDuringSchedulingIgnoredDuringExecution:
-    - weight: 100
-      preference:
-        matchExpressions:
-          - matchExpressions:
-              - key: compute
-                operator: In
-                values:
-                  - 'true'
+  nodeAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        preference:
+          matchExpressions:
+            - matchExpressions:
+                - key: compute
+                  operator: In
+                  values:
+                    - 'true'
 
 initContainers:
   - name: mkdir
