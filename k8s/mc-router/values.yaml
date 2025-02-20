@@ -55,3 +55,12 @@ mc-router:
     - key: compute
       operator: Exists
       effect: PreferNoSchedule
+
+  affinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: compute
+              operator: In
+              values:
+                - 'true'
