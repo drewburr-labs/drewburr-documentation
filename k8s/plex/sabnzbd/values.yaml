@@ -92,12 +92,14 @@ tolerations:
 
 affinity:
   preferredDuringSchedulingIgnoredDuringExecution:
-    nodeSelectorTerms:
-      - matchExpressions:
-          - key: compute
-            operator: In
-            values:
-              - 'true'
+    - weight: 100
+      preference:
+        matchExpressions:
+          - matchExpressions:
+              - key: compute
+                operator: In
+                values:
+                  - 'true'
 
 startupProbe:
   httpGet:
