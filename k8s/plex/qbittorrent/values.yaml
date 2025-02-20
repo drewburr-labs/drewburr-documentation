@@ -92,7 +92,10 @@ additionalVolumes:
 
 nodeSelector: {}
 
-tolerations: []
+tolerations:
+  - key: compute
+    operator: Exists
+    effect: PreferNoSchedule
 
 affinity: {}
 
