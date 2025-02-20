@@ -50,3 +50,8 @@ mc-router:
 
     # Send PROXY protocol to backend servers
     useProxyProtocol: false
+
+  tolerations:
+    - key: compute
+      operator: Exists
+      effect: PreferNoSchedule
