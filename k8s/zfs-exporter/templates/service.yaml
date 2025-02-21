@@ -30,5 +30,5 @@ subsets:
   {{- end }}
   ports:
   - name: http
-    port: 9100
+    port: {{ $.Values.port }}
 {{- end }}
