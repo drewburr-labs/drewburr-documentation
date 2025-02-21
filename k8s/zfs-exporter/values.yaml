@@ -1,0 +1,15 @@
+---
+services:
+  - name: zfs-exporter
+    ips:
+      - 192.168.4.31
+
+endpoint:
+  honorLabels: true
+  path: /metrics
+  port: http
+  scheme: http
+  scrapeTimeout: 30s
+port: 9134
+labels:
+  app: zfs-exporter
