@@ -23,6 +23,12 @@ mc-router:
         external-dns.alpha.kubernetes.io/target: ip.drewburr.com
       labels:
         cloudflare-dns: 'true' # Not supported by chart. Do manually for now
+      externalTrafficPolicy: local
+    mc-router-metrics:
+      type: ClusterIP
+      port: 8080
+      labels:
+        metrics: "true"
 
   resources:
     limits:
@@ -39,7 +45,7 @@ mc-router:
       enabled: false
 
     # Max number of connections to allow per second
-    connectionRateLimit: 1
+    connectionRateLimit: 10
 
     metrics:
       # Backend to use for metrics exposure/publishing: discard,expvar,influxdb
@@ -66,3 +72,9 @@ mc-router:
                 operator: In
                 values:
                   - 'true'
+
+serviceMonitor:
+  enabled: true
+  endpoint:
+    interval: 30s
+    scrapeTimeout: 10s
