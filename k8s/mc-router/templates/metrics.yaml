@@ -34,5 +34,5 @@ spec:
       - {{ $.Release.Namespace }}
   selector:
     matchLabels:
-      - metrics: "true"
+      metrics: "true"
 {{- end }}
