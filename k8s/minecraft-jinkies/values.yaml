@@ -85,9 +85,9 @@ craftycontroller:
           path: /
           port: metrics
           scrapeTimeout: 10s
-        selector:
-          matchLabels:
-            metrics: 'true'
+      selector:
+        matchLabels:
+          metrics: 'true'
       namespaceSelector:
         matchNames:
           - "{{ .Release.Namespace }}"
