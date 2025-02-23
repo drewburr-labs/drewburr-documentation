@@ -79,7 +79,7 @@ craftycontroller:
         metallb.universe.tf/loadBalancerIPs: '192.168.4.52'
 
   serviceMonitors:
-    - name: minecraft-metrics
+    - name: metrics
       endpoints:
         - interval: 30s
           path: /
