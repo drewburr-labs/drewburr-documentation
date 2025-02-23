@@ -24,11 +24,6 @@ mc-router:
       labels:
         cloudflare-dns: 'true' # Not supported by chart. Do manually for now
       externalTrafficPolicy: local
-    mc-router-metrics:
-      type: ClusterIP
-      port: 8080
-      labels:
-        metrics: "true"
 
   resources:
     limits:
