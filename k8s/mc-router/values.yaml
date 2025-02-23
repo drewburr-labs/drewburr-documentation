@@ -28,7 +28,7 @@ mc-router:
 
   resources:
     limits:
-      cpu: 250m
+      cpu: 1
       memory: 100Mi
     requests:
       cpu: 100m
