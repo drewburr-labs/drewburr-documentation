@@ -23,7 +23,8 @@ mc-router:
         external-dns.alpha.kubernetes.io/target: ip.drewburr.com
       labels:
         cloudflare-dns: 'true' # Not supported by chart. Do manually for now
-      externalTrafficPolicy: local
+      extraServiceSpec:
+        externalTrafficPolicy: local
 
   resources:
     limits:
