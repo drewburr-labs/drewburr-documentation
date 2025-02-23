@@ -1,0 +1,38 @@
+{{- if .Values.serviceMonitor.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mc-router-metrics
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    metrics: "true"
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: api
+      protocol: TCP
+      name: api
+  selector:
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: mc-router-metrics
+  labels:
+    release: prometheus
+spec:
+  endpoints:
+    - port: api
+      path: /metrics
+      interval: {{ .Values.serviceMonitor.endpoint.interval }}
+      scrapeTimeout: {{ .Values.serviceMonitor.endpoint.scrapeTimeout }}
+  namespaceSelector:
+    matchNames:
+      - {{ $.Release.Namespace }}
+  selector:
+    matchLabels:
+      - metrics: "true"
+{{- end }}
