@@ -24,7 +24,7 @@ mc-router:
       labels:
         cloudflare-dns: 'true' # Not supported by chart. Do manually for now
     extraServiceSpec:
-      externalTrafficPolicy: local
+      externalTrafficPolicy: Local
 
   resources:
     limits:
