@@ -66,6 +66,12 @@ craftycontroller:
       annotations:
         metallb.universe.tf/loadBalancerIPs: '192.168.4.54'
 
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000 # Built-in Crafty user
+    runAsGroup: 0 # Required for permissions
+    fsGroup: 0
+
   serviceMonitors:
     - name: metrics
       endpoints:
