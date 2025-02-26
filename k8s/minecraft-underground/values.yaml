@@ -77,7 +77,7 @@ craftycontroller:
   serviceMonitors:
     - name: metrics
       endpoints:
-        - interval: 30s
+        - interval: 15s
           path: /
           port: metrics
           scrapeTimeout: 10s
