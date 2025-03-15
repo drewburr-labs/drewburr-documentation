@@ -1,0 +1,20 @@
+---
+device-plugin-operator:
+  resources:
+    limits:
+      cpu: 100m
+      memory: 120Mi
+    requests:
+      cpu: 100m
+      memory: 100Mi
+
+  manager:
+    # supported devices by the operator
+    devices:
+      # dlb: true
+      # dsa: true
+      # fpga: true
+      gpu: true
+      # iaa: true
+      # qat: true
+      # sgx: true

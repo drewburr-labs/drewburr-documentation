@@ -1,0 +1,10 @@
+---
+apiVersion: v2
+name: intel-device-plugins
+description: A Helm chart for Kubernetes
+type: application
+version: 0.1.0
+dependencies:
+  - name: device-plugin-operator # https://github.com/intel/helm-charts/tree/main/charts/device-plugin-operator
+    repository: https://intel.github.io/helm-charts/
+    version: ">=0.32.0"
