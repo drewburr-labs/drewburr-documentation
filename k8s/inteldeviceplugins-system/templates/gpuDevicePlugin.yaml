@@ -2,7 +2,7 @@
 apiVersion: deviceplugin.intel.com/v1
 kind: GpuDevicePlugin
 metadata:
-  name: gpudeviceplugin-sample
+  name: default
 spec:
   image: {{ .image.path }}:{{ .image.tag }}
   # https://intel.github.io/intel-device-plugins-for-kubernetes/cmd/gpu_plugin/README.html#modes-and-configuration-options
