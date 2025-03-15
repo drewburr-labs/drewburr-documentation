@@ -1,2 +1,7 @@
 ---
-# node-feature-discovery:
+node-feature-discovery:
+  featureGates:
+    NodeFeatureGroupAPI: false
+
+  prometheus:
+    enable: true
