@@ -1,7 +1,7 @@
 ---
 node-feature-discovery:
   featureGates:
-    NodeFeatureGroupAPI: false
+    NodeFeatureGroupAPI: true
 
   prometheus:
     enable: true
