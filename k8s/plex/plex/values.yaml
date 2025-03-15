@@ -86,8 +86,8 @@ services:
   #       protocol: TCP
 
 resources:
-  {}
-  # limits:
+  limits:
+    gpu.intel.com/xe: 1
   #   cpu: 100m
   #   memory: 128Mi
   # requests:
