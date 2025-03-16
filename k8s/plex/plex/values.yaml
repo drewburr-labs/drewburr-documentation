@@ -137,7 +137,7 @@ additionalVolumes:
   - name: transcode
     emptyDir:
       medium: Memory
-      sizeLimit: 6Gi
+      sizeLimit: 12Gi
 
 additionalVolumeMounts:
   - name: transcode
