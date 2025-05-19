@@ -125,7 +125,7 @@ persistence:
     mountPath: data
     accessModes:
       - ReadWriteMany
-    requests: 15Ti
+    requests: 18Ti
     storageClassName: nfs-lake
   - name: backups
     accessModes:
