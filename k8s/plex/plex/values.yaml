@@ -132,6 +132,11 @@ persistence:
       - ReadWriteMany
     requests: 50Gi
     storageClassName: zfs-nfs
+  - name: transcode-large
+    accessModes:
+      - ReadWriteOnce
+    requests: 150Gi
+    storageClassName: zfs-nvmeof
 
 additionalVolumes:
   - name: transcode
