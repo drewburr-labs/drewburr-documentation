@@ -5,5 +5,5 @@ type: application
 version: 0.1.0
 dependencies:
   - name: craftycontroller
-    version: 0.1.0-rc4
+    version: "0.1.x"
     repository: https://drewburr-labs.github.io/helm-charts/
