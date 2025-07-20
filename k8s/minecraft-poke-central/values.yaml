@@ -31,18 +31,18 @@ craftycontroller:
             sub_filter '<a class="nav-link" href="https://discord.gg/9VJPhCE" target="_blank">' '<a class="nav-link" hidden=true>';
             sub_filter 'if (MFA_WARN) {' 'if (false) {';
         hosts:
-          - host: cobblemon.crafty.drewburr.com
+          - host: poke-central.crafty.drewburr.com
             paths:
               - path: /
                 pathType: ImplementationSpecific
         tls:
           - secretName: craftycontroller-ingress
             hosts:
-              - cobblemon.crafty.drewburr.com
+              - poke-central.crafty.drewburr.com
     minecraft:
       type: ClusterIP
       annotations:
-        mc-router.itzg.me/externalServerName: cobblemon.mc.drewburr.com
+        mc-router.itzg.me/externalServerName: poke-central.mc.drewburr.com
     metrics:
       type: ClusterIP
       labels:
