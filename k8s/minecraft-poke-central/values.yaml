@@ -14,6 +14,13 @@ craftycontroller:
       enabled: true
       requests: 1Gi
       storageClassName: zfs-nvmeof
+    crafty-home:
+      enabled: true
+      accessModes:
+        - ReadWriteOnce
+      mountPath: /home/crafty
+      requests: 10Gi
+      storageClassName: zfs-nvmeof
 
   services:
     https:
