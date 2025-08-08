@@ -35,11 +35,6 @@ mc-router:
       memory: 50Mi
 
   minecraftRouter:
-    # "Wake up" any stopped Minecraft servers.
-    # This requires Minecraft servers to be kind: StatefulSet
-    autoScaleUp:
-      enabled: false
-
     # Max number of connections to allow per second
     connectionRateLimit: 10
 
