@@ -119,7 +119,7 @@ persistence:
     mountPath: config
     accessModes:
       - ReadWriteOnce
-    requests: 60Gi
+    requests: 80Gi
     storageClassName: zfs-nvmeof
   - name: plex-data
     mountPath: data
