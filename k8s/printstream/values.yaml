@@ -8,24 +8,21 @@ service:
   targetPort: 8080
   externalName: k1c.drewburr.com
 
-
 ingress:
-  enabled: false # TODO: Broken with NGINX migration
-  ingressClassName: nginx-external
+  enabled: true # TODO: Broken with NGINX migration
+  className: nginx-external
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt
     external-dns.alpha.kubernetes.io/target: ip.drewburr.com
-    traefik.frontend.passHostHeader: "false"
-    traefik.ingress.kubernetes.io/redirect-regex: ^https://printstream.drewburr.com
-    traefik.ingress.kubernetes.io/redirect-replacement: http://k1c.drewburr.com/
-    traefik.ingress.kubernetes.io/redirect-permanent: "false"
-    traefik.ingress.kubernetes.io/router.middlewares: printstream-query-stream-add@kubernetescrd,printstream-query-stream-modify@kubernetescrd
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      rewrite ^/.*$ /?action=stream break;
+    nginx.ingress.kubernetes.io/rewrite-target: /?action=stream
   hosts:
     - host: printstream.drewburr.com
       paths:
         - path: /
           pathType: ImplementationSpecific
   tls:
-  - secretName: printstream-tls
-    hosts:
-    - printstream.drewburr.com
+    - secretName: printstream-tls
+      hosts:
+        - printstream.drewburr.com
