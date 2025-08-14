@@ -9,14 +9,19 @@ service:
   externalName: k1c.drewburr.com
 
 ingress:
-  enabled: true # TODO: Broken with NGINX migration
+  enabled: true
   className: nginx-external
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt
     external-dns.alpha.kubernetes.io/target: ip.drewburr.com
+    nginx.ingress.kubernetes.io/enable-gzip: "true"
     nginx.ingress.kubernetes.io/configuration-snippet: |
-      rewrite ^/.*$ /?action=stream break;
-    nginx.ingress.kubernetes.io/rewrite-target: /?action=stream
+      rewrite ^/stream.*$ /?action=stream break;
+      rewrite ^/snapshot.*$ /?action=snapshot break;
+    nginx.ingress.kubernetes.io/location-snippet: |
+      if ($request_method !~ ^(GET)$ ) {
+        return 405;
+      }
   hosts:
     - host: printstream.drewburr.com
       paths:
