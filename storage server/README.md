@@ -151,6 +151,87 @@ cat /sys/module/nvme_core/parameters/multipath
 nvme_core.multipath=N
 ```
 
+### Migrating to /dev/disk/by-id/*
+
+When setting up a ZFS pool, it is best to add disks to the pool by their ID instead of the by the device name (`/dev/sdx`). This is because the Linux kernel does not always provide consistent PCI addresses, especially when new devices are added to the system or when the drive is moved to a different physical connector/port. To gurantee a consistent device name is used, `/dev/disk/by-id/` is should be referenced instead. In my case, I was not aware of this when originally setting up my ZFS pool. Below is how I handled this migration with no downtime.
+
+#### Get drive details
+
+Use `zpool status` to the the unique storage identifier (WWN) of a drive that needs to be migrated. While we're here, double check that the pool state is ONLINE and all looks normal.
+
+```sh
+$ zpool status sas-pool
+  pool: sas-pool
+ state: ONLINE
+config:
+        NAME                                              STATE     READ WRITE CKSUM
+        sas-pool                                          ONLINE       0     0     0
+          raidz3-0                                        ONLINE       0     0     0
+            scsi-35002538455664500                        ONLINE       0     0     0
+            ...
+```
+
+In this case, the WWN would be `5002538455664500`, by omitting the `3`. Use `lsblk` to translate this into a serial number. Here, we my serial number for `/dev/sdm`.
+
+```sh
+$ lsblk -o NAME,SERIAL,WWN | grep 5002538455662740
+sdm     S182NEAG609573       0x5002538455662740
+├─sdm1                       0x5002538455662740
+└─sdm9                       0x5002538455662740
+```
+
+Using this serial number, we will identify the device path under `/dev/disk/by-id/`
+
+```sh
+$ ls /dev/disk/by-id/ | grep 'S182NEAG609573'
+scsi-SNETAPP_X438_1625400MCSG_S182NEAG609573 # This one!
+scsi-SNETAPP_X438_1625400MCSG_S182NEAG609573-part1
+scsi-SNETAPP_X438_1625400MCSG_S182NEAG609573-part9
+```
+
+#### Swap the drive locations
+
+Here we will offline the old drive, then replace with the new one. We can expect at least one error about the drive already being in a pool which we will get past using `zpool labelclear -f`
+
+```sh
+# Offline the drive with zpool
+$  zpool offline sas-pool csi-35002538455662740
+
+# Attempt to replace the drive
+$ zpool replace sas-pool scsi-35002538455662740 /dev/disk/by-id/scsi-SNETAPP_X438_1625400MCSG_S182NEAG609573
+/dev/disk/by-id/scsi-SNETAPP_X438_1625400MCSG_S182NEAG609573-part1 is part of active pool 'sas-pool'
+
+# Clear the label and attempt another replace. Do again if another error appears
+$ zpool labelclear -f /dev/disk/by-id/scsi-SNETAPP_X438_1625400MCSG_S182NEAG609573-part1
+$ zpool replace sas-pool scsi-35002538455662740 /dev/disk/by-id/scsi-SNETAPP_X438_1625400MCSG_S182NEAG609573
+```
+
+#### Wait for resliver to complete
+
+Once thre replace is run, zfs will initiate a resliver to ensure the new drive is ready for use. Wait for this to complete.
+
+When the resliver is complete, the previous drive reference will automatically be removed. Repeat for all remaining drives.
+
+```sh
+$ zpool status sas-pool
+  pool: sas-pool
+ state: DEGRADED
+status: One or more devices is currently being resilvered.  The pool will
+        continue to function, possibly in a degraded state.
+action: Wait for the resilver to complete.
+  scan: resilver in progress since Sat Aug 16 17:04:48 2025
+        1.97T scanned at 9.79G/s, 1.55T issued at 7.71G/s, 3.62T total
+        30.9G resilvered, 42.85% done, 00:04:34 to go
+config:
+
+        NAME                                                STATE     READ WRITE CKSUM
+        sas-pool                                            DEGRADED     0     0     0
+          raidz3-0                                          DEGRADED     0     0     0
+            replacing-6                                     DEGRADED     0     0     0
+              scsi-35002538455662740                        OFFLINE      0     0     0
+              scsi-SNETAPP_X438_1625400MCSG_S182NEAG609573  ONLINE       0     0     0  (resilvering)
+```
+
 ### Server
 
 Followed democratic-csi [installation steps](https://github.com/democratic-csi/democratic-csi?tab=readme-ov-file#zol-zfs-generic-nfs-zfs-generic-iscsi-zfs-generic-smb-zfs-generic-nvmeof)
