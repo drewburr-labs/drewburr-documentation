@@ -1,12 +1,44 @@
----
 # Default values for printstream.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+replicaCount: 1
+
+image:
+  repository: ghcr.io/drewburr-labs/mjpg-ws-server
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: latest
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext:
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 1000
+
 service:
+  type: ClusterIP
   port: 8080
-  targetPort: 8080
-  externalName: k1c.drewburr.com
 
 ingress:
   enabled: true
@@ -14,14 +46,6 @@ ingress:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt
     external-dns.alpha.kubernetes.io/target: ip.drewburr.com
-    nginx.ingress.kubernetes.io/enable-gzip: "true"
-    nginx.ingress.kubernetes.io/configuration-snippet: |
-      rewrite ^/stream.*$ /?action=stream break;
-      rewrite ^/snapshot.*$ /?action=snapshot break;
-    nginx.ingress.kubernetes.io/location-snippet: |
-      if ($request_method !~ ^(GET)$ ) {
-        return 405;
-      }
   hosts:
     - host: printstream.drewburr.com
       paths:
@@ -31,3 +55,28 @@ ingress:
     - secretName: printstream-tls
       hosts:
         - printstream.drewburr.com
+
+resources: {}
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+env:
+  - name: MJPEG_STREAM_URL
+    value: http://k1c.drewburr.com:8080
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
