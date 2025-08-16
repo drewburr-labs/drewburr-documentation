@@ -5,10 +5,11 @@ metadata:
   labels:
     {{- include "printstream.labels" . | nindent 4 }}
 spec:
-  type: ExternalName
+  type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.port }}
-      targetPort: {{ .Values.service.targetPort }}
+      targetPort: http
       protocol: TCP
       name: http
-  externalName: {{ .Values.service.externalName }}
+  selector:
+    {{- include "printstream.selectorLabels" . | nindent 4 }}
