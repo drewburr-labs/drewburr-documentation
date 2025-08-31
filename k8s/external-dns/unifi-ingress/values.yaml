@@ -37,7 +37,7 @@ external-dns:
   policy: sync
   sources: ['ingress']
   txtOwnerId: default
-  txtPrefix: k8s.
+  txtPrefix: k8s-ing.
   domainFilters: ['drewburr.com']
   serviceMonitor:
     enabled: true

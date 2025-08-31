@@ -35,7 +35,7 @@ external-dns:
   policy: sync
   sources: ['service']
   txtOwnerId: default
-  txtPrefix: k8s.
+  txtPrefix: k8s-svc.
   domainFilters: ['drewburr.com']
 
   serviceMonitor:
