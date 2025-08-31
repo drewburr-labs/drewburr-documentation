@@ -78,6 +78,9 @@ craftycontroller:
       type: LoadBalancer
       annotations:
         metallb.universe.tf/loadBalancerIPs: '192.168.4.52'
+        external-dns.alpha.kubernetes.io/hostname: 'jinkies.ftp.drewburr.com'
+      labels:
+        unifi-dns: 'true'
 
   serviceMonitors:
     - name: metrics
