@@ -1,0 +1,83 @@
+craftycontroller:
+  persistence:
+    crafty-app-config:
+      requests: 10Gi
+      storageClassName: zfs-nvmeof
+    crafty-servers:
+      requests: 100Gi
+      storageClassName: zfs-nvmeof
+    crafty-backups:
+      enabled: true
+      requests: 250Gi
+      storageClassName: zfs-nvmeof
+    crafty-logs:
+      enabled: true
+      requests: 10Gi
+      storageClassName: zfs-nvmeof
+    crafty-import:
+      enabled: true
+      requests: 10Gi
+      storageClassName: zfs-nvmeof
+
+  services:
+    https:
+      type: ClusterIP
+      ingress:
+        className: nginx-external
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt
+          nginx.ingress.kubernetes.io/backend-protocol: 'HTTPS'
+          external-dns.alpha.kubernetes.io/target: ip.drewburr.com
+          nginx.ingress.kubernetes.io/proxy-body-size: '0' # Disable size check
+          nginx.ingress.kubernetes.io/configuration-snippet: |
+            sub_filter '<a class="nav-link" href="/panel/contribute">' '<a class="nav-link" href="/panel/contribute" hidden=true>';
+            sub_filter '<a class="nav-link" href="/panel/credits">' '<a class="nav-link" href="/panel/credits" hidden=true>';
+            sub_filter '<a class="nav-link" href="https://discord.gg/9VJPhCE" target="_blank">' '<a class="nav-link" hidden=true>';
+            sub_filter 'if (MFA_WARN) {' 'if (false) {';
+        hosts:
+          - host: novacraft.crafty.drewburr.com
+            paths:
+              - path: /
+                pathType: ImplementationSpecific
+        tls:
+          - secretName: craftycontroller-ingress
+            hosts:
+              - novacraft.crafty.drewburr.com
+    minecraft:
+      type: LoadBalancer
+      annotations:
+        metallb.universe.tf/loadBalancerIPs: '192.168.4.66'
+        external-dns.alpha.kubernetes.io/hostname: 'novacraft.mc.drewburr.com'
+      labels:
+        cloudflare-dns: 'true'
+      ports:
+        - name: bedrock
+          port: 19132
+          protocol: UDP
+
+  resources:
+    limits:
+      # cpu: 2
+      memory: 8Gi
+    requests:
+      cpu: 1
+      memory: 8Gi
+
+  sftp:
+    enabled: false
+
+  tolerations:
+    - key: compute
+      operator: Exists
+      effect: PreferNoSchedule
+
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          preference:
+            matchExpressions:
+              - key: compute
+                operator: In
+                values:
+                  - 'true'
