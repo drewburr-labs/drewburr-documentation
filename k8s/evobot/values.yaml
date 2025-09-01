@@ -1,4 +1,7 @@
 evobot:
+  image:
+    repository: eritislami/evobot
+    tag: "2.9.0"
   env:
   - name: LISTENING_ACTIVITY
     value: "The New Generation of Music"
