@@ -202,7 +202,7 @@ spec:
           command:
             - "sh"
             - "-c"
-            - "cp /usr/src/multus-cni/bin/multus-shim /host/var/lib/rancher/k3s/data/current/bin/multus-shim && cp /usr/src/multus-cni/bin/passthru /host/var/lib/rancher/k3s/data/current/bin/passthru"
+            - "cp /usr/src/multus-cni/bin/multus-shim /var/lib/rancher/k3s/data/cni/multus-shim && cp /usr/src/multus-cni/bin/passthru /var/lib/rancher/k3s/data/cni/passthru"
           resources:
             requests:
               cpu: "10m"
@@ -212,7 +212,7 @@ spec:
           terminationMessagePolicy: FallbackToLogsOnError
           volumeMounts:
             - name: cnibin
-              mountPath: /host/var/lib/rancher/k3s/data/current/bin
+              mountPath: /var/lib/rancher/k3s/data/cni
               mountPropagation: Bidirectional
       terminationGracePeriodSeconds: 10
       volumes:
