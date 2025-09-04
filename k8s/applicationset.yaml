@@ -57,6 +57,10 @@ spec:
         syncOptions:
           {{- toYaml .syncOptions | nindent 6 }}
         {{- end }}
+        {{- if .automated }}
+        automated:
+          {{- toYaml .automated | nindent 6 }}
+        {{- end }}
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
@@ -115,4 +119,8 @@ spec:
         {{- if .syncOptions }}
         syncOptions:
           {{- toYaml .syncOptions | nindent 6 }}
+        {{- end }}
+        {{- if .automated }}
+        automated:
+          {{- toYaml .automated | nindent 6 }}
         {{- end }}
