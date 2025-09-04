@@ -28,6 +28,8 @@ spec:
       destination:
         server: '{{default .values.defaultServer .server}}'
         namespace: '{{default .path.basename .namespace}}'
+  syncPolicy:
+    applicationsSync: create-update
   templatePatch: |
     spec:
       ignoreDifferences:
@@ -86,6 +88,8 @@ spec:
       destination:
         server: '{{default .values.defaultServer .server}}'
         namespace: '{{default .values.namespace .namespace}}'
+  syncPolicy:
+    applicationsSync: create-update
   templatePatch: |
     spec:
       ignoreDifferences:
