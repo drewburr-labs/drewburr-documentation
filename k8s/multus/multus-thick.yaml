@@ -119,7 +119,8 @@ data:
         "cniConfigDir": "/host/etc/cni/net.d",
         "multusAutoconfigDir": "/host/etc/cni/net.d",
         "multusConfigFile": "auto",
-        "socketDir": "/host/run/multus/"
+        "socketDir": "/host/run/multus/",
+        "binDir": "/var/lib/rancher/k3s/data/cni"
     }
 ---
 apiVersion: apps/v1
