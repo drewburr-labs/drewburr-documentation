@@ -120,7 +120,8 @@ data:
         "multusAutoconfigDir": "/host/etc/cni/net.d",
         "multusConfigFile": "auto",
         "socketDir": "/host/run/multus/",
-        "binDir": "/var/lib/rancher/k3s/data/cni"
+        "binDir": "/var/lib/rancher/k3s/data/cni",
+        "clusterNetwork": "/host/etc/cni/net.d/10-flannel.conflist"
     }
 ---
 apiVersion: apps/v1
