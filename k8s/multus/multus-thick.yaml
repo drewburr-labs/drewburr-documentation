@@ -226,7 +226,7 @@ spec:
             path: /var/lib/rancher/k3s/agent/etc/cni/net.d
         - name: cnibin
           hostPath:
-            path: /var/lib/rancher/k3s/data/cni/
+            path: /var/lib/rancher/k3s/data/cni
         - name: hostroot
           hostPath:
             path: /
