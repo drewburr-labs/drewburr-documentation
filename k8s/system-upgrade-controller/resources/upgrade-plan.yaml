@@ -5,15 +5,15 @@ metadata:
   name: k3s-latest
   namespace: system-upgrade
   labels:
-    k3s-upgrade: v1.31.2
+    k3s-upgrade: v1.33.4
 spec:
   concurrency: 2
-  version: v1.31.2+k3s1
+  version: v1.33.4+k3s1
   nodeSelector:
     matchExpressions:
       - key: k3s-upgrade
         operator: In
-        values: [v1.31.2]
+        values: [v1.33.4]
   serviceAccountName: system-upgrade
   drain:
     ignoreDaemonSets: true
