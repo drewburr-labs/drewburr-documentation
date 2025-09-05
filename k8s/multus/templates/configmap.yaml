@@ -18,6 +18,6 @@ data:
         "multusAutoconfigDir": "/host/etc/cni/net.d",
         "multusConfigFile": "auto",
         "socketDir": "/host/run/multus/",
-        "binDir": "/var/lib/rancher/k3s/data/cni",
+        "binDir": "/var/lib/rancher/k3s/data/current/bin",
         "clusterNetwork": "/host/etc/cni/net.d/10-flannel.conflist"
     }
