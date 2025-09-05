@@ -240,7 +240,7 @@ spec:
             path: /run
         - name: host-var-lib-cni-multus
           hostPath:
-            path: /var/lib/rancher/k3s/agent/etc/cni/net.d
+            path: /var/lib/cni/multus
         - name: host-var-lib-kubelet
           hostPath:
             path: /var/lib/kubelet
