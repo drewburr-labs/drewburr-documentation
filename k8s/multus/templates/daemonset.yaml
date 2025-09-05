@@ -52,7 +52,7 @@ spec:
             # e.g. if the cni bin is in '/opt/cni/bin' on the container host side, then it should be mount to '/opt/cni/bin' in multus-daemon,
             # not to any other directory, like '/opt/bin' or '/usr/bin'.
             - name: cnibin
-              mountPath: /opt/cni/bin
+              mountPath: /var/lib/rancher/k3s/data/cni
             - name: host-run
               mountPath: /host/run
             - name: host-var-lib-cni-multus
