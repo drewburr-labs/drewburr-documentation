@@ -173,7 +173,7 @@ spec:
             # e.g. if the cni bin is in '/opt/cni/bin' on the container host side, then it should be mount to '/opt/cni/bin' in multus-daemon,
             # not to any other directory, like '/opt/bin' or '/usr/bin'.
             - name: cnibin
-              mountPath: /var/lib/rancher/k3s/data/cni
+              mountPath: /opt/cni/bin
             - name: host-run
               mountPath: /host/run
             - name: host-var-lib-cni-multus
@@ -205,7 +205,7 @@ spec:
           command:
             - "sh"
             - "-c"
-            - "cp /usr/src/multus-cni/bin/multus-shim /host/var/lib/rancher/k3s/data/cni/multus-shim && cp /usr/src/multus-cni/bin/passthru /host/var/lib/rancher/k3s/data/cni/passthru"
+            - "cp /usr/src/multus-cni/bin/multus-shim /host/opt/cni/bin/multus-shim && cp /usr/src/multus-cni/bin/passthru /host/opt/cni/bin/passthru"
           resources:
             requests:
               cpu: "10m"
@@ -215,7 +215,7 @@ spec:
           terminationMessagePolicy: FallbackToLogsOnError
           volumeMounts:
             - name: cnibin
-              mountPath: /host/var/lib/rancher/k3s/data/cni
+              mountPath: /host/opt/cni/bin
               mountPropagation: Bidirectional
       terminationGracePeriodSeconds: 10
       volumes:
