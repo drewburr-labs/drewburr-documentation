@@ -6,7 +6,7 @@ spec:
   config: |
     {
       "cniVersion": "0.3.1",
-      "type": "macvlan",
+      "type": "host-local",
       "device": "ens19",
       "ipam": {
         "type": "dhcp",
