@@ -6,6 +6,15 @@ spec:
   config: |
     {
       "cniVersion": "0.3.1",
-      "type": "host-local",
-      "device": "ens19"
+      "type": "macvlan",
+      "device": "ens19",
+      "ipam": {
+        "type": "dhcp",
+        "provide": [
+          {
+            "option": "host-name",
+            "fromArg": "K8S_POD_NAME"
+          }
+        ]
+      }
     }
