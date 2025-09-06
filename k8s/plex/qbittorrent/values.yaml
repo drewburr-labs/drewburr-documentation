@@ -21,7 +21,7 @@ serviceAccount:
   name: ''
 
 podAnnotations:
-  k8s.v1.cni.cncf.io/networks: vpn-secure
+  k8s.v1.cni.cncf.io/networks: multus/vpn-secure
 
 podSecurityContext:
   fsGroup: 1001
