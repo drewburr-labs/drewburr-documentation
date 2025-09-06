@@ -20,7 +20,8 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ''
 
-podAnnotations: {}
+podAnnotations:
+  k8s.v1.cni.cncf.io/networks: vpn-secure
 
 podSecurityContext:
   fsGroup: 1001
@@ -86,10 +87,10 @@ persistence:
     mountPath: data
   - name: backups
 
-additionalVolumes:
-  - name: wireguard-conf
-    secret:
-      secretName: wireguard-conf
+# additionalVolumes:
+#   - name: wireguard-conf
+#     secret:
+#       secretName: wireguard-conf
 
 nodeSelector: {}
 
@@ -109,34 +110,34 @@ affinity:
               values:
                 - 'true'
 
-initContainers:
-  # - name: wireguard-init
-  #   command:
-  #     - sysctl -w net.ipv4.ip_forward=1
-  #   image: linuxserver/wireguard
-  - name: wireguard
-    restartPolicy: Always # Use as sidecar
-    image:
-      repository: linuxserver/wireguard
-      pullPolicy: Always
-      # Overrides the image tag whose default is the chart appVersion.
-      tag: ''
-    ports:
-      - name: wg-udp
-        protocol: UDP
-        containerPort: 51820
-      - name: wg-tcp
-        protocol: TCP
-        containerPort: 51820
-    securityContext:
-      privileged: true
-      capabilities:
-        add:
-          - NET_ADMIN
-          - SYS_MODULE
-    volumeMountsOverride:
-      - name: wireguard-conf
-        mountPath: /config/wg_confs
+# initContainers:
+#   # - name: wireguard-init
+#   #   command:
+#   #     - sysctl -w net.ipv4.ip_forward=1
+#   #   image: linuxserver/wireguard
+#   - name: wireguard
+#     restartPolicy: Always # Use as sidecar
+#     image:
+#       repository: linuxserver/wireguard
+#       pullPolicy: Always
+#       # Overrides the image tag whose default is the chart appVersion.
+#       tag: ''
+#     ports:
+#       - name: wg-udp
+#         protocol: UDP
+#         containerPort: 51820
+#       - name: wg-tcp
+#         protocol: TCP
+#         containerPort: 51820
+#     securityContext:
+#       privileged: true
+#       capabilities:
+#         add:
+#           - NET_ADMIN
+#           - SYS_MODULE
+#     volumeMountsOverride:
+#       - name: wireguard-conf
+#         mountPath: /config/wg_confs
 
 startupProbe:
   httpGet:
