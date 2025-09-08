@@ -126,3 +126,7 @@ kube-prometheus-stack:
       - 192.168.4.41
       - 192.168.4.42
       - 192.168.4.43
+
+  kube-state-metrics:
+    selfMonitor:
+      enabled: true
