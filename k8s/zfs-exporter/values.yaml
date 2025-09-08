@@ -3,6 +3,7 @@ services:
   - name: zfs-exporter
     ips:
       - 192.168.4.31
+      - 192.168.4.2
 
 endpoint:
   honorLabels: true
