@@ -2,7 +2,6 @@ namespace: kube-prometheus-stack
 syncOptions:
   - ServerSideApply=true # Fixes issue with CRD annotations being too large
   - ApplyOutOfSyncOnly=true
-syncPolicy:
-  automated:
-    prune: true
-    allowEmpty: true
+automated:
+  prune: true
+  allowEmpty: true
