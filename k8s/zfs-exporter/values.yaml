@@ -10,7 +10,7 @@ endpoint:
   path: /metrics
   port: http
   scheme: http
-  scrapeTimeout: 30s
+  scrapeTimeout: 60s
 port: 9134
 labels:
   app: zfs-exporter
