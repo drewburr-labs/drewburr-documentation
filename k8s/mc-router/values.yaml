@@ -3,7 +3,7 @@ mc-router:
 
   replicaCount: 1
   image:
-    tag: '1.25.1'
+    tag: '1.36.0'
 
   securityContext:
     capabilities:
@@ -47,6 +47,9 @@ mc-router:
 
     # Send PROXY protocol to backend servers
     useProxyProtocol: false
+
+  extraEnv:
+    RECORD_LOGINS: 'true'
 
   tolerations:
     - key: compute
