@@ -48,9 +48,11 @@ mc-router:
     # Send PROXY protocol to backend servers
     useProxyProtocol: false
 
+    debug:
+      enabled: true
+
   extraEnv:
     RECORD_LOGINS: 'true'
-    DEBUG: 'true'
 
   tolerations:
     - key: compute
