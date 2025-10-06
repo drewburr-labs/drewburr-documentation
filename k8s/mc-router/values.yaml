@@ -28,7 +28,7 @@ mc-router:
 
   resources:
     limits:
-      cpu: 1
+      # cpu: 1
       memory: 100Mi
     requests:
       cpu: 100m
@@ -39,8 +39,8 @@ mc-router:
     connectionRateLimit: 10
 
     metrics:
-      # Backend to use for metrics exposure/publishing: discard,expvar,influxdb
-      backend: expvar
+      # Backend to use for metrics exposure/publishing: discard,expvar,influxdb,prometheus
+      backend: prometheus
 
     # Simplify fully qualified SRV records for mapping
     simplifySrv: false
@@ -50,6 +50,7 @@ mc-router:
 
   extraEnv:
     RECORD_LOGINS: 'true'
+    DEBUG: 'true'
 
   tolerations:
     - key: compute
