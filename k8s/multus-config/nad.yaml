@@ -9,6 +9,7 @@ spec:
       "type": "macvlan",
       "master": "ens19",
       "mode": "bridge",
+      "capabilities": {"mac": true},
       "ipam": {
         "type": "dhcp",
         "provide": [
