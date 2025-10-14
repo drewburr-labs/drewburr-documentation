@@ -23,7 +23,7 @@ gpuDevicePlugin:
   image:
     # https://hub.docker.com/r/intel/intel-gpu-plugin/tags
     path: intel/intel-gpu-plugin
-    tag: '0.32.0'
+    tag: '0.34.0'
   # https://intel.github.io/intel-device-plugins-for-kubernetes/cmd/gpu_plugin/README.html#modes-and-configuration-options
   sharedDevNum: 10
   logLevel: 4
