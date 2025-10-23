@@ -30,5 +30,5 @@ subsets:
   {{- end }}
   ports:
   - name: http
-    port: 9100
+    port: {{ default 9100 .port }}
 {{- end }}
