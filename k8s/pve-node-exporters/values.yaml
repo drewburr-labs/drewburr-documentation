@@ -17,6 +17,10 @@ services:
   - name: backup-node-exporter
     ips:
       - 192.168.4.2
+  - name: remote-node-exporter
+    ips:
+      - 193.23.250.33
+    port: 19100
 
 endpoint:
   honorLabels: true
