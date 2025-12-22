@@ -72,7 +72,7 @@ craftycontroller:
           external-dns.alpha.kubernetes.io/target: ip.drewburr.com
           nginx.ingress.kubernetes.io/proxy-connect-timeout: "180"
           nginx.ingress.kubernetes.io/proxy-read-timeout: "180"
-          nginx.ingress.kubernetes.io/proxy-send-timeout: "180
+          nginx.ingress.kubernetes.io/proxy-send-timeout: "180"
         hosts:
           - host: derailed.map.drewburr.com
             paths:
