@@ -76,7 +76,7 @@ craftycontroller:
               - path: /
                 pathType: ImplementationSpecific
         tls:
-          - secretName: craftycontroller-ingress
+          - secretName: bluemap-ingress
             hosts:
               - derailed.map.drewburr.com
 
