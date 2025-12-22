@@ -68,11 +68,8 @@ craftycontroller:
         className: nginx-external
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt
-          nginx.ingress.kubernetes.io/backend-protocol: 'HTTPS'
+          nginx.ingress.kubernetes.io/backend-protocol: 'HTTP'
           external-dns.alpha.kubernetes.io/target: ip.drewburr.com
-          nginx.ingress.kubernetes.io/proxy-connect-timeout: "180"
-          nginx.ingress.kubernetes.io/proxy-read-timeout: "180"
-          nginx.ingress.kubernetes.io/proxy-send-timeout: "180"
         hosts:
           - host: derailed.map.drewburr.com
             paths:
