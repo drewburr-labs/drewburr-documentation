@@ -58,6 +58,27 @@ craftycontroller:
         - name: metrics
           port: 19565
           protocol: TCP
+    map:
+      type: ClusterIP
+      ports:
+        - name: bluemap
+          port: 8100
+          protocol: TCP
+      ingress:
+        className: nginx-external
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt
+          nginx.ingress.kubernetes.io/backend-protocol: 'HTTPS'
+          external-dns.alpha.kubernetes.io/target: ip.drewburr.com
+        hosts:
+          - host: derailed.map.drewburr.com
+            paths:
+              - path: /
+                pathType: ImplementationSpecific
+        tls:
+          - secretName: craftycontroller-ingress
+            hosts:
+              - derailed.map.drewburr.com
 
   resources:
     limits:
