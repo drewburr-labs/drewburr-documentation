@@ -50,6 +50,10 @@ craftycontroller:
       type: ClusterIP
       annotations:
         mc-router.itzg.me/externalServerName: derailed.mc.drewburr.com
+    creative:
+      type: ClusterIP
+      annotations:
+        mc-router.itzg.me/externalServerName: derailed-creative.mc.drewburr.com
     metrics:
       type: ClusterIP
       labels:
