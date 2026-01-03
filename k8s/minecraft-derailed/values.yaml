@@ -54,6 +54,10 @@ craftycontroller:
       type: ClusterIP
       annotations:
         mc-router.itzg.me/externalServerName: derailed-creative.mc.drewburr.com
+      ports:
+        - name: creative
+          port: 25566
+          protocol: TCP
     metrics:
       type: ClusterIP
       labels:
