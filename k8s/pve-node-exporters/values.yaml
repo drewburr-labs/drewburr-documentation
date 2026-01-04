@@ -17,6 +17,9 @@ services:
   - name: backup-node-exporter
     ips:
       - 192.168.4.2
+  - name: generic-node-exporter
+    ips:
+      - 192.168.1.177
   - name: remote-node-exporter
     ips:
       - 193.23.250.33
