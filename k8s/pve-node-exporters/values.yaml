@@ -30,6 +30,7 @@ endpoint:
   path: /metrics
   port: http
   scheme: http
+  interval: 30s
   scrapeTimeout: 30s
 port: 9100
 labels:
