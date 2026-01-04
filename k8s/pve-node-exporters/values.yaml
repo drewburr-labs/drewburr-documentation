@@ -26,7 +26,7 @@ services:
     port: 19100
   - name: amdgpu-exporter
     ips:
-      - 193.23.250.33
+      - 192.168.1.177
     port: 5000
 
 endpoint:
