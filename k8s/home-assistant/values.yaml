@@ -9,6 +9,7 @@ home-assistant:
     className: nginx-internal
     annotations:
       cert-manager.io/cluster-issuer: letsencrypt
+      external-dns.alpha.kubernetes.io/hostname: homeassistant.drewburr.com
     hosts:
       - host: homeassistant.drewburr.com
         paths:
@@ -22,12 +23,9 @@ home-assistant:
   hostPort:
     enabled: true
 
-  additionalVolumes:
-    - name: home-assistant-config
-      configMap:
-        name: home-assistant-config
-
-  additionalMounts:
-    - name: home-assistant-config
-      mountPath: /config/configuration.yaml
-      subPath: configuration.yaml
+  serviceMonitor:
+    enabled: true
+    scrapeInterval: 60s
+    bearerToken:
+      secretName: home-assistant-prometheus-token
+      secretKey: token
