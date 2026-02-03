@@ -1,0 +1,3 @@
+syncOptions:
+  - ServerSideApply=true # Fixes issue with CRD annotations being too large
+  - ApplyOutOfSyncOnly=true
