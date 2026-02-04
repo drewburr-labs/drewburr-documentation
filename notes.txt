@@ -1,0 +1,9 @@
+sdz     5QJPHE0B       0x5000cca2b097d2bc
+sdaa    5QJN3BUB       0x5000cca2b0954c7c
+
+/dev/disk/by-id/scsi-SHGST_HUH721212AL4205_5QJPHE0B
+/dev/disk/by-id/scsi-SHGST_HUH721212AL4205_5QJN3BUB
+
+
+
+I want to create a service that is a proxy for smart home devices, used for reverse engineering and monitoring. The intention is to do DNS redirection of forced proxying to capture and monitor traffic to aid in the development of custom integrations when services may be closed-source otherwise
