@@ -1,3 +1,0 @@
-{{- include "library.deployment" (list . "sonarr-anime.deployment") -}}
-{{- define "sonarr-anime.deployment" -}}
-{{- end -}}
