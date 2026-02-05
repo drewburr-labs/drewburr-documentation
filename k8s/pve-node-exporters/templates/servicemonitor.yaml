@@ -1,23 +1,23 @@
+{{- range .Values.services }}
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: {{ .Release.Name }}
+  name: {{ .name }}
   labels:
     release: prometheus
-    {{- toYaml .Values.labels | nindent 4 }}
+    {{- toYaml $.Values.labels | nindent 4 }}
 spec:
   endpoints:
-  {{- range .Values.services }}
   - {{ toYaml $.Values.endpoint | nindent 4 | trim }}
     {{- if .metricRelabelings }}
     metricRelabelings:
     {{- toYaml .metricRelabelings | nindent 4 }}
     {{- end }}
-  {{- end }}
   namespaceSelector:
     matchNames:
-    - {{ .Release.Namespace }}
+    - {{ $.Release.Namespace }}
   selector:
     matchLabels:
-      {{- toYaml .Values.labels | nindent 6 }}
+      name: {{ .name | quote }}
+{{- end }}
