@@ -28,6 +28,9 @@ services:
     ips:
       - 192.168.1.177
     port: 5000
+    metricRelabelings:
+      - action: labeldrop
+        regex: kfd_process_id
 
 endpoint:
   honorLabels: true
