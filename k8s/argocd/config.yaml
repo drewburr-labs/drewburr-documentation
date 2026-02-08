@@ -1,3 +1,4 @@
 syncOptions:
   - ServerSideApply=true # Fixes issue with CRD annotations being too large
+  - ClientSideApplyMigration=false # Disable migration to prevent issues with large CRD annotations
   - ApplyOutOfSyncOnly=true
