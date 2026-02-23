@@ -1,0 +1,116 @@
+# Default values for example.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 0
+
+image:
+  repository: plexinc/pms-docker
+  pullPolicy: Always
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ''
+
+command: [
+  "/bin/bash",
+  "-c",
+  "while true; do sleep 60; done;"
+]
+
+imagePullSecrets: []
+nameOverride: ''
+fullnameOverride: ''
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ''
+
+podAnnotations: {}
+
+podSecurityContext:
+  fsGroup: 1001
+  fsGroupChangePolicy: "OnRootMismatch"
+
+securityContext:
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # runAsNonRoot: true
+  # runAsUser: 1001
+  # runAsGroup: 1001
+
+# Ports to be exposed, grouped by services
+services: []
+
+resources: {}
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+# Appended to env. Supports envFrom
+env: []
+
+# Key: value environment variables to be appended to env
+envVars:
+  PLEX_UID: 1001
+  PLEX_GID: 1001
+  TZ: America/New_York
+  HOSTNAME: plex.drewburr.com
+  CHANGE_CONFIG_DIR_OWNERSHIP: false
+  ADVERTISE_IP: https://plex.drewburr.com
+  ALLOWED_NETWORKS: '127.0.0.1/32'
+
+# dnsPolicy: None
+# dnsConfig:
+#   nameservers:
+#     - 192.168.4.1
+#     - 1.1.1.1
+
+# All are mounted under fsroot `/`. Supports additions
+persistence:
+  - name: plex-config
+  - name: plex-data
+  - name: backups
+  - name: transcode-large
+
+additionalVolumes: []
+
+additionalVolumeMounts: []
+
+nodeSelector: {}
+
+tolerations:
+  - key: compute
+    operator: Exists
+    effect: PreferNoSchedule
+
+affinity:
+  nodeAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        preference:
+          matchExpressions:
+            - key: compute
+              operator: In
+              values:
+                - 'true'
+
+initContainers: []
+
+# startupProbe:
+#   tcpSocket:
+#     port: 32400
+#   failureThreshold: 30
+#   periodSeconds: 10
+# livenessProbe:
+#   tcpSocket:
+#     port: 32400
+# readinessProbe:
+#   tcpSocket:
+#     port: 32400

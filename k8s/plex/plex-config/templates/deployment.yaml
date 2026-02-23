@@ -1,0 +1,3 @@
+{{- include "library.deployment" (list . "plex.deployment") -}}
+{{- define "plex.deployment" -}}
+{{- end -}}
