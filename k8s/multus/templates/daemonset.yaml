@@ -3,7 +3,7 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: kube-multus-ds
-  namespace: kube-system
+  namespace: {{ .Release.Namespace }}
   labels:
     tier: node
     app: multus
@@ -26,22 +26,15 @@ spec:
       hostNetwork: true
       hostPID: true
       tolerations:
-        - operator: Exists
-          effect: NoSchedule
-        - operator: Exists
-          effect: NoExecute
+        {{- toYaml .Values.tolerations | nindent 8 }}
       serviceAccountName: multus
       containers:
         - name: kube-multus
-          image: ghcr.io/k8snetworkplumbingwg/multus-cni:snapshot-thick
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: [ "/usr/src/multus-cni/bin/multus-daemon" ]
           resources:
-            requests:
-              cpu: "100m"
-              memory: "50Mi"
-            limits:
-              cpu: "100m"
-              memory: "50Mi"
+            {{- toYaml .Values.resources | nindent 12 }}
           securityContext:
             privileged: true
           terminationMessagePolicy: FallbackToLogsOnError
@@ -52,7 +45,7 @@ spec:
             # e.g. if the cni bin is in '/opt/cni/bin' on the container host side, then it should be mount to '/opt/cni/bin' in multus-daemon,
             # not to any other directory, like '/opt/bin' or '/usr/bin'.
             - name: cnibin
-              mountPath: /var/lib/rancher/k3s/data/current/bin
+              mountPath: {{ .Values.cni.binDir }}
             - name: host-run
               mountPath: /host/run
             - name: host-var-lib-cni-multus
@@ -80,15 +73,14 @@ spec:
                   fieldPath: spec.nodeName
       initContainers:
         - name: install-multus-binary
-          image: ghcr.io/k8snetworkplumbingwg/multus-cni:snapshot-thick
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           command:
             - "sh"
             - "-c"
             - "cp /usr/src/multus-cni/bin/multus-shim /host/opt/cni/bin/multus-shim && cp /usr/src/multus-cni/bin/passthru /host/opt/cni/bin/passthru"
           resources:
-            requests:
-              cpu: "10m"
-              memory: "15Mi"
+            {{- toYaml .Values.initResources | nindent 12 }}
           securityContext:
             privileged: true
           terminationMessagePolicy: FallbackToLogsOnError
@@ -100,10 +92,10 @@ spec:
       volumes:
         - name: cni
           hostPath:
-            path: /var/lib/rancher/k3s/agent/etc/cni/net.d
+            path: {{ .Values.cni.netdDir }}
         - name: cnibin
           hostPath:
-            path: /var/lib/rancher/k3s/data/current/bin
+            path: {{ .Values.cni.binDir }}
         - name: hostroot
           hostPath:
             path: /

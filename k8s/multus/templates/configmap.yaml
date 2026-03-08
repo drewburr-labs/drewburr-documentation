@@ -3,7 +3,7 @@ kind: ConfigMap
 apiVersion: v1
 metadata:
   name: multus-daemon-config
-  namespace: kube-system
+  namespace: {{ .Release.Namespace }}
   labels:
     tier: node
     app: multus
@@ -12,12 +12,12 @@ data:
     {
         "chrootDir": "/hostroot",
         "cniVersion": "0.3.1",
-        "logLevel": "verbose",
-        "logToStderr": true,
+        "logLevel": {{ .Values.daemonConfig.logLevel | quote }},
+        "logToStderr": {{ .Values.daemonConfig.logToStderr }},
         "cniConfigDir": "/host/etc/cni/net.d",
         "multusAutoconfigDir": "/host/etc/cni/net.d",
         "multusConfigFile": "auto",
         "socketDir": "/host/run/multus/",
-        "binDir": "/var/lib/rancher/k3s/data/current/bin",
-        "clusterNetwork": "/host/etc/cni/net.d/10-flannel.conflist"
+        "binDir": {{ .Values.cni.binDir | quote }},
+        "clusterNetwork": {{ .Values.daemonConfig.clusterNetwork | quote }}
     }
