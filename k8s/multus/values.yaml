@@ -1,1 +1,36 @@
 ---
+image:
+  repository: ghcr.io/k8snetworkplumbingwg/multus-cni
+  tag: snapshot-thick
+  pullPolicy: IfNotPresent
+
+# k3s-specific CNI paths. Override for other distributions.
+cni:
+  # Path to CNI binaries on the host (must match inside the container)
+  binDir: /var/lib/rancher/k3s/data/current/bin
+  # Path to CNI net.d config directory on the host
+  netdDir: /var/lib/rancher/k3s/agent/etc/cni/net.d
+
+daemonConfig:
+  logLevel: verbose
+  logToStderr: true
+  clusterNetwork: /host/etc/cni/net.d/10-flannel.conflist
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 100Mi
+  limits:
+    cpu: 100m
+    memory: 100Mi
+
+initResources:
+  requests:
+    cpu: 10m
+    memory: 15Mi
+
+tolerations:
+  - operator: Exists
+    effect: NoSchedule
+  - operator: Exists
+    effect: NoExecute
