@@ -116,6 +116,27 @@ affinity:
               values:
                 - 'true'
 
+initContainers:
+  - name: vuetorrent-install
+    image:
+      repository: alpine
+      pullPolicy: Always
+      tag: latest
+    securityContext: {}
+    command:
+      - sh
+      - -c
+      - |
+        if [ ! -d /config/vuetorrent ]; then
+          apk add --no-cache unzip wget &&
+          wget -q -O /tmp/vuetorrent.zip https://github.com/VueTorrent/VueTorrent/releases/latest/download/vuetorrent.zip &&
+          unzip -o /tmp/vuetorrent.zip -d /config/ &&
+          rm /tmp/vuetorrent.zip
+        fi
+    volumeMountsOverride:
+      - name: qbittorrent-config
+        mountPath: /config
+
 # initContainers:
 #   # - name: wireguard-init
 #   #   command:
