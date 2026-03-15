@@ -1,0 +1,169 @@
+# https://github.com/linuxserver/docker-qbittorrent
+replicaCount: 1
+
+image:
+  repository: lscr.io/linuxserver/qbittorrent
+  pullPolicy: Always
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ''
+
+imagePullSecrets: []
+nameOverride: ''
+fullnameOverride: ''
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ''
+
+podAnnotations:
+  k8s.v1.cni.cncf.io/networks: '[{ "name": "vpn-secure", "namespace": "multus", "mac": "ea:d0:cd:4a:1f:c1" }]'
+
+podSecurityContext:
+  fsGroup: 1001
+  fsGroupChangePolicy: "OnRootMismatch"
+
+securityContext:
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # runAsNonRoot: true
+  # runAsUser: 1001
+  # runAsGroup: 1001
+
+dnsPolicy: "None"
+dnsConfig:
+  nameservers:
+    - 1.1.1.1
+    - 8.8.8.8
+
+# Ports to be exposed, grouped by services
+# https://support.plex.tv/articles/201543147-what-network-ports-do-i-need-to-allow-through-my-firewall/
+services:
+  - name: http
+    type: ClusterIP
+    port: 8080
+    protocol: TCP
+    ingress:
+      className: nginx-internal
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt
+      hosts:
+        - host: qbittorrent-alt.drewburr.com
+          paths:
+            - path: /
+              pathType: ImplementationSpecific
+      tls:
+        - secretName: qbittorrent-alt-ingress
+          hosts:
+            - qbittorrent-alt.drewburr.com
+
+resources:
+  {}
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+# Appended to env. Supports envFrom
+env: []
+
+# Key: value environment variables to be appended to env
+envVars:
+  PUID: 1001
+  PGID: 1001
+  TZ: America/New_York
+
+# All are mounted under fsroot `/`. Supports additions
+# Expected to be created already for Plex
+persistence:
+  - name: qbittorrent-alt-config
+    mountPath: config
+    accessModes:
+      - ReadWriteOnce
+    requests: 10Gi
+    storageClassName: zfs-nvmeof
+  - name: plex-alt-data
+    mountPath: data
+    accessModes:
+      - ReadWriteOnce
+    requests: 200Gi
+    storageClassName: nfs-lake
+  - name: backups
+    accessModes:
+      - ReadWriteMany
+    requests: 5Gi
+    storageClassName: zfs-nfs
+
+# additionalVolumes:
+#   - name: wireguard-conf
+#     secret:
+#       secretName: wireguard-conf
+
+nodeSelector: {}
+
+tolerations:
+  - key: compute
+    operator: Exists
+    effect: PreferNoSchedule
+
+affinity:
+  nodeAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        preference:
+          matchExpressions:
+            - key: compute
+              operator: In
+              values:
+                - 'true'
+
+# initContainers:
+#   # - name: wireguard-init
+#   #   command:
+#   #     - sysctl -w net.ipv4.ip_forward=1
+#   #   image: linuxserver/wireguard
+#   - name: wireguard
+#     restartPolicy: Always # Use as sidecar
+#     image:
+#       repository: linuxserver/wireguard
+#       pullPolicy: Always
+#       # Overrides the image tag whose default is the chart appVersion.
+#       tag: ''
+#     ports:
+#       - name: wg-udp
+#         protocol: UDP
+#         containerPort: 51820
+#       - name: wg-tcp
+#         protocol: TCP
+#         containerPort: 51820
+#     securityContext:
+#       privileged: true
+#       capabilities:
+#         add:
+#           - NET_ADMIN
+#           - SYS_MODULE
+#     volumeMountsOverride:
+#       - name: wireguard-conf
+#         mountPath: /config/wg_confs
+
+startupProbe:
+  httpGet:
+    path: /
+    port: 8080
+  failureThreshold: 30
+  periodSeconds: 10
+livenessProbe:
+  httpGet:
+    path: /
+    port: 8080
+readinessProbe:
+  httpGet:
+    path: /
+    port: 8080
