@@ -95,7 +95,7 @@ persistence:
       - ReadWriteOnce
     requests: 200Gi
     storageClassName: nfs-lake
-  - name: backups
+  - name: alt-backups
     accessModes:
       - ReadWriteMany
     requests: 5Gi
