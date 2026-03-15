@@ -83,7 +83,7 @@ persistence:
     storageClassName: zfs-nvmeof
   - name: plex-alt-data
     mountPath: data
-  - name: backups
+  - name: alt-backups
 
 nodeSelector: {}
 
