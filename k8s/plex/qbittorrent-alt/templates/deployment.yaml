@@ -1,0 +1,3 @@
+{{- include "library.deployment" (list . "qbittorrent.deployment") -}}
+{{- define "qbittorrent.deployment" -}}
+{{- end -}}
