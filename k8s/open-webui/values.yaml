@@ -1,0 +1,23 @@
+open-webui:
+  ollama:
+    enabled: false
+
+  ollamaUrls:
+    - http://192.168.4.56:8000
+
+  pipelines:
+    enabled: false
+
+  persistence:
+    enabled: true
+    size: 5Gi
+    storageClass: zfs-nvmeof
+
+  ingress:
+    enabled: true
+    class: nginx-internal
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt
+      external-dns.alpha.kubernetes.io/hostname: openwebui.drewburr.com
+    host: openwebui.drewburr.com
+    tls: true
