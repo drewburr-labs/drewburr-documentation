@@ -6,7 +6,10 @@ Prometheus exporters for monitoring the AI runner. Three sources are configured:
 |---|---|---|
 | node_exporter | 9100 | CPU, memory, disk, network, system |
 | nvidia_gpu_exporter | 9835 | GPU utilization, VRAM, temperature, power |
-| ollama_exporter (frcooper) | 8000 | Request counts, latency, token throughput, model load times — transparent proxy |
+| vLLM (built-in) | 8001 | Request latency, token throughput, KV cache utilization, queue depth |
+
+> **Note:** The `ollama_exporter` transparent proxy (frcooper) has been removed. vLLM exposes
+> Prometheus metrics natively at `/metrics` on its API port. Ollama no longer has a public port.
 
 > **Note:** All commands must be run on the `ai-runner` machine. SSH in first:
 > ```sh
@@ -102,7 +105,18 @@ curl -s http://localhost:9835/metrics | grep nvidia_smi_gpu_utilization_ratio
 
 ---
 
-## 3. ollama_exporter (frcooper/ollama-exporter)
+## 3. vLLM built-in metrics
+
+vLLM exposes Prometheus metrics natively at `http://127.0.0.1:8001/metrics`. No additional exporter needed. See [vllm-setup.md](./vllm-setup.md) for metric details.
+
+---
+
+## ~~3. ollama_exporter (frcooper/ollama-exporter)~~ (removed)
+
+> **This exporter has been removed.** vLLM replaced Ollama as the primary inference backend
+> and includes native Prometheus metrics. The steps below are kept for reference only.
+
+## ollama_exporter (frcooper/ollama-exporter)
 
 Ollama v0.20.2 has no native `/metrics` endpoint. [`frcooper/ollama-exporter`](https://github.com/frcooper/ollama-exporter) works as a **transparent proxy**: LAN clients hit port 8000 instead of 11434, the exporter intercepts `/api/chat` and `/api/generate` to record metrics, and proxies everything else through to Ollama on `127.0.0.1:11435`.
 
@@ -181,7 +195,7 @@ sudo systemctl enable --now ollama_exporter
 
 Open the exporter ports to the LAN subnet so Prometheus can scrape them. Adjust `192.168.4.0/23` if your Prometheus host is on a different subnet.
 
-Port 11434 is intentionally **not opened** — Ollama binds to loopback only, and all LAN traffic goes through the exporter proxy on 8000.
+Port 8001 (vLLM) and port 11434 (Ollama) bind to `127.0.0.1` only. All LAN inference traffic goes through LiteLLM on port 8000.
 
 ```sh
 # node_exporter
@@ -219,9 +233,9 @@ scrape_configs:
         labels:
           instance: airunner01
 
-  - job_name: airunner01_ollama
+  - job_name: airunner01_vllm
     static_configs:
-      - targets: ['192.168.4.56:8000']
+      - targets: ['192.168.4.56:8001']
         labels:
           instance: airunner01
 ```
@@ -234,13 +248,13 @@ After all services are running and Prometheus is scraping:
 
 ```sh
 # Check all services are up
-systemctl is-active node_exporter nvidia_gpu_exporter ollama ollama_exporter
+systemctl is-active node_exporter nvidia_gpu_exporter ollama vllm-70b litellm
 
 # Quick metric spot-checks
 curl -s http://localhost:9100/metrics | grep 'node_cpu_seconds_total'
 curl -s http://localhost:9835/metrics | grep 'nvidia_smi_memory_used_bytes'
-curl -s http://localhost:8000/metrics | grep 'ollama_requests_total'
+curl -s http://localhost:8001/metrics | grep 'vllm:avg_generation_throughput'
 
-# Verify the proxy passes through to Ollama
-curl -s http://localhost:8000/api/version
+# Verify LiteLLM router is serving on :8000
+curl -s http://localhost:8000/v1/models
 ```

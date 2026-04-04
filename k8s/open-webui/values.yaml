@@ -2,8 +2,13 @@ open-webui:
   ollama:
     enabled: false
 
-  ollamaUrls:
-    - http://192.168.4.56:8000
+  ollamaUrls: []
+
+  extraEnvVars:
+    - name: OPENAI_API_BASE_URL
+      value: http://192.168.4.56:8000/v1
+    - name: OPENAI_API_KEY
+      value: none
 
   pipelines:
     enabled: false
