@@ -31,6 +31,17 @@ services:
     metricRelabelings:
       - action: labeldrop
         regex: kfd_process_id
+  - name: airunner-node-exporter
+    ips:
+      - 192.168.4.56
+  - name: airunner-gpu-exporter
+    ips:
+      - 192.168.4.56
+    port: 9835
+  - name: airunner-ollama-exporter
+    ips:
+      - 192.168.4.56
+    port: 8000
 
 endpoint:
   honorLabels: true
