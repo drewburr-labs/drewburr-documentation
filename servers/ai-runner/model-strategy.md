@@ -6,7 +6,9 @@ Guidance on model selection and usage for the ai-runner machine.
 
 - **2x NVIDIA RTX 3090** — 24GB VRAM each, 48GB total
 - Connected via **NVLink** (4 links × 14 GB/s = ~56 GB/s bidirectional) — the two GPUs are treated as a unified 48GB memory pool by CUDA
-- Models are served via **Ollama** and accessible to other servers on the network
+- Text models are served via **vLLM** (tensor parallel, both GPUs active per token)
+- Vision models are served via **Ollama** (loopback only)
+- Both are accessible to other servers via **LiteLLM** on port 8000 (OpenAI API)
 
 NVLink requires no server-side configuration — the driver detects it automatically. To verify it's active:
 
@@ -16,6 +18,16 @@ nvidia-smi nvlink --status -i 1
 ```
 
 Both GPUs should show 4 links at 14.062 GB/s each.
+
+## Inference backends
+
+| Backend | Models | Port | Notes |
+|---|---|---|---|
+| vLLM | `llama3.3:70b` | 8001 (internal) | Tensor parallel (TP=2), AWQ INT4 |
+| Ollama | `llama3.2-vision:11b` | 11434 (loopback) | GGUF, vision tasks |
+| LiteLLM | all | 8000 (LAN) | OpenAI-compatible router |
+
+---
 
 ## Use Cases
 

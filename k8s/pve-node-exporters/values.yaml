@@ -38,10 +38,10 @@ services:
     ips:
       - 192.168.4.56
     port: 9835
-  - name: airunner-ollama-exporter
+  - name: airunner-vllm-exporter
     ips:
       - 192.168.4.56
-    port: 8000
+    port: 8001
 
 endpoint:
   honorLabels: true
