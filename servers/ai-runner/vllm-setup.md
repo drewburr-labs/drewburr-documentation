@@ -28,7 +28,7 @@ LAN clients / Open WebUI
 
 | Service | GPUs | Notes |
 |---|---|---|
-| `vllm-70b` | GPU 0 + GPU 1 (TP=2) | Tensor parallel — both active per token |
+| `vllm-1` | GPU 0 + GPU 1 (TP=2) | Tensor parallel — both active per token |
 | `vllm-11b-vision` | GPU 0 only | Alternative to Ollama for vision; not enabled by default |
 | Ollama (`llama3.2-vision:11b`) | GPU 0 + GPU 1 | Used for vision; conflicts with vLLM 70B if loaded simultaneously |
 
@@ -94,7 +94,7 @@ sudo mkdir -p /var/lib/vllm/models
 
 ## vLLM 70B service
 
-`/etc/systemd/system/vllm-70b.service`
+`/etc/systemd/system/vllm-1.service`
 
 ```ini
 [Unit]
@@ -105,13 +105,13 @@ Wants=network-online.target
 [Service]
 Restart=always
 RestartSec=10
-ExecStartPre=-/usr/bin/podman stop vllm-70b
-ExecStartPre=-/usr/bin/podman rm vllm-70b
-ExecStart=/usr/bin/podman run --name vllm-70b \
+ExecStartPre=-/usr/bin/podman stop vllm-1
+ExecStartPre=-/usr/bin/podman rm vllm-1
+ExecStart=/usr/bin/podman run --name vllm-1 \
   --device nvidia.com/gpu=all \
   --ipc=host \
   --ulimit memlock=-1 \
-  -p 127.0.0.1:8001:8000 \
+  -p 8001:8000 \
   -v /var/lib/vllm/models:/root/.cache/huggingface \
   docker.io/vllm/vllm-openai:latest \
     --model casperhansen/llama-3.3-70b-instruct-awq \
@@ -122,7 +122,7 @@ ExecStart=/usr/bin/podman run --name vllm-70b \
     --enable-prefix-caching \
     --host 0.0.0.0 \
     --port 8000
-ExecStop=/usr/bin/podman stop vllm-70b
+ExecStop=/usr/bin/podman stop vllm-1
 
 [Install]
 WantedBy=multi-user.target
@@ -218,8 +218,8 @@ general_settings:
 ```ini
 [Unit]
 Description=LiteLLM Proxy Router
-After=network-online.target vllm-70b.service
-Wants=network-online.target
+After=network-online.target vllm-1.service
+Wants=network-online.target vllm-1.service
 
 [Service]
 Restart=always
@@ -229,6 +229,7 @@ ExecStartPre=-/usr/bin/podman rm litellm
 ExecStart=/usr/bin/podman run --name litellm \
   --network=host \
   -v /etc/litellm/config.yaml:/app/config.yaml:ro \
+  -v /etc/litellm/fix_tool_messages.py:/app/fix_tool_messages.py:ro \
   ghcr.io/berriai/litellm:main-latest \
     --config /app/config.yaml \
     --port 8000 \
@@ -263,9 +264,16 @@ Prometheus scrapes `:8001/metrics` via the `airunner-vllm-exporter` ServiceMonit
 
 ## Firewall
 
-Port 8000 is already open to the LAN (from the previous Ollama exporter). No firewall changes needed.
+Port 8000 is already open to the LAN (from the previous Ollama exporter).
 
-vLLM's API (`:8001`) and vision service (`:8002`) bind to `127.0.0.1` only — not exposed to LAN directly.
+Port 8001 must be open to the LAN so Prometheus can scrape vLLM metrics:
+
+```sh
+sudo firewall-cmd --permanent --add-rich-rule='rule family="ipv4" source address="192.168.4.0/23" port protocol="tcp" port="8001" accept'
+sudo firewall-cmd --reload
+```
+
+vLLM's vision service (`:8002`) is not exposed to LAN.
 
 ---
 
@@ -273,7 +281,7 @@ vLLM's API (`:8001`) and vision service (`:8002`) bind to `127.0.0.1` only — n
 
 ```sh
 # Check all services
-systemctl is-active vllm-70b litellm ollama
+systemctl is-active vllm-1 litellm ollama
 
 # vLLM model loaded (after ~40GB download on first start)
 curl -s http://localhost:8001/v1/models | python3 -m json.tool
