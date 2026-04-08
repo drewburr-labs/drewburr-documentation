@@ -204,7 +204,10 @@ sudo firewall-cmd --permanent --add-rich-rule='rule family="ipv4" source address
 # nvidia_gpu_exporter
 sudo firewall-cmd --permanent --add-rich-rule='rule family="ipv4" source address="192.168.4.0/23" port protocol="tcp" port="9835" accept'
 
-# ollama_exporter (proxy + /metrics)
+# vLLM metrics (Prometheus scrape)
+sudo firewall-cmd --permanent --add-rich-rule='rule family="ipv4" source address="192.168.4.0/23" port protocol="tcp" port="8001" accept'
+
+# LiteLLM / ollama_exporter (proxy + /metrics)
 sudo firewall-cmd --permanent --add-rich-rule='rule family="ipv4" source address="192.168.4.0/23" port protocol="tcp" port="8000" accept'
 
 sudo firewall-cmd --reload
@@ -248,7 +251,7 @@ After all services are running and Prometheus is scraping:
 
 ```sh
 # Check all services are up
-systemctl is-active node_exporter nvidia_gpu_exporter ollama vllm-70b litellm
+systemctl is-active node_exporter nvidia_gpu_exporter ollama vllm-1 litellm
 
 # Quick metric spot-checks
 curl -s http://localhost:9100/metrics | grep 'node_cpu_seconds_total'
