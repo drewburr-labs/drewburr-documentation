@@ -698,7 +698,7 @@ TRACK3_NODEJS = [
         "id": "fim_js_filter_map",
         "prefix": "function doubleEvens(arr) {\n    return arr\n        .filter(n => ",
         "suffix": ")\n        .map(n => n * 2);\n}",
-        "expected_output": "[4, 8, 12]",
+        "expected_output": "[4,8,12]",
         "run_template": """\
 function doubleEvens(arr) {
     return arr
@@ -1192,7 +1192,7 @@ def get_gpu_stats() -> dict:
     """
     nvidia_smi_cmd = [
         "nvidia-smi",
-        "--query-gpu=index,name,memory.used,memory.free,memory.total,utilization.gpu,temperature.gpu",
+        "--query-gpu=index,name,memory.used,memory.free,memory.total,temperature.gpu",
         "--format=csv,noheader,nounits",
     ]
     try:
@@ -1206,14 +1206,13 @@ def get_gpu_stats() -> dict:
 
         gpus = []
         for line in out.strip().splitlines():
-            idx, name, used, free, total, util, temp = [x.strip() for x in line.split(",")]
+            idx, name, used, free, total, temp = [x.strip() for x in line.split(",")]
             gpus.append({
                 "index": int(idx),
                 "name": name,
                 "vram_used_mb": int(used),
                 "vram_free_mb": int(free),
                 "vram_total_mb": int(total),
-                "utilization_pct": int(util),
                 "temp_c": int(temp),
             })
         source = f"nvidia-smi-ssh:{_ssh_host}" if _ssh_host else "nvidia-smi"
