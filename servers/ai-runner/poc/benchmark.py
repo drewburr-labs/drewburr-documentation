@@ -296,6 +296,96 @@ TRACK1_PYTHON = [
             {"call": "is_balanced('(((')", "expected": "False"},
         ],
     },
+    {
+        "id": "py_two_sum",
+        "prompt": "Write a Python function `two_sum(nums: list, target: int) -> list` that returns the indices [i, j] of the two numbers that add up to target. Assume exactly one solution exists and i < j.",
+        "test_cases": [
+            {"call": "two_sum([2,7,11,15], 9)", "expected": "[0, 1]"},
+            {"call": "two_sum([3,2,4], 6)", "expected": "[1, 2]"},
+            {"call": "two_sum([3,3], 6)", "expected": "[0, 1]"},
+        ],
+    },
+    {
+        "id": "py_merge_dicts",
+        "prompt": "Write a Python function `merge_dicts(a: dict, b: dict) -> dict` that returns a new dict with all keys from both. If a key appears in both, the value from b wins. Do not modify either input.",
+        "test_cases": [
+            {"call": "merge_dicts({'a':1,'b':2}, {'b':3,'c':4})", "expected": "{'a': 1, 'b': 3, 'c': 4}"},
+            {"call": "merge_dicts({}, {'x':1})", "expected": "{'x': 1}"},
+            {"call": "merge_dicts({'a':1}, {})", "expected": "{'a': 1}"},
+        ],
+    },
+    {
+        "id": "py_chunk",
+        "prompt": "Write a Python function `chunk(lst: list, n: int) -> list` that splits lst into consecutive chunks of size n. The last chunk may be smaller.",
+        "test_cases": [
+            {"call": "chunk([1,2,3,4,5], 2)", "expected": "[[1, 2], [3, 4], [5]]"},
+            {"call": "chunk([1,2,3], 3)", "expected": "[[1, 2, 3]]"},
+            {"call": "chunk([], 2)", "expected": "[]"},
+        ],
+    },
+    {
+        "id": "py_most_common",
+        "prompt": "Write a Python function `most_common(lst: list)` that returns the most frequently occurring element. If there is a tie, return any one of the tied elements.",
+        "test_cases": [
+            {"call": "most_common([1,2,2,3,3,3])", "expected": "3"},
+            {"call": "most_common(['a','b','a'])", "expected": "'a'"},
+            {"call": "most_common([42])", "expected": "42"},
+        ],
+    },
+    {
+        "id": "py_deep_flatten",
+        "prompt": "Write a Python function `deep_flatten(lst: list) -> list` that recursively flattens a nested list to a single flat list.",
+        "test_cases": [
+            {"call": "deep_flatten([1,[2,[3,[4]]],5])", "expected": "[1, 2, 3, 4, 5]"},
+            {"call": "deep_flatten([1,2,3])", "expected": "[1, 2, 3]"},
+            {"call": "deep_flatten([])", "expected": "[]"},
+        ],
+    },
+    {
+        "id": "py_zip_to_dict",
+        "prompt": "Write a Python function `zip_to_dict(keys: list, values: list) -> dict` that pairs each key with its corresponding value. Stop at the shorter list if lengths differ.",
+        "test_cases": [
+            {"call": "zip_to_dict(['a','b','c'], [1,2,3])", "expected": "{'a': 1, 'b': 2, 'c': 3}"},
+            {"call": "zip_to_dict(['a','b'], [1,2,3])", "expected": "{'a': 1, 'b': 2}"},
+            {"call": "zip_to_dict([], [])", "expected": "{}"},
+        ],
+    },
+    {
+        "id": "py_clamp",
+        "prompt": "Write a Python function `clamp(value, lo, hi)` that returns value clamped to the range [lo, hi].",
+        "test_cases": [
+            {"call": "clamp(5, 1, 10)", "expected": "5"},
+            {"call": "clamp(-3, 0, 100)", "expected": "0"},
+            {"call": "clamp(200, 0, 100)", "expected": "100"},
+        ],
+    },
+    {
+        "id": "py_caesar",
+        "prompt": "Write a Python function `caesar(text: str, shift: int) -> str` that applies a Caesar cipher to all alphabetic characters, wrapping correctly at z/Z. Non-alpha characters pass through unchanged.",
+        "test_cases": [
+            {"call": "caesar('Hello, World!', 3)", "expected": "'Khoor, Zruog!'"},
+            {"call": "caesar('xyz', 3)", "expected": "'abc'"},
+            {"call": "caesar('ABC', 1)", "expected": "'BCD'"},
+        ],
+    },
+    {
+        "id": "py_word_count",
+        "prompt": "Write a Python function `word_count(text: str) -> dict` that returns a dict mapping each lowercased word (split on whitespace) to its count.",
+        "test_cases": [
+            {"call": "word_count('the cat sat on the mat')", "expected": "{'the': 2, 'cat': 1, 'sat': 1, 'on': 1, 'mat': 1}"},
+            {"call": "word_count('')", "expected": "{}"},
+            {"call": "word_count('one one ONE')", "expected": "{'one': 3}"},
+        ],
+    },
+    {
+        "id": "py_transpose",
+        "prompt": "Write a Python function `transpose(matrix: list) -> list` that returns the transpose of a 2D list. Assume all rows have equal length.",
+        "test_cases": [
+            {"call": "transpose([[1,2,3],[4,5,6]])", "expected": "[[1, 4], [2, 5], [3, 6]]"},
+            {"call": "transpose([[1,2],[3,4],[5,6]])", "expected": "[[1, 3, 5], [2, 4, 6]]"},
+            {"call": "transpose([[1]])", "expected": "[[1]]"},
+        ],
+    },
 ]
 
 TRACK1_NODEJS = [
@@ -377,6 +467,42 @@ const t2 = parseQueryString('');
 console.log(JSON.stringify(t2) === '{}' ? 'PASS' : 'FAIL t2: ' + JSON.stringify(t2));
 const t3 = parseQueryString('x=foo%20bar');
 console.log(t3.x === 'foo bar' ? 'PASS' : 'FAIL t3: ' + JSON.stringify(t3));
+""",
+        "n_tests": 3,
+    },
+    {
+        "id": "js_deep_clone",
+        "prompt": "Write a JavaScript function `deepClone(obj)` that returns a deep clone of a plain JSON-serialisable object or array. Modifying the clone must not affect the original.",
+        "test_js": r"""
+const orig = {a: 1, b: {c: 2, d: [3, 4]}};
+const clone = deepClone(orig);
+clone.b.c = 99;
+clone.b.d.push(5);
+console.log(orig.b.c === 2 ? 'PASS' : 'FAIL: orig.b.c mutated to ' + orig.b.c);
+console.log(orig.b.d.length === 2 ? 'PASS' : 'FAIL: orig.b.d mutated to ' + JSON.stringify(orig.b.d));
+const arr = deepClone([1,[2,3],4]);
+arr[1].push(99);
+console.log(JSON.stringify([1,[2,3],4]) === '[1,[2,3],4]' ? 'PASS' : 'FAIL: source array mutated');
+""",
+        "n_tests": 3,
+    },
+    {
+        "id": "js_sum_nested",
+        "prompt": "Write a JavaScript function `sumValues(obj)` that sums all numeric values in a plain object (one level deep). Non-numeric values are ignored.",
+        "test_js": r"""
+console.log(sumValues({a:1, b:2, c:3}) === 6 ? 'PASS' : 'FAIL basic: ' + sumValues({a:1,b:2,c:3}));
+console.log(sumValues({x:10, y:'hello', z:5}) === 15 ? 'PASS' : 'FAIL mixed: ' + sumValues({x:10,y:'hello',z:5}));
+console.log(sumValues({}) === 0 ? 'PASS' : 'FAIL empty: ' + sumValues({}));
+""",
+        "n_tests": 3,
+    },
+    {
+        "id": "js_truncate",
+        "prompt": "Write a JavaScript function `truncate(str, maxLen)` that returns the string truncated to maxLen characters with '...' appended if it exceeds maxLen. Return the string unchanged if it fits.",
+        "test_js": r"""
+console.log(truncate('Hello, World!', 5) === 'Hello...' ? 'PASS' : 'FAIL long: ' + truncate('Hello, World!', 5));
+console.log(truncate('Hi', 10) === 'Hi' ? 'PASS' : 'FAIL short: ' + truncate('Hi', 10));
+console.log(truncate('exact', 5) === 'exact' ? 'PASS' : 'FAIL exact: ' + truncate('exact', 5));
 """,
         "n_tests": 3,
     },
@@ -482,6 +608,30 @@ TRACK1_GO = [
 """,
         "n_tests": 2,
     },
+    {
+        "id": "go_contains",
+        "prompt": "Write a Go function `Contains(slice []string, item string) bool` that returns true if the slice contains the given string.",
+        "func_name": "Contains",
+        "imports": [],
+        "test_main": r"""
+    if Contains([]string{"a","b","c"}, "b") { fmt.Println("PASS") } else { fmt.Println("FAIL found") }
+    if !Contains([]string{"a","b","c"}, "z") { fmt.Println("PASS") } else { fmt.Println("FAIL not found") }
+    if !Contains([]string{}, "a") { fmt.Println("PASS") } else { fmt.Println("FAIL empty") }
+""",
+        "n_tests": 3,
+    },
+    {
+        "id": "go_sum_ints",
+        "prompt": "Write a Go function `SumInts(nums []int) int` that returns the sum of all integers in the slice. Return 0 for an empty slice.",
+        "func_name": "SumInts",
+        "imports": [],
+        "test_main": r"""
+    if SumInts([]int{1,2,3,4,5}) == 15 { fmt.Println("PASS") } else { fmt.Printf("FAIL: %d\n", SumInts([]int{1,2,3,4,5})) }
+    if SumInts([]int{}) == 0 { fmt.Println("PASS") } else { fmt.Printf("FAIL empty: %d\n", SumInts([]int{})) }
+    if SumInts([]int{-1,1}) == 0 { fmt.Println("PASS") } else { fmt.Printf("FAIL zero sum: %d\n", SumInts([]int{-1,1})) }
+""",
+        "n_tests": 3,
+    },
 ]
 
 # ── Track 2: Bug fixing ────────────────────────────────────────────────────────
@@ -534,6 +684,98 @@ TRACK2_PYTHON = [
             {"call": "greet('Bob', 25)", "expected": "'Hello, Bob (age 25)'"},
         ],
     },
+    {
+        "id": "bug_py_integer_div",
+        "prompt": "The following function should return the average as a float, but always rounds down to an integer. Fix it.\n\n```python\ndef average(nums):\n    return sum(nums) // len(nums)\n```",
+        "test_cases": [
+            {"call": "average([1, 2, 4])", "expected": "2.3333333333333335"},
+            {"call": "average([1, 1])", "expected": "1.0"},
+            {"call": "average([10])", "expected": "10.0"},
+        ],
+    },
+    {
+        "id": "bug_py_sort_returns_none",
+        "prompt": "The following function should return a sorted copy of the list, but always returns None. Fix it.\n\n```python\ndef sorted_list(lst):\n    return lst.sort()\n```",
+        "test_cases": [
+            {"call": "sorted_list([3,1,2])", "expected": "[1, 2, 3]"},
+            {"call": "sorted_list([])", "expected": "[]"},
+            {"call": "sorted_list([5,5,1])", "expected": "[1, 5, 5]"},
+        ],
+    },
+    {
+        "id": "bug_py_count_keyerror",
+        "prompt": "The following function should count occurrences of each item but raises KeyError on the first unseen item. Fix it.\n\n```python\ndef count_items(items):\n    counts = {}\n    for item in items:\n        counts[item] += 1\n    return counts\n```",
+        "test_cases": [
+            {"call": "count_items(['a','b','a','c','b','a'])", "expected": "{'a': 3, 'b': 2, 'c': 1}"},
+            {"call": "count_items([])", "expected": "{}"},
+            {"call": "count_items([1])", "expected": "{1: 1}"},
+        ],
+    },
+    {
+        "id": "bug_py_missing_return",
+        "prompt": "The following function should return the absolute value of n, but returns None for non-negative inputs. Fix it.\n\n```python\ndef my_abs(n):\n    if n < 0:\n        return -n\n```",
+        "test_cases": [
+            {"call": "my_abs(-5)", "expected": "5"},
+            {"call": "my_abs(3)", "expected": "3"},
+            {"call": "my_abs(0)", "expected": "0"},
+        ],
+    },
+    {
+        "id": "bug_py_mutate_while_iterate",
+        "prompt": "The following function should remove all negative numbers but skips some due to mutation during iteration. Fix it.\n\n```python\ndef remove_negatives(nums):\n    for n in nums:\n        if n < 0:\n            nums.remove(n)\n    return nums\n```",
+        "test_cases": [
+            {"call": "remove_negatives([-1, -2, 3, 4])", "expected": "[3, 4]"},
+            {"call": "remove_negatives([1, 2, 3])", "expected": "[1, 2, 3]"},
+            {"call": "remove_negatives([-1, -1, -1])", "expected": "[]"},
+        ],
+    },
+    {
+        "id": "bug_py_join_int",
+        "prompt": "The following function should join a list of numbers as a comma-separated string, but raises TypeError. Fix it.\n\n```python\ndef join_nums(nums):\n    return ','.join(nums)\n```",
+        "test_cases": [
+            {"call": "join_nums([1, 2, 3])", "expected": "'1,2,3'"},
+            {"call": "join_nums([])", "expected": "''"},
+            {"call": "join_nums([42])", "expected": "'42'"},
+        ],
+    },
+    {
+        "id": "bug_py_wrong_condition",
+        "prompt": "The following function should return True if n is strictly between lo and hi (exclusive), but the condition is incorrect. Fix it.\n\n```python\ndef between(n, lo, hi):\n    return lo < hi < n\n```",
+        "test_cases": [
+            {"call": "between(5, 1, 10)", "expected": "True"},
+            {"call": "between(1, 1, 10)", "expected": "False"},
+            {"call": "between(10, 1, 10)", "expected": "False"},
+            {"call": "between(0, 1, 10)", "expected": "False"},
+        ],
+    },
+    {
+        "id": "bug_py_dict_get",
+        "prompt": "The following function should return a default value when a key is missing, but raises KeyError. Fix it.\n\n```python\ndef safe_get(d, key, default):\n    return d[key]\n```",
+        "test_cases": [
+            {"call": "safe_get({'a': 1}, 'a', 0)", "expected": "1"},
+            {"call": "safe_get({'a': 1}, 'b', 0)", "expected": "0"},
+            {"call": "safe_get({}, 'x', 'none')", "expected": "'none'"},
+        ],
+    },
+    {
+        "id": "bug_py_strip_compare",
+        "prompt": "The following function should compare two strings ignoring surrounding whitespace, but gives wrong results when either string has leading/trailing spaces. Fix it.\n\n```python\ndef equal_stripped(a, b):\n    return a == b\n```",
+        "test_cases": [
+            {"call": "equal_stripped('hello', 'hello')", "expected": "True"},
+            {"call": "equal_stripped('  hello  ', 'hello')", "expected": "True"},
+            {"call": "equal_stripped('hello', 'world')", "expected": "False"},
+        ],
+    },
+    {
+        "id": "bug_py_wrong_return_branch",
+        "prompt": "The following function should return 'fizz' for multiples of 3, 'buzz' for multiples of 5, 'fizzbuzz' for both, and the number otherwise — but the order of checks is wrong. Fix it.\n\n```python\ndef fizzbuzz(n):\n    if n % 3 == 0:\n        return 'fizz'\n    elif n % 5 == 0:\n        return 'buzz'\n    elif n % 15 == 0:\n        return 'fizzbuzz'\n    return str(n)\n```",
+        "test_cases": [
+            {"call": "fizzbuzz(15)", "expected": "'fizzbuzz'"},
+            {"call": "fizzbuzz(9)", "expected": "'fizz'"},
+            {"call": "fizzbuzz(10)", "expected": "'buzz'"},
+            {"call": "fizzbuzz(7)", "expected": "'7'"},
+        ],
+    },
 ]
 
 TRACK2_NODEJS = [
@@ -575,6 +817,34 @@ console.log(strictEqual(0, '')  === false ? 'PASS' : 'FAIL 0==\"\"');
 """,
         "n_tests": 3,
     },
+    {
+        "id": "bug_js_promise_no_return",
+        "prompt": "The following async function should resolve to double the input value, but always resolves to undefined. Fix it.\n\n```javascript\nasync function doubleAsync(promise) {\n    promise.then(v => v * 2);\n}\n```",
+        "test_js": r"""
+async function runTests() {
+    const r1 = await doubleAsync(Promise.resolve(5));
+    console.log(r1 === 10 ? 'PASS' : 'FAIL: got ' + r1);
+    const r2 = await doubleAsync(Promise.resolve(0));
+    console.log(r2 === 0 ? 'PASS' : 'FAIL: got ' + r2);
+}
+runTests();
+""",
+        "n_tests": 2,
+    },
+    {
+        "id": "bug_js_await_loop",
+        "prompt": "The following async function should collect all resolved promise values into an array, but the array is always full of unresolved Promises. Fix it.\n\n```javascript\nasync function collectAll(promises) {\n    const results = [];\n    for (const p of promises) {\n        results.push(p);\n    }\n    return results;\n}\n```",
+        "test_js": r"""
+async function runTests() {
+    const vals = await collectAll([Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)]);
+    console.log(JSON.stringify(vals) === '[1,2,3]' ? 'PASS' : 'FAIL: ' + JSON.stringify(vals));
+    const empty = await collectAll([]);
+    console.log(JSON.stringify(empty) === '[]' ? 'PASS' : 'FAIL empty: ' + JSON.stringify(empty));
+}
+runTests();
+""",
+        "n_tests": 2,
+    },
 ]
 
 TRACK2_GO = [
@@ -614,6 +884,162 @@ TRACK2_GO = [
         # Note: len(nil map) is actually 0 in Go and doesn't panic, but the intent
         # of this problem tests that the model understands nil safety. The "bug"
         # prompt causes many models to add an explicit nil guard, which is the lesson.
+    },
+    {
+        "id": "bug_go_append_no_reassign",
+        "prompt": "The following Go function should append item to the slice only if it's not already present, but the append result is never captured. Fix it.\n\n```go\nfunc AppendUnique(s []string, item string) []string {\n    for _, v := range s {\n        if v == item {\n            return s\n        }\n    }\n    append(s, item)\n    return s\n}\n```",
+        "func_name": "AppendUnique",
+        "imports": ["reflect"],
+        "test_main": r"""
+    got := AppendUnique([]string{"a","b"}, "c")
+    if reflect.DeepEqual(got, []string{"a","b","c"}) { fmt.Println("PASS") } else { fmt.Printf("FAIL append: %v\n", got) }
+    got2 := AppendUnique([]string{"a","b"}, "a")
+    if reflect.DeepEqual(got2, []string{"a","b"}) { fmt.Println("PASS") } else { fmt.Printf("FAIL dup: %v\n", got2) }
+    got3 := AppendUnique([]string{}, "x")
+    if reflect.DeepEqual(got3, []string{"x"}) { fmt.Println("PASS") } else { fmt.Printf("FAIL empty: %v\n", got3) }
+""",
+        "n_tests": 3,
+    },
+    {
+        "id": "bug_go_nil_map_assign",
+        "prompt": "The following Go function should build a map from a slice of keys but panics with 'assignment to entry in nil map'. Fix it.\n\n```go\nfunc IndexSlice(keys []string) map[string]int {\n    var m map[string]int\n    for i, k := range keys {\n        m[k] = i\n    }\n    return m\n}\n```",
+        "func_name": "IndexSlice",
+        "imports": [],
+        "test_main": r"""
+    m := IndexSlice([]string{"a","b","c"})
+    if m["a"] == 0 && m["b"] == 1 && m["c"] == 2 { fmt.Println("PASS") } else { fmt.Printf("FAIL: %v\n", m) }
+    m2 := IndexSlice([]string{})
+    if len(m2) == 0 { fmt.Println("PASS") } else { fmt.Printf("FAIL empty: %v\n", m2) }
+""",
+        "n_tests": 2,
+    },
+    {
+        "id": "bug_go_trim_last_panic",
+        "prompt": "The following Go function should return all elements except the last, but panics on an empty slice. Fix it.\n\n```go\nfunc DropLast(s []int) []int {\n    return s[:len(s)-1]\n}\n```",
+        "func_name": "DropLast",
+        "imports": ["reflect"],
+        "test_main": r"""
+    if reflect.DeepEqual(DropLast([]int{1,2,3}), []int{1,2}) { fmt.Println("PASS") } else { fmt.Printf("FAIL: %v\n", DropLast([]int{1,2,3})) }
+    if reflect.DeepEqual(DropLast([]int{42}), []int{}) || len(DropLast([]int{42})) == 0 { fmt.Println("PASS") } else { fmt.Printf("FAIL single: %v\n", DropLast([]int{42})) }
+    if reflect.DeepEqual(DropLast([]int{}), []int{}) || len(DropLast([]int{})) == 0 { fmt.Println("PASS") } else { fmt.Printf("FAIL empty: %v\n", DropLast([]int{})) }
+""",
+        "n_tests": 3,
+    },
+    {
+        "id": "bug_go_zero_slice",
+        "prompt": "The following Go function should return a slice of n zeros, but returns an empty slice. Fix it.\n\n```go\nfunc ZeroSlice(n int) []int {\n    return make([]int, 0, n)\n}\n```",
+        "func_name": "ZeroSlice",
+        "imports": ["reflect"],
+        "test_main": r"""
+    if reflect.DeepEqual(ZeroSlice(3), []int{0,0,0}) { fmt.Println("PASS") } else { fmt.Printf("FAIL: %v\n", ZeroSlice(3)) }
+    if reflect.DeepEqual(ZeroSlice(0), []int{}) || len(ZeroSlice(0)) == 0 { fmt.Println("PASS") } else { fmt.Printf("FAIL zero: %v\n", ZeroSlice(0)) }
+    if reflect.DeepEqual(ZeroSlice(1), []int{0}) { fmt.Println("PASS") } else { fmt.Printf("FAIL one: %v\n", ZeroSlice(1)) }
+""",
+        "n_tests": 3,
+    },
+]
+
+# ── Track 2: Refactoring ──────────────────────────────────────────────────────
+# Working but messy code → ask model to clean it up.
+# Correctness is automated (same test_cases / test_js format as above).
+# Code quality is scored manually during review.
+
+TRACK2_REFACTOR_PYTHON = [
+    {
+        "id": "refactor_py_list_comp",
+        "prompt": "Refactor the following Python function to be more idiomatic (hint: list comprehension). Keep the same behavior.\n\n```python\ndef double_evens(nums):\n    result = []\n    for n in nums:\n        if n % 2 == 0:\n            result.append(n * 2)\n    return result\n```",
+        "test_cases": [
+            {"call": "double_evens([1,2,3,4,5,6])", "expected": "[4, 8, 12]"},
+            {"call": "double_evens([])", "expected": "[]"},
+            {"call": "double_evens([1,3,5])", "expected": "[]"},
+        ],
+    },
+    {
+        "id": "refactor_py_early_return",
+        "prompt": "Refactor the following function to reduce nesting using early returns. Keep the same behavior.\n\n```python\ndef describe(n):\n    if n is not None:\n        if isinstance(n, int):\n            if n > 0:\n                return 'positive'\n            else:\n                return 'non-positive'\n        else:\n            return 'not an int'\n    else:\n        return 'none'\n```",
+        "test_cases": [
+            {"call": "describe(5)", "expected": "'positive'"},
+            {"call": "describe(-1)", "expected": "'non-positive'"},
+            {"call": "describe('x')", "expected": "'not an int'"},
+            {"call": "describe(None)", "expected": "'none'"},
+        ],
+    },
+    {
+        "id": "refactor_py_manual_max",
+        "prompt": "Refactor the following function to use Python built-ins instead of a manual loop. Keep the same behavior.\n\n```python\ndef longest_word(words):\n    best = ''\n    for w in words:\n        if len(w) > len(best):\n            best = w\n    return best\n```",
+        "test_cases": [
+            {"call": "longest_word(['cat','elephant','dog'])", "expected": "'elephant'"},
+            {"call": "longest_word(['a'])", "expected": "'a'"},
+            {"call": "longest_word(['ab','cd'])", "expected": "'ab'"},
+        ],
+    },
+    {
+        "id": "refactor_py_fstring",
+        "prompt": "Refactor the following function to use an f-string instead of concatenation. Keep the same behavior.\n\n```python\ndef format_range(lo, hi):\n    return '[' + str(lo) + ', ' + str(hi) + ']'\n```",
+        "test_cases": [
+            {"call": "format_range(1, 10)", "expected": "'[1, 10]'"},
+            {"call": "format_range(0, 0)", "expected": "'[0, 0]'"},
+            {"call": "format_range(-5, 5)", "expected": "'[-5, 5]'"},
+        ],
+    },
+    {
+        "id": "refactor_py_dict_comprehension",
+        "prompt": "Refactor the following function to use a dict comprehension. Keep the same behavior.\n\n```python\ndef square_map(nums):\n    result = {}\n    for n in nums:\n        result[n] = n * n\n    return result\n```",
+        "test_cases": [
+            {"call": "square_map([1,2,3,4])", "expected": "{1: 1, 2: 4, 3: 9, 4: 16}"},
+            {"call": "square_map([])", "expected": "{}"},
+            {"call": "square_map([5])", "expected": "{5: 25}"},
+        ],
+    },
+]
+
+TRACK2_REFACTOR_NODEJS = [
+    {
+        "id": "refactor_js_map",
+        "prompt": "Refactor the following JavaScript function to use Array.map instead of a for loop. Keep the same behavior.\n\n```javascript\nfunction doubleAll(arr) {\n    const result = [];\n    for (let i = 0; i < arr.length; i++) {\n        result.push(arr[i] * 2);\n    }\n    return result;\n}\n```",
+        "test_js": r"""
+console.log(JSON.stringify(doubleAll([1,2,3])) === '[2,4,6]' ? 'PASS' : 'FAIL: ' + JSON.stringify(doubleAll([1,2,3])));
+console.log(JSON.stringify(doubleAll([])) === '[]' ? 'PASS' : 'FAIL empty');
+""",
+        "n_tests": 2,
+    },
+    {
+        "id": "refactor_js_reduce",
+        "prompt": "Refactor the following JavaScript function to use Array.reduce instead of a for loop. Keep the same behavior.\n\n```javascript\nfunction sumArray(arr) {\n    let total = 0;\n    for (const n of arr) {\n        total += n;\n    }\n    return total;\n}\n```",
+        "test_js": r"""
+console.log(sumArray([1,2,3,4,5]) === 15 ? 'PASS' : 'FAIL: ' + sumArray([1,2,3,4,5]));
+console.log(sumArray([]) === 0 ? 'PASS' : 'FAIL empty');
+console.log(sumArray([-1,1]) === 0 ? 'PASS' : 'FAIL zero');
+""",
+        "n_tests": 3,
+    },
+    {
+        "id": "refactor_js_filter",
+        "prompt": "Refactor the following JavaScript function to use Array.filter. Keep the same behavior.\n\n```javascript\nfunction onlyPositive(arr) {\n    const result = [];\n    for (const n of arr) {\n        if (n > 0) result.push(n);\n    }\n    return result;\n}\n```",
+        "test_js": r"""
+console.log(JSON.stringify(onlyPositive([1,-2,3,-4,5])) === '[1,3,5]' ? 'PASS' : 'FAIL: ' + JSON.stringify(onlyPositive([1,-2,3,-4,5])));
+console.log(JSON.stringify(onlyPositive([-1,-2])) === '[]' ? 'PASS' : 'FAIL all neg');
+""",
+        "n_tests": 2,
+    },
+    {
+        "id": "refactor_js_object_destructure",
+        "prompt": "Refactor the following JavaScript function to use destructuring. Keep the same behavior.\n\n```javascript\nfunction formatUser(user) {\n    const name = user.name;\n    const age = user.age;\n    const city = user.city;\n    return name + ' (' + age + ') from ' + city;\n}\n```",
+        "test_js": r"""
+console.log(formatUser({name:'Alice',age:30,city:'NYC'}) === 'Alice (30) from NYC' ? 'PASS' : 'FAIL: ' + formatUser({name:'Alice',age:30,city:'NYC'}));
+console.log(formatUser({name:'Bob',age:25,city:'LA'}) === 'Bob (25) from LA' ? 'PASS' : 'FAIL: ' + formatUser({name:'Bob',age:25,city:'LA'}));
+""",
+        "n_tests": 2,
+    },
+    {
+        "id": "refactor_js_optional_chain",
+        "prompt": "Refactor the following JavaScript function to use optional chaining (?.) instead of nested checks. Keep the same behavior.\n\n```javascript\nfunction getCity(user) {\n    if (user && user.address && user.address.city) {\n        return user.address.city;\n    }\n    return null;\n}\n```",
+        "test_js": r"""
+console.log(getCity({address:{city:'Paris'}}) === 'Paris' ? 'PASS' : 'FAIL found');
+console.log(getCity({address:{}}) === null ? 'PASS' : 'FAIL no city');
+console.log(getCity(null) === null ? 'PASS' : 'FAIL null user');
+""",
+        "n_tests": 3,
     },
 ]
 
@@ -691,6 +1117,66 @@ def running_max(nums):
 print(running_max([1,3,2,5,4]))
 """,
     },
+    {
+        "id": "fim_py_flatten_deep",
+        "prefix": "def flatten(lst):\n    result = []\n    for item in lst:\n        if isinstance(item, list):\n",
+        "suffix": "\n        else:\n            result.append(item)\n    return result\n",
+        "expected_output": "[1, 2, 3, 4, 5]",
+        "run_template": """\
+def flatten(lst):
+    result = []
+    for item in lst:
+        if isinstance(item, list):
+            {FILL}
+        else:
+            result.append(item)
+    return result
+print(flatten([1,[2,[3,[4]]],5]))
+""",
+    },
+    {
+        "id": "fim_py_count_chars",
+        "prefix": "def char_count(s):\n    counts = {}\n    for c in s:\n",
+        "suffix": "\n    return counts\n",
+        "expected_output": "{'h': 1, 'e': 1, 'l': 3, 'o': 2, ' ': 1, 'w': 1, 'r': 1, 'd': 1}",
+        "run_template": """\
+def char_count(s):
+    counts = {}
+    for c in s:
+        {FILL}
+    return counts
+print(char_count('hello world'))
+""",
+    },
+    {
+        "id": "fim_py_is_sorted",
+        "prefix": "def is_sorted(lst):\n    for i in range(len(lst) - 1):\n",
+        "suffix": "\n    return True\n",
+        "expected_output": "True\nFalse\nTrue",
+        "run_template": """\
+def is_sorted(lst):
+    for i in range(len(lst) - 1):
+        {FILL}
+    return True
+print(is_sorted([1,2,3,4,5]))
+print(is_sorted([1,3,2,4]))
+print(is_sorted([]))
+""",
+    },
+    {
+        "id": "fim_py_merge_sorted",
+        "prefix": "def merge_sorted(a, b):\n    result, i, j = [], 0, 0\n    while i < len(a) and j < len(b):\n",
+        "suffix": "\n    return result + a[i:] + b[j:]\n",
+        "expected_output": "[1, 2, 3, 4, 5, 6]",
+        "run_template": """\
+def merge_sorted(a, b):
+    result, i, j = [], 0, 0
+    while i < len(a) and j < len(b):
+        {FILL}
+    return result + a[i:] + b[j:]
+print(merge_sorted([1,3,5], [2,4,6]))
+""",
+    },
 ]
 
 TRACK3_NODEJS = [
@@ -749,6 +1235,51 @@ function pick(obj, keys) {
     }, {});
 }
 console.log(JSON.stringify(pick({a:1,b:2,c:3}, ['a','c'])));
+""",
+    },
+    {
+        "id": "fim_js_clamp",
+        "prefix": "function clamp(val, lo, hi) {\n    if (val < lo) return lo;\n",
+        "suffix": "\n    return val;\n}",
+        "expected_output": "1\n10\n5",
+        "run_template": """\
+function clamp(val, lo, hi) {
+    if (val < lo) return lo;
+    {FILL}
+    return val;
+}
+console.log(clamp(-5, 1, 10));
+console.log(clamp(20, 1, 10));
+console.log(clamp(5, 1, 10));
+""",
+    },
+    {
+        "id": "fim_js_zip",
+        "prefix": "function zip(a, b) {\n    const len = Math.min(a.length, b.length);\n    const result = [];\n    for (let i = 0; i < len; i++) {\n",
+        "suffix": "\n    }\n    return result;\n}",
+        "expected_output": "[[1,\"a\"],[2,\"b\"],[3,\"c\"]]",
+        "run_template": """\
+function zip(a, b) {
+    const len = Math.min(a.length, b.length);
+    const result = [];
+    for (let i = 0; i < len; i++) {
+        {FILL}
+    }
+    return result;
+}
+console.log(JSON.stringify(zip([1,2,3], ['a','b','c'])));
+""",
+    },
+    {
+        "id": "fim_js_flatten_one",
+        "prefix": "function flattenOne(arr) {\n    return arr.reduce((acc, val) => ",
+        "suffix": ", []);\n}",
+        "expected_output": "[1,2,3,4,5,6]",
+        "run_template": """\
+function flattenOne(arr) {
+    return arr.reduce((acc, val) => {FILL}, []);
+}
+console.log(JSON.stringify(flattenOne([[1,2],[3,4],[5,6]])));
 """,
     },
 ]
@@ -840,6 +1371,56 @@ func main() {
     if Clamp(5, 1, 10) == 5  { fmt.Println("PASS") } else { fmt.Printf("FAIL mid: %d\\n", Clamp(5,1,10)) }
     if Clamp(0, 1, 10) == 1  { fmt.Println("PASS") } else { fmt.Printf("FAIL lo: %d\\n", Clamp(0,1,10)) }
     if Clamp(15, 1, 10) == 10 { fmt.Println("PASS") } else { fmt.Printf("FAIL hi: %d\\n", Clamp(15,1,10)) }
+}
+""",
+        "imports": ["fmt"],
+    },
+    {
+        "id": "fim_go_sum_slice",
+        "prefix": "func SumSlice(nums []int) int {\n\ttotal := 0\n\tfor _, n := range nums {\n",
+        "suffix": "\n\t}\n\treturn total\n}",
+        "expected_output": "PASS\nPASS",
+        "run_template": """\
+package main
+
+import "fmt"
+
+func SumSlice(nums []int) int {
+    total := 0
+    for _, n := range nums {
+        {FILL}
+    }
+    return total
+}
+
+func main() {
+    if SumSlice([]int{1,2,3,4,5}) == 15 { fmt.Println("PASS") } else { fmt.Printf("FAIL: %d\\n", SumSlice([]int{1,2,3,4,5})) }
+    if SumSlice([]int{}) == 0 { fmt.Println("PASS") } else { fmt.Printf("FAIL empty: %d\\n", SumSlice([]int{})) }
+}
+""",
+        "imports": ["fmt"],
+    },
+    {
+        "id": "fim_go_contains_str",
+        "prefix": "func ContainsStr(slice []string, target string) bool {\n\tfor _, s := range slice {\n",
+        "suffix": "\n\t}\n\treturn false\n}",
+        "expected_output": "PASS\nPASS\nPASS",
+        "run_template": """\
+package main
+
+import "fmt"
+
+func ContainsStr(slice []string, target string) bool {
+    for _, s := range slice {
+        {FILL}
+    }
+    return false
+}
+
+func main() {
+    if ContainsStr([]string{"a","b","c"}, "b") { fmt.Println("PASS") } else { fmt.Println("FAIL found") }
+    if !ContainsStr([]string{"a","b","c"}, "z") { fmt.Println("PASS") } else { fmt.Println("FAIL not found") }
+    if !ContainsStr([]string{}, "x") { fmt.Println("PASS") } else { fmt.Println("FAIL empty") }
 }
 """,
         "imports": ["fmt"],
@@ -1691,8 +2272,58 @@ def run_track2(cfg: dict) -> dict:
         }
     )
 
-    all_pass = py_pass + js_pass + go_pass
-    all_total = py_total + js_total + go_total
+    # Refactoring — correctness automated, quality reviewed manually
+    refactor_pass, refactor_total = 0, 0
+    for p in TRACK2_REFACTOR_PYTHON:
+        log(f"  [refactor/python] {p['id']}")
+        msgs = bugfix_messages_python(p)
+        try:
+            response = chat(msgs, max_tokens=512)
+        except Exception as e:
+            results["problems"].append({"id": p["id"], "error": str(e)})
+            continue
+        code = extract_code(response, "python")
+        p_pass, p_total, lines = run_python_tests(code, p["test_cases"])
+        refactor_pass += p_pass
+        refactor_total += p_total
+        results["problems"].append(
+            {"id": p["id"], "language": "python", "track": "refactoring",
+             "passed": p_pass, "total": p_total, "test_lines": lines,
+             "response_snippet": response[:200]}
+        )
+        log(f"    {p_pass}/{p_total}")
+
+    if node_available:
+        for p in TRACK2_REFACTOR_NODEJS:
+            log(f"  [refactor/js] {p['id']}")
+            msgs = [{"role": "user", "content": p["prompt"] + "\n\nReturn only the refactored JavaScript function, no explanation."}]
+            try:
+                response = chat(msgs, max_tokens=512)
+            except Exception as e:
+                results["problems"].append({"id": p["id"], "error": str(e)})
+                continue
+            code = extract_code(response, "javascript")
+            p_pass, p_total, lines = run_node_tests(code, p["test_js"], p["n_tests"])
+            refactor_pass += p_pass
+            refactor_total += p_total
+            results["problems"].append(
+                {"id": p["id"], "language": "javascript", "track": "refactoring",
+                 "passed": p_pass, "total": p_total, "test_lines": lines,
+                 "response_snippet": response[:200]}
+            )
+            log(f"    {p_pass}/{p_total}")
+    else:
+        refactor_total += sum(p["n_tests"] for p in TRACK2_REFACTOR_NODEJS)
+
+    results["refactoring"] = {
+        "passed": refactor_pass,
+        "total": refactor_total,
+        "pass_rate": round(refactor_pass / refactor_total, 3) if refactor_total else 0,
+        "note": "correctness automated; code quality requires manual review",
+    }
+
+    all_pass = py_pass + js_pass + go_pass + refactor_pass
+    all_total = py_total + js_total + go_total + refactor_total
     results["total_passed"] = all_pass
     results["total"] = all_total
     results["pass_rate"] = round(all_pass / all_total, 3) if all_total else 0
