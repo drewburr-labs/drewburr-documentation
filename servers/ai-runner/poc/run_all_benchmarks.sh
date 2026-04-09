@@ -7,9 +7,11 @@
 #
 # Examples:
 #   ./run_all_benchmarks.sh
-#   ./run_all_benchmarks.sh --evalplus
 #   ./run_all_benchmarks.sh --tracks perf,track1
 #   ./run_all_benchmarks.sh --restart-prod   # restart prod services after last model
+#
+# Notes:
+#   --evalplus (HumanEval+ basic tests) is always included by default.
 
 set -euo pipefail
 
@@ -23,18 +25,18 @@ API_URL="http://192.168.4.56:8001"
 # hours of compute to the 70B models.
 MODELS=(
     "qwen2.5-coder-7b"
-    "deepseek-coder-v2-lite"
-    "phi-4"
-    "codestral-22b"
-    "gemma4-26b"
-    "qwen3-30b"
-    "qwen2.5-coder-32b"
-    "deepseek-r1-qwen-32b"
-    "gemma4-31b"
-    "qwq-32b"
-    "qwen3-coder-80b"
-    "llama3.3-70b"
-    "deepseek-r1-llama-70b"
+    # "deepseek-coder-v2-lite"
+    # "phi-4"
+    # "codestral-22b"
+    # "gemma4-26b"
+    # "qwen3-30b"
+    # "qwen2.5-coder-32b"
+    # "deepseek-r1-qwen-32b"
+    # "gemma4-31b"
+    # "qwq-32b"
+    # "qwen3-coder-80b"
+    # "llama3.3-70b"
+    # "deepseek-r1-llama-70b"
 )
 
 TOTAL=${#MODELS[@]}
@@ -62,6 +64,7 @@ for i in "${!MODELS[@]}"; do
     if python3 "${BENCH}" "${MODEL}" \
         --api-url "${API_URL}" \
         --ssh-host "${SSH_HOST}" \
+        --evalplus \
         "$@"; then
         MODEL_END=$(date +%s)
         ELAPSED=$(( MODEL_END - MODEL_START ))
