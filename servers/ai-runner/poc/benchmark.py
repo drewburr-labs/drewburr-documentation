@@ -2574,10 +2574,11 @@ def run_evalplus(model_id: str, cfg: dict) -> dict:
         log("  evalplus not installed — skipping (pip install evalplus)")
         return {"error": "evalplus not installed"}
 
-    # evalplus needs just the base URL without /v1
+    # evalplus openai backend passes base_url directly to the openai SDK,
+    # which appends endpoint paths without adding /v1 — so we must include it.
     from urllib.parse import urlparse
     parsed = urlparse(_api_url)
-    base_url = f"{parsed.scheme}://{parsed.netloc}"
+    base_url = f"{parsed.scheme}://{parsed.netloc}/v1"
 
     out_dir = os.path.join(RESULTS_DIR, f"evalplus_{model_id.replace('/', '_')}")
     os.makedirs(out_dir, exist_ok=True)
