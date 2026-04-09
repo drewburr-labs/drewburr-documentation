@@ -19,6 +19,33 @@ INT4 quantization where required.
 For MoE models, **all expert weights** must fit in VRAM regardless of active parameter count.
 Active params determine inference cost, not VRAM footprint.
 
+### Context window affordability
+
+After model weights load, remaining VRAM goes to the KV cache. KV cache size per token
+is roughly `2 × layers × kv_heads × head_dim × 2 bytes` (BF16). The affordable context
+limit is `remaining_vram / bytes_per_token`. Where this falls below the model's trained
+maximum, `--max-model-len` must be capped in vLLM or generation will OOM.
+
+| Model | KV headroom | Bytes/token (est.) | Affordable context |
+|-------|-------------|--------------------|--------------------|
+| Phi-4 14B | ~41GB | ~96KB | 16k (trained max) |
+| Qwen2.5-Coder-7B | ~44.5GB | ~64KB | 128k ✓ |
+| DeepSeek-Coder-V2-Lite 16B | ~40GB | ~64KB | 128k ✓ |
+| Codestral 25.08 22B | ~37GB | ~128KB | 256k ✓ |
+| Gemma 4 26B-A4B | ~35GB | ~192KB | 128k ✓ |
+| Qwen3-30B-A3B | ~33GB | ~192KB | 128k ✓ |
+| Qwen2.5-Coder-32B | ~32GB | ~256KB | 128k ✓ |
+| DeepSeek-R1-Distill-Qwen-32B | ~32GB | ~256KB | 128k ✓ |
+| Gemma 4 31B | ~32.5GB | ~256KB | 128k ✓ |
+| QwQ-32B | ~32GB | ~256KB | 128k ✓ |
+| Qwen3-Coder-Next 80B | ~8GB | ~256KB | **~16k (cap required)** |
+| Llama 3.3 70B | ~13GB | ~320KB | **~40k (cap required)** |
+| DeepSeek-R1-Distill-Llama-70B | ~13GB | ~320KB | **~40k (cap required)** |
+
+Phi-4's 16k limit is architectural (trained range), not VRAM. All other models in the
+≤32B tier can run at their full trained context. The three highlighted models require an
+explicit `--max-model-len` cap to avoid OOM.
+
 ---
 
 ## Model List
@@ -88,13 +115,15 @@ exceeds budget). Use `QuantTrio/gemma-4-31B-it-AWQ` for vLLM.
 
 ### Qwen3-Coder-Next (`Qwen/Qwen3-Coder-Next`)
 80B total / 3B active MoE. The smaller variant of the Qwen3-Coder-480B family.
-256K context window. At INT4, weights use ~40GB leaving limited KV cache headroom —
-cap `--max-model-len` (e.g. 16384) to avoid OOM. The efficiency ratio (80B total / 3B
-active) makes this the most interesting MoE model on the list if quality holds.
+256K context window trained, but **affordable context is ~16k** given only ~8GB KV headroom
+after weights. Cap `--max-model-len 16384` in vLLM to avoid OOM. The efficiency ratio
+(80B total / 3B active) makes this the most interesting MoE model on the list if quality
+holds — but the context ceiling is a real limitation for long agentic tasks.
 
 ### Llama 3.3 70B Instruct (`meta-llama/Llama-3.3-70B-Instruct`)
 Current production model on ai-runner. Included as the real-world quality and latency
-baseline. INT4 only (~35GB); BF16 would OOM.
+baseline. INT4 only (~35GB); BF16 would OOM. **Affordable context ~40k** despite 128k
+training — only ~13GB KV headroom remains after weights. Cap `--max-model-len 40960`.
 
 ### QwQ-32B (`Qwen/QwQ-32B`)
 Qwen's native reasoning model (not a distill). 32B dense, thinking always enabled —
@@ -107,7 +136,8 @@ different agentic behavior than distillation? Fits in VRAM alongside other 32B m
 ### DeepSeek-R1-Distill-Llama-70B (`deepseek-ai/DeepSeek-R1-Distill-Llama-70B`)
 Reasoning-focused 70B distill of DeepSeek-R1 on a Llama base. Highest-quality reasoning
 model on the list. Paired with DeepSeek-R1-Distill-Qwen-32B to compare the reasoning
-distill approach at different scales. INT4 only (~35GB).
+distill approach at different scales. INT4 only (~35GB). **Affordable context ~40k**
+for the same reason as Llama 3.3 70B — same base architecture, same KV headroom.
 
 ---
 
