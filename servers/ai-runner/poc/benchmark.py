@@ -1237,28 +1237,30 @@ def get_gpu_stats() -> dict:
 # ── vLLM lifecycle ─────────────────────────────────────────────────────────────
 
 
-def _remote(cmd: list[str], check: bool = False) -> subprocess.CompletedProcess:
+def _remote(cmd: list[str], check: bool = False, sudo: bool = False) -> subprocess.CompletedProcess:
     """Run a shell command on the target host — via SSH if _ssh_host is set, locally otherwise."""
+    if sudo:
+        cmd = ["sudo"] + cmd
     full_cmd = (["ssh", _ssh_host] + cmd) if _ssh_host else cmd
     return subprocess.run(full_cmd, capture_output=True, text=True, check=check)
 
 
 def stop_container(name: str) -> None:
-    _remote(["podman", "stop", name])
-    _remote(["podman", "rm",   name])
+    _remote(["podman", "stop", name], sudo=True)
+    _remote(["podman", "rm",   name], sudo=True)
 
 
 def stop_prod_services() -> None:
     log("Stopping production services to free VRAM...")
     for svc in PROD_SERVICES:
-        _remote(["systemctl", "stop", svc])
+        _remote(["systemctl", "stop", svc], sudo=True)
         log(f"  stopped {svc}")
 
 
 def restart_prod_services() -> None:
     log("Restarting production services...")
     for svc in reversed(PROD_SERVICES):
-        _remote(["systemctl", "start", svc])
+        _remote(["systemctl", "start", svc], sudo=True)
         log(f"  started {svc}")
 
 
@@ -1274,12 +1276,14 @@ def start_vllm(cfg: dict) -> None:
         "--ipc=host",
         "--ulimit", "memlock=-1",
         "--network=host",
-        "-v", f"{MODEL_CACHE}:/root/.cache/huggingface",
+        "-v", f"{MODEL_CACHE}:/root/.cache/huggingface:z",
+        "--env-file", "/etc/vllm/env",
         "-d",
         VLLM_IMAGE,
         "--model", cfg["hf_id"],
         "--tensor-parallel-size", "2",
         "--gpu-memory-utilization", "0.95",
+        "--max-num-seqs", "32",
         "--enable-prefix-caching",
         "--host", "0.0.0.0",
         "--port", str(vllm_port),
@@ -1292,7 +1296,7 @@ def start_vllm(cfg: dict) -> None:
         cmd += ["--reasoning-parser", cfg["reasoning_parser"]]
 
     log(f"Starting vLLM on {'SSH:' + _ssh_host if _ssh_host else 'localhost'}: {' '.join(cmd)}")
-    _remote(cmd, check=True)
+    _remote(cmd, check=True, sudo=True)
 
 
 def wait_for_ready(timeout: int = STARTUP_WAIT) -> tuple[str, float]:
