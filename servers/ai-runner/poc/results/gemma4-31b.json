@@ -1,0 +1,1253 @@
+{
+  "meta": {
+    "model_key": "gemma4-31b",
+    "hf_id": "QuantTrio/gemma-4-31B-it-AWQ",
+    "quantization": "awq_marlin",
+    "max_model_len_config": 32768,
+    "is_reasoning": false,
+    "timestamp_utc": "2026-04-10T01:20:06.341772+00:00",
+    "duration_seconds": 2003.3
+  },
+  "hardware_baseline": {
+    "source": "nvidia-smi-ssh:drewburr@airunner01.drewburr.com",
+    "gpus": [
+      {
+        "index": 0,
+        "name": "NVIDIA GeForce RTX 3090",
+        "vram_used_mb": 1,
+        "vram_free_mb": 24124,
+        "vram_total_mb": 24576,
+        "temp_c": 33
+      },
+      {
+        "index": 1,
+        "name": "NVIDIA GeForce RTX 3090",
+        "vram_used_mb": 17,
+        "vram_free_mb": 24106,
+        "vram_total_mb": 24576,
+        "temp_c": 33
+      }
+    ],
+    "total_used_mb": 18
+  },
+  "model_info": {
+    "reported_model_id": "QuantTrio/gemma-4-31B-it-AWQ",
+    "startup_seconds": 500.1,
+    "api_max_model_len": 32768,
+    "api_context_window": 32768
+  },
+  "hardware_at_load": {
+    "source": "nvidia-smi-ssh:drewburr@airunner01.drewburr.com",
+    "gpus": [
+      {
+        "index": 0,
+        "name": "NVIDIA GeForce RTX 3090",
+        "vram_used_mb": 23514,
+        "vram_free_mb": 611,
+        "vram_total_mb": 24576,
+        "temp_c": 47
+      },
+      {
+        "index": 1,
+        "name": "NVIDIA GeForce RTX 3090",
+        "vram_used_mb": 23530,
+        "vram_free_mb": 593,
+        "vram_total_mb": 24576,
+        "temp_c": 47
+      }
+    ],
+    "total_used_mb": 47044
+  },
+  "performance": {
+    "ttft_ms": {
+      "samples": [
+        2723.3,
+        768.2,
+        56.3,
+        56.9,
+        56.8
+      ],
+      "min": 56.3,
+      "max": 2723.3,
+      "mean": 732.3,
+      "p50": 56.9,
+      "p95": 2723.3
+    },
+    "throughput": {
+      "answer_toks_per_sec": 64.62,
+      "total_toks_per_sec": 71.08,
+      "reasoning_tokens_observed": 0,
+      "requests": 5,
+      "wall_seconds": 15.48,
+      "note": "answer_toks_per_sec counts only visible completion tokens; total_toks_per_sec includes all tokens vLLM reports (prompt+completion); reasoning tokens are stripped by vLLM before reporting so this figure understates true GPU work for reasoning models"
+    },
+    "vllm_metrics_snapshot": {
+      "vllm:num_requests_running": 0.0
+    },
+    "throughput_toks_per_sec": null,
+    "context_stress": {
+      "ceiling": 32768,
+      "levels": {
+        "4096": {
+          "status": "pass",
+          "coherence_reason": "ok",
+          "elapsed_s": 2.1,
+          "response_snippet": "READY"
+        },
+        "8192": {
+          "status": "pass",
+          "coherence_reason": "ok",
+          "elapsed_s": 2.2,
+          "response_snippet": "READY"
+        },
+        "16384": {
+          "status": "pass",
+          "coherence_reason": "ok",
+          "elapsed_s": 5.0,
+          "response_snippet": "READY"
+        },
+        "32768": {
+          "status": "pass",
+          "coherence_reason": "ok",
+          "elapsed_s": 12.2,
+          "response_snippet": "READY"
+        }
+      }
+    }
+  },
+  "track1_codegen": {
+    "problems": [
+      {
+        "id": "py_sum_to_n",
+        "language": "python",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "response_snippet": "def sum_to_n(n: int) -> int:\n    if n <= 0:\n        return 0\n    return n * (n + 1) // 2"
+      },
+      {
+        "id": "py_count_vowels",
+        "language": "python",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "response_snippet": "def count_vowels(s: str) -> int:\n    vowels = \"aeiouAEIOU\"\n    return sum(1 for char in s if char in vowels)"
+      },
+      {
+        "id": "py_is_palindrome",
+        "language": "python",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "response_snippet": "import re\n\ndef is_palindrome(s: str) -> bool:\n    cleaned = re.sub(r'[^a-zA-Z0-9]', '', s).lower()\n    return cleaned == cleaned[::-1]"
+      },
+      {
+        "id": "py_flatten_once",
+        "language": "python",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "response_snippet": "def flatten_once(lst: list) -> list:\n    result = []\n    for item in lst:\n        if isinstance(item, list):\n            result.extend(item)\n        else:\n            result.append(item)\n    return result"
+      },
+      {
+        "id": "py_running_sum",
+        "language": "python",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "response_snippet": "def running_sum(nums: list) -> list:\n    total = 0\n    result = []\n    for num in nums:\n        total += num\n        result.append(total)\n    return result"
+      },
+      {
+        "id": "py_unique",
+        "language": "python",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "response_snippet": "def unique(lst: list) -> list:\n    seen = set()\n    result = []\n    for item in lst:\n        if item not in seen:\n            result.append(item)\n            seen.add(item)\n    return result"
+      },
+      {
+        "id": "py_fizzbuzz",
+        "language": "python",
+        "passed": 4,
+        "total": 4,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "response_snippet": "def fizzbuzz(n: int) -> str:\n    if n % 15 == 0:\n        return 'FizzBuzz'\n    if n % 3 == 0:\n        return 'Fizz'\n    if n % 5 == 0:\n        return 'Buzz'\n    return str(n)"
+      },
+      {
+        "id": "py_rotate",
+        "language": "python",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "response_snippet": "def rotate(lst: list, k: int) -> list:\n    if not lst:\n        return lst\n    k = k % len(lst)\n    return lst[-k:] + lst[:-k]"
+      },
+      {
+        "id": "py_group_by_length",
+        "language": "python",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "response_snippet": "def group_by_length(words: list) -> dict:\n    result = {}\n    for word in words:\n        length = len(word)\n        if length not in result:\n            result[length] = []\n        result[length].append(word)\n    return result"
+      },
+      {
+        "id": "py_is_balanced",
+        "language": "python",
+        "passed": 4,
+        "total": 4,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "response_snippet": "def is_balanced(s: str) -> bool:\n    stack = []\n    mapping = {')': '(', '}': '{', ']': '['}\n    \n    for char in s:\n        if char in mapping.values():\n            stack.append(char)\n        elif char in mapping:\n            if not stack or stack.pop() != mapping[char]:\n                return Fals"
+      },
+      {
+        "id": "py_two_sum",
+        "language": "python",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "response_snippet": "def two_sum(nums: list, target: int) -> list:\n    prev_map = {}  # val : index\n    for i, n in enumerate(nums):\n        diff = target - n\n        if diff in prev_map:\n            return [prev_map[diff], i]\n        prev_map[n] = i"
+      },
+      {
+        "id": "py_merge_dicts",
+        "language": "python",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "response_snippet": "def merge_dicts(a: dict, b: dict) -> dict:\n    return {**a, **b}"
+      },
+      {
+        "id": "py_chunk",
+        "language": "python",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "response_snippet": "def chunk(lst: list, n: int) -> list:\n    return [lst[i:i + n] for i in range(0, len(lst), n)]"
+      },
+      {
+        "id": "py_most_common",
+        "language": "python",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "response_snippet": "def most_common(lst: list):\n    return max(set(lst), key=lst.count)"
+      },
+      {
+        "id": "py_deep_flatten",
+        "language": "python",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "response_snippet": "def deep_flatten(lst: list) -> list:\n    flat_list = []\n    for item in lst:\n        if isinstance(item, list):\n            flat_list.extend(deep_flatten(item))\n        else:\n            flat_list.append(item)\n    return flat_list"
+      },
+      {
+        "id": "py_zip_to_dict",
+        "language": "python",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "response_snippet": "def zip_to_dict(keys: list, values: list) -> dict:\n    return dict(zip(keys, values))"
+      },
+      {
+        "id": "py_clamp",
+        "language": "python",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "response_snippet": "def clamp(value, lo, hi):\n    return max(lo, min(value, hi))"
+      },
+      {
+        "id": "py_caesar",
+        "language": "python",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "response_snippet": "def caesar(text: str, shift: int) -> str:\n    result = []\n    for char in text:\n        if char.isalpha():\n            start = ord('A') if char.isupper() else ord('a')\n            result.append(chr(start + (ord(char) - start + shift) % 26))\n        else:\n            result.append(char)\n    return \"\""
+      },
+      {
+        "id": "py_word_count",
+        "language": "python",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "response_snippet": "def word_count(text: str) -> dict:\n    counts = {}\n    for word in text.lower().split():\n        counts[word] = counts.get(word, 0) + 1\n    return counts"
+      },
+      {
+        "id": "py_transpose",
+        "language": "python",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "response_snippet": "def transpose(matrix: list) -> list:\n    return [list(row) for row in zip(*matrix)]"
+      },
+      {
+        "id": "js_chunk",
+        "language": "javascript",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "response_snippet": "function chunkArray(arr, size) {\n  const chunked = [];\n  for (let i = 0; i < arr.length; i += size) {\n    chunked.push(arr.slice(i, i + size));\n  }\n  return chunked;\n}"
+      },
+      {
+        "id": "js_groupby",
+        "language": "javascript",
+        "passed": 2,
+        "total": 2,
+        "test_lines": [
+          "PASS",
+          "PASS"
+        ],
+        "response_snippet": "function groupByKey(arr, key) {\n  return arr.reduce((accumulator, currentItem) => {\n    const groupValue = currentItem[key];\n    if (!accumulator[groupValue]) {\n      accumulator[groupValue] = [];\n    }\n    accumulator[groupValue].push(currentItem);\n    return accumulator;\n  }, {});\n}"
+      },
+      {
+        "id": "js_flatten",
+        "language": "javascript",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "response_snippet": "function deepFlatten(arr) {\n  return arr.reduce((acc, val) => \n    Array.isArray(val) ? acc.concat(deepFlatten(val)) : acc.concat(val), \n  []);\n}"
+      },
+      {
+        "id": "js_compact",
+        "language": "javascript",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "response_snippet": "function compact(arr) {\n  return arr.filter(Boolean);\n}"
+      },
+      {
+        "id": "js_parse_qs",
+        "language": "javascript",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "response_snippet": "function parseQueryString(qs) {\n  if (!qs) return {};\n  return qs.split('&').reduce((acc, pair) => {\n    const [key, value] = pair.split('=');\n    acc[decodeURIComponent(key)] = value !== undefined ? decodeURIComponent(value) : '';\n    return acc;\n  }, {});\n}"
+      },
+      {
+        "id": "js_deep_clone",
+        "language": "javascript",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "response_snippet": "function deepClone(obj) {\n  return JSON.parse(JSON.stringify(obj));\n}"
+      },
+      {
+        "id": "js_sum_nested",
+        "language": "javascript",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "response_snippet": "function sumValues(obj) {\n  return Object.values(obj).reduce((sum, value) => {\n    return typeof value === 'number' && !isNaN(value) ? sum + value : sum;\n  }, 0);\n}"
+      },
+      {
+        "id": "js_truncate",
+        "language": "javascript",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "response_snippet": "function truncate(str, maxLen) {\n  return str.length > maxLen ? str.slice(0, maxLen) + '...' : str;\n}"
+      },
+      {
+        "id": "go_reverse_string",
+        "language": "go",
+        "passed": 4,
+        "total": 4,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "response_snippet": "func ReverseString(s string) string {\n\trunes := []rune(s)\n\tfor i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {\n\t\trunes[i], runes[j] = runes[j], runes[i]\n\t}\n\treturn string(runes)\n}"
+      },
+      {
+        "id": "go_word_frequency",
+        "language": "go",
+        "passed": 2,
+        "total": 2,
+        "test_lines": [
+          "PASS",
+          "PASS"
+        ],
+        "response_snippet": "func WordFrequency(s string) map[string]int {\n\twords := strings.Fields(strings.ToLower(s))\n\tcounts := make(map[string]int)\n\tfor _, word := range words {\n\t\tcounts[word]++\n\t}\n\treturn counts\n}"
+      },
+      {
+        "id": "go_is_palindrome",
+        "language": "go",
+        "passed": 0,
+        "total": 3,
+        "test_lines": [
+          "# command-line-arguments",
+          "/tmp/tmpg00kvwyq.go:5:2: \"strings\" imported and not used",
+          "/tmp/tmpg00kvwyq.go:6:2: \"unicode\" imported and not used"
+        ],
+        "response_snippet": "func IsPalindrome(s string) bool {\n\ti, j := 0, len(s)-1\n\tfor i < j {\n\t\tleft := s[i]\n\t\tif !((left >= 'a' && left <= 'z') || (left >= 'A' && left <= 'Z') || (left >= '0' && left <= '9')) {\n\t\t\ti++\n\t\t\tcontinue\n\t\t}\n\t\tright := s[j]\n\t\tif !((right >= 'a' && right <= 'z') || (right >= 'A' && right <= 'Z') ||"
+      },
+      {
+        "id": "go_max_slice",
+        "language": "go",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "response_snippet": "func MaxSlice(nums []int) (int, bool) {\n\tif len(nums) == 0 {\n\t\treturn 0, false\n\t}\n\n\tmax := nums[0]\n\tfor _, v := range nums[1:] {\n\t\tif v > max {\n\t\t\tmax = v\n\t\t}\n\t}\n\treturn max, true\n}"
+      },
+      {
+        "id": "go_filter_even",
+        "language": "go",
+        "passed": 2,
+        "total": 2,
+        "test_lines": [
+          "PASS",
+          "PASS"
+        ],
+        "response_snippet": "func FilterEven(nums []int) []int {\n\tvar result []int\n\tfor _, n := range nums {\n\t\tif n%2 == 0 {\n\t\t\tresult = append(result, n)\n\t\t}\n\t}\n\treturn result\n}"
+      },
+      {
+        "id": "go_contains",
+        "language": "go",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "response_snippet": "func Contains(slice []string, item string) bool {\n\tfor _, s := range slice {\n\t\tif s == item {\n\t\t\treturn true\n\t\t}\n\t}\n\treturn false\n}"
+      },
+      {
+        "id": "go_sum_ints",
+        "language": "go",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "response_snippet": "func SumInts(nums []int) int {\n\tsum := 0\n\tfor _, v := range nums {\n\t\tsum += v\n\t}\n\treturn sum\n}"
+      }
+    ],
+    "python": {
+      "passed": 62,
+      "total": 62,
+      "pass_rate": 1.0
+    },
+    "nodejs": {
+      "passed": 23,
+      "total": 23,
+      "pass_rate": 1.0
+    },
+    "go": {
+      "passed": 17,
+      "total": 20,
+      "pass_rate": 0.85
+    },
+    "total_passed": 102,
+    "total": 105,
+    "pass_rate": 0.971
+  },
+  "hardware_after_track1": {
+    "source": "nvidia-smi-ssh:drewburr@airunner01.drewburr.com",
+    "gpus": [
+      {
+        "index": 0,
+        "name": "NVIDIA GeForce RTX 3090",
+        "vram_used_mb": 23644,
+        "vram_free_mb": 481,
+        "vram_total_mb": 24576,
+        "temp_c": 68
+      },
+      {
+        "index": 1,
+        "name": "NVIDIA GeForce RTX 3090",
+        "vram_used_mb": 23660,
+        "vram_free_mb": 463,
+        "vram_total_mb": 24576,
+        "temp_c": 76
+      }
+    ],
+    "total_used_mb": 47304
+  },
+  "track2_bugfix": {
+    "problems": [
+      {
+        "id": "bug_py_off_by_one",
+        "language": "python",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ]
+      },
+      {
+        "id": "bug_py_mutable_default",
+        "language": "python",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ]
+      },
+      {
+        "id": "bug_py_wrong_return",
+        "language": "python",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ]
+      },
+      {
+        "id": "bug_py_operator",
+        "language": "python",
+        "passed": 2,
+        "total": 2,
+        "test_lines": [
+          "PASS",
+          "PASS"
+        ]
+      },
+      {
+        "id": "bug_py_string_concat",
+        "language": "python",
+        "passed": 2,
+        "total": 2,
+        "test_lines": [
+          "PASS",
+          "PASS"
+        ]
+      },
+      {
+        "id": "bug_py_integer_div",
+        "language": "python",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ]
+      },
+      {
+        "id": "bug_py_sort_returns_none",
+        "language": "python",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ]
+      },
+      {
+        "id": "bug_py_count_keyerror",
+        "language": "python",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ]
+      },
+      {
+        "id": "bug_py_missing_return",
+        "language": "python",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ]
+      },
+      {
+        "id": "bug_py_mutate_while_iterate",
+        "language": "python",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ]
+      },
+      {
+        "id": "bug_py_join_int",
+        "language": "python",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ]
+      },
+      {
+        "id": "bug_py_wrong_condition",
+        "language": "python",
+        "passed": 4,
+        "total": 4,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS",
+          "PASS"
+        ]
+      },
+      {
+        "id": "bug_py_dict_get",
+        "language": "python",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ]
+      },
+      {
+        "id": "bug_py_strip_compare",
+        "language": "python",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ]
+      },
+      {
+        "id": "bug_py_wrong_return_branch",
+        "language": "python",
+        "passed": 4,
+        "total": 4,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS",
+          "PASS"
+        ]
+      },
+      {
+        "id": "bug_js_missing_await",
+        "language": "javascript",
+        "passed": 2,
+        "total": 2,
+        "test_lines": [
+          "PASS",
+          "PASS"
+        ]
+      },
+      {
+        "id": "bug_js_mutates_input",
+        "language": "javascript",
+        "passed": 2,
+        "total": 2,
+        "test_lines": [
+          "PASS",
+          "PASS"
+        ]
+      },
+      {
+        "id": "bug_js_loose_equality",
+        "language": "javascript",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ]
+      },
+      {
+        "id": "bug_js_promise_no_return",
+        "language": "javascript",
+        "passed": 2,
+        "total": 2,
+        "test_lines": [
+          "PASS",
+          "PASS"
+        ]
+      },
+      {
+        "id": "bug_js_await_loop",
+        "language": "javascript",
+        "passed": 2,
+        "total": 2,
+        "test_lines": [
+          "PASS",
+          "PASS"
+        ]
+      },
+      {
+        "id": "bug_go_off_by_one",
+        "language": "go",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ]
+      },
+      {
+        "id": "bug_go_int_division",
+        "language": "go",
+        "passed": 2,
+        "total": 2,
+        "test_lines": [
+          "PASS",
+          "PASS"
+        ]
+      },
+      {
+        "id": "bug_go_nil_check",
+        "language": "go",
+        "passed": 2,
+        "total": 2,
+        "test_lines": [
+          "PASS",
+          "PASS"
+        ]
+      },
+      {
+        "id": "bug_go_append_no_reassign",
+        "language": "go",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ]
+      },
+      {
+        "id": "bug_go_nil_map_assign",
+        "language": "go",
+        "passed": 2,
+        "total": 2,
+        "test_lines": [
+          "PASS",
+          "PASS"
+        ]
+      },
+      {
+        "id": "bug_go_trim_last_panic",
+        "language": "go",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ]
+      },
+      {
+        "id": "bug_go_zero_slice",
+        "language": "go",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ]
+      },
+      {
+        "id": "refactor_py_list_comp",
+        "language": "python",
+        "track": "refactoring",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "response_snippet": "```python\ndef double_evens(nums):\n    return [n * 2 for n in nums if n % 2 == 0]\n```"
+      },
+      {
+        "id": "refactor_py_early_return",
+        "language": "python",
+        "track": "refactoring",
+        "passed": 4,
+        "total": 4,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "response_snippet": "```python\ndef describe(n):\n    if n is None:\n        return 'none'\n    if not isinstance(n, int):\n        return 'not an int'\n    if n > 0:\n        return 'positive'\n    return 'non-positive'\n```"
+      },
+      {
+        "id": "refactor_py_manual_max",
+        "language": "python",
+        "track": "refactoring",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "response_snippet": "```python\ndef longest_word(words):\n    return max(words, key=len, default='')\n```"
+      },
+      {
+        "id": "refactor_py_fstring",
+        "language": "python",
+        "track": "refactoring",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "response_snippet": "```python\ndef format_range(lo, hi):\n    return f\"[{lo}, {hi}]\"\n```"
+      },
+      {
+        "id": "refactor_py_dict_comprehension",
+        "language": "python",
+        "track": "refactoring",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "response_snippet": "```python\ndef square_map(nums):\n    return {n: n * n for n in nums}\n```"
+      },
+      {
+        "id": "refactor_js_map",
+        "language": "javascript",
+        "track": "refactoring",
+        "passed": 2,
+        "total": 2,
+        "test_lines": [
+          "PASS",
+          "PASS"
+        ],
+        "response_snippet": "```javascript\nfunction doubleAll(arr) {\n    return arr.map(item => item * 2);\n}\n```"
+      },
+      {
+        "id": "refactor_js_reduce",
+        "language": "javascript",
+        "track": "refactoring",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "response_snippet": "```javascript\nfunction sumArray(arr) {\n    return arr.reduce((total, n) => total + n, 0);\n}\n```"
+      },
+      {
+        "id": "refactor_js_filter",
+        "language": "javascript",
+        "track": "refactoring",
+        "passed": 2,
+        "total": 2,
+        "test_lines": [
+          "PASS",
+          "PASS"
+        ],
+        "response_snippet": "```javascript\nfunction onlyPositive(arr) {\n    return arr.filter(n => n > 0);\n}\n```"
+      },
+      {
+        "id": "refactor_js_object_destructure",
+        "language": "javascript",
+        "track": "refactoring",
+        "passed": 2,
+        "total": 2,
+        "test_lines": [
+          "PASS",
+          "PASS"
+        ],
+        "response_snippet": "```javascript\nfunction formatUser(user) {\n    const { name, age, city } = user;\n    return name + ' (' + age + ') from ' + city;\n}\n```"
+      },
+      {
+        "id": "refactor_js_optional_chain",
+        "language": "javascript",
+        "track": "refactoring",
+        "passed": 3,
+        "total": 3,
+        "test_lines": [
+          "PASS",
+          "PASS",
+          "PASS"
+        ],
+        "response_snippet": "```javascript\nfunction getCity(user) {\n    return user?.address?.city ?? null;\n}\n```"
+      }
+    ],
+    "python": {
+      "passed": 45,
+      "total": 45,
+      "pass_rate": 1.0
+    },
+    "nodejs": {
+      "passed": 11,
+      "total": 11,
+      "pass_rate": 1.0
+    },
+    "go": {
+      "passed": 18,
+      "total": 18,
+      "pass_rate": 1.0
+    },
+    "refactoring": {
+      "passed": 28,
+      "total": 28,
+      "pass_rate": 1.0,
+      "note": "correctness automated; code quality requires manual review"
+    },
+    "total_passed": 102,
+    "total": 102,
+    "pass_rate": 1.0
+  },
+  "track3_fim": {
+    "problems": [
+      {
+        "id": "fim_py_binary_search",
+        "language": "python",
+        "passed": true,
+        "detail": [
+          "PASS"
+        ],
+        "middle": "elif arr[mid] < target:\n            lo = mid + 1\n        else:\n            hi = mid - 1"
+      },
+      {
+        "id": "fim_py_fib_memo",
+        "language": "python",
+        "passed": true,
+        "detail": [
+          "PASS"
+        ],
+        "middle": "_cache[n] = fib(n - 1) + fib(n - 2)"
+      },
+      {
+        "id": "fim_py_dict_invert",
+        "language": "python",
+        "passed": true,
+        "detail": [
+          "PASS"
+        ],
+        "middle": "result[value] = key"
+      },
+      {
+        "id": "fim_py_running_max",
+        "language": "python",
+        "passed": true,
+        "detail": [
+          "PASS"
+        ],
+        "middle": "result.append(max(result[-1], n))"
+      },
+      {
+        "id": "fim_py_flatten_deep",
+        "language": "python",
+        "passed": true,
+        "detail": [
+          "PASS"
+        ],
+        "middle": "result.extend(flatten(item))"
+      },
+      {
+        "id": "fim_py_count_chars",
+        "language": "python",
+        "passed": true,
+        "detail": [
+          "PASS"
+        ],
+        "middle": "counts[c] = counts.get(c, 0) + 1"
+      },
+      {
+        "id": "fim_py_is_sorted",
+        "language": "python",
+        "passed": true,
+        "detail": [
+          "PASS"
+        ],
+        "middle": "if lst[i] > lst[i + 1]:\n            return False"
+      },
+      {
+        "id": "fim_py_merge_sorted",
+        "language": "python",
+        "passed": false,
+        "detail": [
+          "FAIL: got '' exp '[1, 2, 3, 4, 5, 6]'"
+        ],
+        "middle": "if a[i] < b[j]:\n        result.append(a[i])\n        i += 1\n    else:\n        result.append(b[j])\n        j += 1"
+      },
+      {
+        "id": "fim_js_filter_map",
+        "language": "javascript",
+        "passed": true,
+        "detail": [
+          "PASS"
+        ],
+        "middle": "n % 2 === 0"
+      },
+      {
+        "id": "fim_js_reduce_sum",
+        "language": "javascript",
+        "passed": false,
+        "detail": [
+          "FAIL: got '' exp '9'"
+        ],
+        "middle": "acc + item[key], acc)"
+      },
+      {
+        "id": "fim_js_error_first",
+        "language": "javascript",
+        "passed": false,
+        "detail": [
+          "FAIL: got '[{},null]\\n[null,2.5]' exp '[\"division by zero\",null]\\n[null,2.5]'"
+        ],
+        "middle": "return [new Error(\"Division by zero\"), null];"
+      },
+      {
+        "id": "fim_js_object_pick",
+        "language": "javascript",
+        "passed": true,
+        "detail": [
+          "PASS"
+        ],
+        "middle": "if (obj.hasOwnProperty(k)) acc[k] = obj[k];"
+      },
+      {
+        "id": "fim_js_clamp",
+        "language": "javascript",
+        "passed": true,
+        "detail": [
+          "PASS"
+        ],
+        "middle": "if (val > hi) return hi;"
+      },
+      {
+        "id": "fim_js_zip",
+        "language": "javascript",
+        "passed": true,
+        "detail": [
+          "PASS"
+        ],
+        "middle": "result.push([a[i], b[i]]);"
+      },
+      {
+        "id": "fim_js_flatten_one",
+        "language": "javascript",
+        "passed": true,
+        "detail": [
+          "PASS"
+        ],
+        "middle": "acc.concat(Array.isArray(val) ? val : [val])"
+      },
+      {
+        "id": "fim_go_error_wrap",
+        "language": "go",
+        "passed": false,
+        "detail": [
+          "FAIL: got '' exp 'PASS\\nPASS' | stderr: # command-line-arguments\n/tmp/tmpvvaefger.go:6:5: \"errors\" imported and not used"
+        ],
+        "middle": "return 0, fmt.Errorf(\"cannot take square root of negative number\")"
+      },
+      {
+        "id": "fim_go_slice_dedupe",
+        "language": "go",
+        "passed": true,
+        "detail": [
+          "PASS"
+        ],
+        "middle": "seen[v] = true\n\t\t\tresult = append(result, v)"
+      },
+      {
+        "id": "fim_go_max_min",
+        "language": "go",
+        "passed": true,
+        "detail": [
+          "PASS"
+        ],
+        "middle": "if val > hi {\n\t\treturn hi\n\t}"
+      },
+      {
+        "id": "fim_go_sum_slice",
+        "language": "go",
+        "passed": true,
+        "detail": [
+          "PASS"
+        ],
+        "middle": "total += n"
+      },
+      {
+        "id": "fim_go_contains_str",
+        "language": "go",
+        "passed": true,
+        "detail": [
+          "PASS"
+        ],
+        "middle": "if s == target {\n\t\treturn true\n\t}"
+      }
+    ],
+    "fim_native": false,
+    "total_passed": 16,
+    "total": 20,
+    "pass_rate": 0.8
+  },
+  "evalplus": {
+    "error": "codegen failed",
+    "stderr": "8001/v1 --n-samples 5 --temperature 0.2 - <command>\n  available commands:    capitalize | casefold | center | count | encode |\n                         endswith | expandtabs | find | format | format_map |\n                         index | isalnum | isalpha | isascii | isdecimal |\n                         isdigit | isidentifier | islower | isnumeric |\n                         isprintable | isspace | istitle | isupper | join |\n                         ljust | lower | lstrip | maketrans | partition |\n                         removeprefix | removesuffix | replace | rfind |\n                         rindex | rjust | rpartition | rsplit | rstrip |\n                         split | splitlines | startswith | strip | swapcase |\n                         title | translate | upper | zfill\n\nFor detailed information on this command, run:\n  codegen.py --model QuantTrio/gemma-4-31B-it-AWQ --dataset humaneval --backend openai --base-url http://192.168.4.56:8001/v1 --n-samples 5 --temperature 0.2 - --help\n",
+    "stdout": ": HumanEval/156 @ QuantTrio/gemma-4-31B-it-AWQ\nCodegen: HumanEval/157 @ QuantTrio/gemma-4-31B-it-AWQ\nCodegen: HumanEval/158 @ QuantTrio/gemma-4-31B-it-AWQ\nCodegen: HumanEval/159 @ QuantTrio/gemma-4-31B-it-AWQ\nCodegen: HumanEval/160 @ QuantTrio/gemma-4-31B-it-AWQ\nCodegen: HumanEval/161 @ QuantTrio/gemma-4-31B-it-AWQ\nCodegen: HumanEval/162 @ QuantTrio/gemma-4-31B-it-AWQ\nCodegen: HumanEval/163 @ QuantTrio/gemma-4-31B-it-AWQ\nhumaneval \u2022100% \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501 164/164 \u2022 0:23:02\n"
+  },
+  "phase1_score": {
+    "component_scores": {
+      "codegen_pass_rate": 0.971,
+      "bugfix_pass_rate": 1.0,
+      "fim_pass_rate": 0.8,
+      "throughput_normalized": 0
+    },
+    "partial_weighted_score": 0.661,
+    "note": "throughput_normalized and refactoring_quality require cross-model comparison"
+  },
+  "hardware_final": {
+    "source": "nvidia-smi-ssh:drewburr@airunner01.drewburr.com",
+    "gpus": [
+      {
+        "index": 0,
+        "name": "NVIDIA GeForce RTX 3090",
+        "vram_used_mb": 23646,
+        "vram_free_mb": 479,
+        "vram_total_mb": 24576,
+        "temp_c": 68
+      },
+      {
+        "index": 1,
+        "name": "NVIDIA GeForce RTX 3090",
+        "vram_used_mb": 23662,
+        "vram_free_mb": 461,
+        "vram_total_mb": 24576,
+        "temp_c": 78
+      }
+    ],
+    "total_used_mb": 47308
+  }
+}
