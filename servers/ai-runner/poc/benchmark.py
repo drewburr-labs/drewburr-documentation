@@ -92,9 +92,9 @@ MODEL_CONFIGS: dict[str, dict] = {
         "reasoning_parser": None,
         "is_reasoning": False,
         "fim_tokens": {
-            "prefix": "<｜fim▁begin｜>",
-            "suffix": "<｜fim▁end｜>",
-            "middle": "<｜fim▁hole｜>",
+            "prefix": "<｜fim▁begin｜>",   # before prefix code
+            "suffix": "<｜fim▁hole｜>",    # between prefix and suffix code (fill position)
+            "middle": "<｜fim▁end｜>",     # after suffix code (end of context)
         },
     },
     "codestral-22b": {
@@ -1851,6 +1851,13 @@ def restart_prod_services() -> None:
 
 
 def start_vllm(cfg: dict) -> None:
+    # Kill any container with "vllm" in its name — catches manually-started containers
+    # (e.g. "vllm-bench-test") that would squat on port 8001 and silently intercept
+    # wait_for_ready, causing all subsequent benchmarks to run against the wrong model.
+    _remote(["bash", "-c",
+             "podman ps -q --filter 'name=vllm' | xargs -r podman stop; "
+             "podman ps -aq --filter 'name=vllm' | xargs -r podman rm"],
+            sudo=True)
     stop_container(CONTAINER)
 
     from urllib.parse import urlparse as _up
