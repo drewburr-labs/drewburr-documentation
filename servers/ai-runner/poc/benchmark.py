@@ -120,17 +120,17 @@ MODEL_CONFIGS: dict[str, dict] = {
         "fim_tokens": None,
     },
     "qwen3-30b": {
-        "hf_id": "Qwen/Qwen3-30B-A3B",
-        "quantization": None,
+        "hf_id": "QuixiAI/Qwen3-30B-A3B-AWQ",  # community AWQ (ModelScope swift); no official Qwen AWQ exists yet
+        "quantization": "awq_marlin",
         "max_model_len": None,
         "reasoning_parser": "qwen3",
         "is_reasoning": True,
         "fim_tokens": None,
     },
     "qwen2.5-coder-32b": {
-        "hf_id": "Qwen/Qwen2.5-Coder-32B-Instruct",
-        "quantization": None,
-        "max_model_len": None,
+        "hf_id": "Qwen/Qwen2.5-Coder-32B-Instruct-AWQ",  # official Qwen AWQ
+        "quantization": "awq_marlin",
+        "max_model_len": 32768,  # torch.compile overhead leaves ~12GB KV headroom; 131K default OOMs
         "reasoning_parser": None,
         "is_reasoning": False,
         "fim_tokens": {
@@ -140,9 +140,9 @@ MODEL_CONFIGS: dict[str, dict] = {
         },
     },
     "deepseek-r1-qwen-32b": {
-        "hf_id": "deepseek-ai/DeepSeek-R1-Distill-Qwen-32B",
-        "quantization": None,
-        "max_model_len": None,
+        "hf_id": "casperhansen/deepseek-r1-distill-qwen-32b-awq",  # community AWQ, 13k dl/mo, MIT
+        "quantization": "awq_marlin",
+        "max_model_len": 32768,  # same KV headroom constraint as qwen2.5-coder-32b
         "reasoning_parser": "deepseek_r1",
         "is_reasoning": True,
         "fim_tokens": None,
@@ -150,22 +150,23 @@ MODEL_CONFIGS: dict[str, dict] = {
     "gemma4-31b": {
         "hf_id": "QuantTrio/gemma-4-31B-it-AWQ",  # community AWQ quant
         "quantization": "awq_marlin",
-        "max_model_len": None,
+        "max_model_len": 32768,  # same torch.compile KV headroom constraint as 32B models
         "reasoning_parser": None,
         "is_reasoning": False,
         "fim_tokens": None,
+        "image": "docker.io/vllm/vllm-openai:gemma4",  # gemma4 arch requires transformers>=5.5.0
     },
     "qwq-32b": {
-        "hf_id": "Qwen/QwQ-32B",
-        "quantization": None,
-        "max_model_len": None,
+        "hf_id": "Qwen/QwQ-32B-AWQ",  # official Qwen AWQ
+        "quantization": "awq_marlin",
+        "max_model_len": 32768,  # same KV headroom constraint as qwen2.5-coder-32b
         "reasoning_parser": "qwen3",  # QwQ uses Qwen3-compatible thinking tokens
         "is_reasoning": True,
         "fim_tokens": None,
     },
     "qwen3-coder-80b": {
-        "hf_id": "Qwen/Qwen3-Coder-Next",
-        "quantization": "awq_marlin",  # NOTE: substitute community AWQ repo ID
+        "hf_id": "bullpoint/Qwen3-Coder-Next-AWQ-4bit",  # community AWQ, 135k dl/mo, Apache 2.0
+        "quantization": "awq_marlin",
         "max_model_len": 16384,  # only ~8 GB KV headroom after weights
         "reasoning_parser": "qwen3",
         "is_reasoning": True,
@@ -174,15 +175,15 @@ MODEL_CONFIGS: dict[str, dict] = {
     "llama3.3-70b": {
         "hf_id": "casperhansen/llama-3.3-70b-instruct-awq",
         "quantization": "awq_marlin",
-        "max_model_len": 40960,  # only ~13 GB KV headroom after weights
+        "max_model_len": 8192,  # torch.compile leaves only ~2.65 GB KV headroom; 40960 OOMs
         "reasoning_parser": None,
         "is_reasoning": False,
         "fim_tokens": None,
     },
     "deepseek-r1-llama-70b": {
-        "hf_id": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B",
-        "quantization": "awq_marlin",  # NOTE: substitute community AWQ repo ID
-        "max_model_len": 40960,  # same KV headroom as Llama 3.3 70B base
+        "hf_id": "casperhansen/deepseek-r1-distill-llama-70b-awq",  # community AWQ, 10k dl/mo, MIT
+        "quantization": "awq_marlin",
+        "max_model_len": 8192,  # same ~2.65 GB KV headroom as llama3.3-70b
         "reasoning_parser": "deepseek_r1",
         "is_reasoning": True,
         "fim_tokens": None,
@@ -1850,6 +1851,17 @@ def start_vllm(cfg: dict) -> None:
     from urllib.parse import urlparse as _up
     vllm_port = _up(_api_url).port or 8001
 
+    image = cfg.get("image", VLLM_IMAGE)
+
+    # Pre-pull the image so progress is visible and podman run -d doesn't block silently.
+    inspect = _remote(["podman", "image", "exists", image], sudo=True)
+    if inspect.returncode != 0:
+        log(f"Pulling image {image} (not cached)...")
+        pull = _remote(["podman", "pull", image], sudo=True)
+        if pull.returncode != 0:
+            raise RuntimeError(f"Failed to pull image {image}:\n{pull.stderr}")
+        log("Image pull complete.")
+
     cmd = [
         "podman", "run", "--name", CONTAINER,
         "--device", "nvidia.com/gpu=all",
@@ -1859,7 +1871,7 @@ def start_vllm(cfg: dict) -> None:
         "-v", f"{MODEL_CACHE}:/root/.cache/huggingface:z",
         "--env-file", "/etc/vllm/env",
         "-d",
-        VLLM_IMAGE,
+        image,
         "--model", cfg["hf_id"],
         "--tensor-parallel-size", "2",
         "--gpu-memory-utilization", "0.95",
