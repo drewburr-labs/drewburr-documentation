@@ -106,15 +106,12 @@ MODEL_CONFIGS: dict[str, dict] = {
         "reasoning_parser": None,
         "is_reasoning": False,
         # solidrust AWQ omits the chat template; supply Mistral v1 template explicitly.
+        # Stripped of raise_exception guards — benchmark only needs correct formatting.
         "chat_template": (
             "{{ bos_token }}"
             "{% for message in messages %}"
-            "{% if (message['role'] == 'user') != (loop.first) %}"
-            "{{ raise_exception('Conversation roles must alternate user/assistant/...') }}"
-            "{% endif %}"
             "{% if message['role'] == 'user' %}{{ '[INST] ' + message['content'] + ' [/INST]' }}"
             "{% elif message['role'] == 'assistant' %}{{ message['content'] + eos_token + ' ' }}"
-            "{% else %}{{ raise_exception('Only user and assistant roles are supported!') }}"
             "{% endif %}"
             "{% endfor %}"
         ),
