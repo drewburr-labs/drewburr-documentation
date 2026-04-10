@@ -2583,11 +2583,13 @@ def run_evalplus(model_id: str, cfg: dict) -> dict:
     log("=== evalplus: HumanEval+ ===")
 
     is_reasoning = cfg.get("is_reasoning", False)
-    # Reasoning models: greedy (temp=0), single sample — thinking + sampling is unreliable
+    # Reasoning models: near-greedy (temp=0.001), single sample.
+    # evalplus openai provider asserts temperature > 0, so 0.0 is not allowed.
+    # At n=1, 0.001 is functionally identical to greedy.
     # Non-reasoning models: temp sampling, n=EVALPLUS_N for pass@1 estimate
-    evalplus_temp = 0.0 if is_reasoning else EVALPLUS_TEMP
-    evalplus_n    = 1   if is_reasoning else EVALPLUS_N
-    log(f"  mode: {'reasoning → temp=0, n=1' if is_reasoning else f'sampling → temp={evalplus_temp}, n={evalplus_n}'}")
+    evalplus_temp = 0.001 if is_reasoning else EVALPLUS_TEMP
+    evalplus_n    = 1     if is_reasoning else EVALPLUS_N
+    log(f"  mode: {'reasoning → temp=0.001, n=1' if is_reasoning else f'sampling → temp={evalplus_temp}, n={evalplus_n}'}")
 
     if not shutil.which("evalplus") and not any(
         shutil.which(p) for p in ["python3", "python"]
@@ -2604,8 +2606,10 @@ def run_evalplus(model_id: str, cfg: dict) -> dict:
     parsed = urlparse(_api_url)
     base_url = f"{parsed.scheme}://{parsed.netloc}/v1"
 
-    out_dir = os.path.join(RESULTS_DIR, f"evalplus_{model_id.replace('/', '_')}")
-    os.makedirs(out_dir, exist_ok=True)
+    # evalplus writes to evalplus_results/humaneval/ relative to cwd — --output is not
+    # a valid flag and causes fire CLI to crash after codegen completes. Run from poc dir.
+    poc_dir = os.path.dirname(os.path.abspath(__file__))
+    evalplus_out_dir = os.path.join(poc_dir, "evalplus_results", "humaneval")
 
     # ── Step 1: generate samples ───────────────────────────────────────────────
     codegen_cmd = [
@@ -2616,30 +2620,38 @@ def run_evalplus(model_id: str, cfg: dict) -> dict:
         "--base-url", base_url,
         "--n-samples", str(evalplus_n),
         "--temperature", str(evalplus_temp),
-        "--output", out_dir,
     ]
     log(f"  Generating {evalplus_n} samples per problem (temp={evalplus_temp})...")
     log(f"  cmd: {' '.join(codegen_cmd)}")
 
     t0 = time.time()
-    gen_result = subprocess.run(codegen_cmd, capture_output=True, text=True, timeout=7200)
+    gen_result = subprocess.run(
+        codegen_cmd, capture_output=True, text=True, timeout=7200, cwd=poc_dir
+    )
     gen_duration = round(time.time() - t0, 1)
 
     if gen_result.returncode != 0:
         log(f"  codegen failed (rc={gen_result.returncode})")
         return {
             "error": "codegen failed",
-            "stderr": gen_result.stderr[-1000:],
-            "stdout": gen_result.stdout[-500:],
+            "stderr": gen_result.stderr[-2000:],
+            "stdout": gen_result.stdout[-1000:],
         }
 
-    # Find the generated samples file (evalplus may nest it in a timestamped subdir)
-    samples_candidates = _glob.glob(os.path.join(out_dir, "**", "*.jsonl"), recursive=True)
-    if not samples_candidates:
-        log("  No .jsonl file found after codegen")
-        return {"error": "samples.jsonl not found after codegen",
-                "stdout": gen_result.stdout[-500:]}
-    samples_file = sorted(samples_candidates)[-1]  # most recent if multiple
+    # evalplus names files: {model_id_with_/→--}_openai_temp_{temp}.jsonl
+    safe_model = model_id.replace("/", "--")
+    expected = os.path.join(evalplus_out_dir, f"{safe_model}_openai_temp_{evalplus_temp}.jsonl")
+    if os.path.exists(expected):
+        samples_file = expected
+    else:
+        # Fallback: find any matching jsonl (handles minor naming variations)
+        candidates = _glob.glob(os.path.join(evalplus_out_dir, f"{safe_model}*.jsonl"))
+        candidates = [c for c in candidates if ".raw." not in c]
+        if not candidates:
+            log("  No .jsonl file found after codegen")
+            return {"error": "samples.jsonl not found after codegen",
+                    "stdout": gen_result.stdout[-500:]}
+        samples_file = sorted(candidates)[-1]
     log(f"  Samples written to: {samples_file}")
 
     # ── Step 2: evaluate ───────────────────────────────────────────────────────
