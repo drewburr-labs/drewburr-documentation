@@ -98,31 +98,36 @@ MODEL_CONFIGS: dict[str, dict] = {
         },
     },
     "codestral-22b": {
-        "hf_id": "mistralai/Codestral-25.08",
-        "quantization": None,
+        # Codestral-25.08 (mistralai/Codestral-25.08) is enterprise-gated with no public AWQ.
+        # Using Codestral-22B-v0.1 AWQ as the nearest public equivalent.
+        "hf_id": "solidrust/Codestral-22B-v0.1-hf-AWQ",
+        "quantization": "awq_marlin",
         "max_model_len": None,
         "reasoning_parser": None,
         "is_reasoning": False,
-        # Mistral FIM format used by Codestral
+        # Mistral FIM format used by Codestral (same across v0.1 and 25.x)
         "fim_tokens": {
             "prefix": "[PREFIX]",
             "suffix": "[SUFFIX]",
             "middle": "[MIDDLE]",
         },
-        # NOTE: Mistral Research License — confirm internal-use-only before running
     },
     "gemma4-26b": {
+        # No AWQ exists for Gemma 4 26B-A4B (NVFP4 is Blackwell-only, GGUF unsupported by vLLM).
+        # bitsandbytes quantizes layer-by-layer at load time so full BF16 (~52 GB) never needs to
+        # be resident simultaneously. Requires gemma4 image for architecture support.
         "hf_id": "google/gemma-4-26b-A4B-it",
-        "quantization": "bitsandbytes",  # BF16 ~52 GB exceeds VRAM; substitute AWQ repo if available
-        "max_model_len": None,
+        "quantization": "bitsandbytes",
+        "max_model_len": 32768,
         "reasoning_parser": None,
         "is_reasoning": False,
         "fim_tokens": None,
+        "image": "docker.io/vllm/vllm-openai:gemma4",
     },
     "qwen3-30b": {
         "hf_id": "QuixiAI/Qwen3-30B-A3B-AWQ",  # community AWQ (ModelScope swift); no official Qwen AWQ exists yet
         "quantization": "awq_marlin",
-        "max_model_len": None,
+        "max_model_len": 32768,  # 14 GB KV headroom; 131k default yields only 64 blocks (1024 tok pool)
         "reasoning_parser": "qwen3",
         "is_reasoning": True,
         "fim_tokens": None,
