@@ -105,6 +105,19 @@ MODEL_CONFIGS: dict[str, dict] = {
         "max_model_len": None,
         "reasoning_parser": None,
         "is_reasoning": False,
+        # solidrust AWQ omits the chat template; supply Mistral v1 template explicitly.
+        "chat_template": (
+            "{{ bos_token }}"
+            "{% for message in messages %}"
+            "{% if (message['role'] == 'user') != (loop.first) %}"
+            "{{ raise_exception('Conversation roles must alternate user/assistant/...') }}"
+            "{% endif %}"
+            "{% if message['role'] == 'user' %}{{ '[INST] ' + message['content'] + ' [/INST]' }}"
+            "{% elif message['role'] == 'assistant' %}{{ message['content'] + eos_token + ' ' }}"
+            "{% else %}{{ raise_exception('Only user and assistant roles are supported!') }}"
+            "{% endif %}"
+            "{% endfor %}"
+        ),
         # Mistral FIM format used by Codestral (same across v0.1 and 25.x)
         "fim_tokens": {
             "prefix": "[PREFIX]",
@@ -1898,6 +1911,16 @@ def start_vllm(cfg: dict) -> None:
         cmd += ["--max-model-len", str(cfg["max_model_len"])]
     if cfg.get("reasoning_parser"):
         cmd += ["--reasoning-parser", cfg["reasoning_parser"]]
+    if cfg.get("chat_template"):
+        # Write the Jinja2 template into MODEL_CACHE (already mounted into the container
+        # at /root/.cache/huggingface) so vLLM can read it at the in-container path.
+        # Use base64 to avoid quoting issues with template characters like single quotes.
+        import base64 as _b64
+        host_tpl = f"{MODEL_CACHE}/chat_template.jinja"
+        container_tpl = "/root/.cache/huggingface/chat_template.jinja"
+        encoded = _b64.b64encode(cfg["chat_template"].encode()).decode()
+        _remote(["bash", "-c", f"echo {encoded} | base64 -d > {host_tpl}"], sudo=True)
+        cmd += ["--chat-template", container_tpl]
 
     log(f"Starting vLLM on {'SSH:' + _ssh_host if _ssh_host else 'localhost'}: {' '.join(cmd)}")
     _remote(cmd, check=True, sudo=True)
