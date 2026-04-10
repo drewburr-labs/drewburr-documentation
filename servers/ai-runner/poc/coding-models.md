@@ -26,25 +26,28 @@ is roughly `2 × layers × kv_heads × head_dim × 2 bytes` (BF16). The affordab
 limit is `remaining_vram / bytes_per_token`. Where this falls below the model's trained
 maximum, `--max-model-len` must be capped in vLLM or generation will OOM.
 
-| Model | KV headroom | Bytes/token (est.) | Affordable context |
-|-------|-------------|--------------------|--------------------|
+| Model | KV headroom (actual) | Bytes/token (est.) | Affordable context |
+|-------|----------------------|--------------------|--------------------|
 | Phi-4 14B | ~41GB | ~96KB | 16k (trained max) |
 | Qwen2.5-Coder-7B | ~44.5GB | ~64KB | 128k ✓ |
 | DeepSeek-Coder-V2-Lite 16B | ~40GB | ~64KB | 128k ✓ |
 | Codestral 25.08 22B | ~37GB | ~128KB | 256k ✓ |
 | Gemma 4 26B-A4B | ~35GB | ~192KB | 128k ✓ |
 | Qwen3-30B-A3B | ~33GB | ~192KB | 128k ✓ |
-| Qwen2.5-Coder-32B | ~32GB | ~256KB | 128k ✓ |
-| DeepSeek-R1-Distill-Qwen-32B | ~32GB | ~256KB | 128k ✓ |
+| Qwen2.5-Coder-32B | **~12GB** | ~256KB | **~32k (cap required)** |
+| DeepSeek-R1-Distill-Qwen-32B | **~12GB** | ~256KB | **~32k (cap required)** |
 | Gemma 4 31B | ~32.5GB | ~256KB | 128k ✓ |
-| QwQ-32B | ~32GB | ~256KB | 128k ✓ |
+| QwQ-32B | **~12GB** | ~256KB | **~32k (cap required)** |
 | Qwen3-Coder-Next 80B | ~8GB | ~256KB | **~16k (cap required)** |
 | Llama 3.3 70B | ~13GB | ~320KB | **~40k (cap required)** |
 | DeepSeek-R1-Distill-Llama-70B | ~13GB | ~320KB | **~40k (cap required)** |
 
-Phi-4's 16k limit is architectural (trained range), not VRAM. All other models in the
-≤32B tier can run at their full trained context. The three highlighted models require an
-explicit `--max-model-len` cap to avoid OOM.
+Phi-4's 16k limit is architectural (trained range), not VRAM. The original KV headroom
+estimates for the 32B dense models assumed static weight-only allocation. In practice,
+vLLM 0.19's `torch.compile` warmup and CUDA graph capture consume an additional ~20GB
+of GPU memory during initialization, reducing actual KV headroom to ~12GB per GPU and
+making the 131k default context OOM (`num_gpu_blocks=0`). The six highlighted models
+require an explicit `--max-model-len` cap.
 
 ---
 
