@@ -123,18 +123,18 @@ MODEL_CONFIGS: dict[str, dict] = {
         },
     },
     "gemma4-26b": {
-        # v0.18.2 (gemma4 image): bitsandbytes blocked for MoE — Gemma4ForConditionalGeneration
-        # missing get_expert_mapping(). v0.19.0 ships "full Gemma 4 MoE support"; may fix this.
-        # Try bitsandbytes on v0.19.0 first; if still broken fall back to AWQ:
-        #   "hf_id": "cyankiwi/gemma-4-26B-A4B-it-AWQ-8bit", "quantization": "awq"
-        # (8-bit AWQ ≈ 26 GB, fits in 2× RTX 3090; use plain "awq" not "awq_marlin" for 8-bit)
-        "hf_id": "google/gemma-4-26b-A4B-it",
-        "quantization": "bitsandbytes",
+        # bitsandbytes blocked for MoE: Gemma4ForConditionalGeneration missing get_expert_mapping().
+        # v0.19.0 doesn't help — it ships an older Transformers that doesn't recognise gemma4 arch.
+        # gemma4 image required for Transformers compat; AWQ required to avoid MoE+bnb block.
+        # 8-bit AWQ weights ≈ 26 GB; fits in 2× RTX 3090 with ~22 GB left for KV cache.
+        # Use plain "awq" not "awq_marlin" (marlin targets 4-bit only).
+        "hf_id": "cyankiwi/gemma-4-26B-A4B-it-AWQ-8bit",
+        "quantization": "awq",
         "max_model_len": 32768,
         "reasoning_parser": None,
         "is_reasoning": False,
         "fim_tokens": None,
-        "image": "docker.io/vllm/vllm-openai:v0.19.0",
+        "image": "docker.io/vllm/vllm-openai:gemma4",
     },
     "qwen3-30b": {
         "hf_id": "QuixiAI/Qwen3-30B-A3B-AWQ",  # community AWQ (ModelScope swift); no official Qwen AWQ exists yet
@@ -171,7 +171,7 @@ MODEL_CONFIGS: dict[str, dict] = {
         "reasoning_parser": None,
         "is_reasoning": False,
         "fim_tokens": None,
-        "image": "docker.io/vllm/vllm-openai:v0.19.0",  # v0.19.0 includes full Gemma 4 support
+        "image": "docker.io/vllm/vllm-openai:gemma4",  # gemma4 image required for Transformers compat
     },
     "qwq-32b": {
         "hf_id": "Qwen/QwQ-32B-AWQ",  # official Qwen AWQ
