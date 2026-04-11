@@ -1627,6 +1627,8 @@ def run_node_fim(assembled: str, expected: str) -> tuple[int, int, list[str]]:
 _current_model_id: str = ""
 _api_url: str = DEFAULT_API_URL
 _ssh_host: str = ""   # when set, lifecycle commands and nvidia-smi run over SSH
+_thinking_budget: int = 0  # extra tokens prepended to max_tokens for reasoning models;
+                            # set by configure_globals() when is_reasoning=True
 
 
 def _api_conn(timeout: int = LLM_TIMEOUT) -> http.client.HTTPConnection:
@@ -1666,7 +1668,7 @@ def chat_with_usage(messages: list[dict], max_tokens: int = 1024, temperature: f
         result = _post("chat/completions", {
             "model": _current_model_id,
             "messages": messages,
-            "max_tokens": max_tokens,
+            "max_tokens": max_tokens + _thinking_budget,
             "temperature": temperature,
         })
         content = result["choices"][0]["message"]["content"]
@@ -1688,7 +1690,7 @@ def chat(messages: list[dict], max_tokens: int = 1024, temperature: float = 0.0,
         result = _post("chat/completions", {
             "model": _current_model_id,
             "messages": messages,
-            "max_tokens": max_tokens,
+            "max_tokens": max_tokens + _thinking_budget,
             "temperature": temperature,
         })
         return result["choices"][0]["message"]["content"]
@@ -2813,7 +2815,7 @@ def compute_weighted_score(t1: dict, t2: dict, t3: dict, perf: dict) -> dict:
 
 
 def main() -> None:
-    global _current_model_id, _api_url, _ssh_host
+    global _current_model_id, _api_url, _ssh_host, _thinking_budget
 
     parser = argparse.ArgumentParser(
         description="Phase 1 coding model benchmark harness"
@@ -2873,6 +2875,10 @@ def main() -> None:
 
     cfg = MODEL_CONFIGS[args.model_key]
     _api_url = args.api_url
+    # Reasoning models think before answering; the thinking tokens consume max_tokens budget
+    # before any visible content is produced. Add a buffer so chat() never returns None
+    # because the model ran out of tokens mid-thought.
+    _thinking_budget = 2048 if cfg.get("is_reasoning") else 0
     tracks = [t.strip() for t in args.tracks.split(",")]
     os.makedirs(RESULTS_DIR, exist_ok=True)
     output_path = os.path.join(RESULTS_DIR, f"{args.model_key}.json")
