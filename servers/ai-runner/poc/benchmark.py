@@ -126,10 +126,11 @@ MODEL_CONFIGS: dict[str, dict] = {
         # bitsandbytes blocked for MoE: Gemma4ForConditionalGeneration missing get_expert_mapping().
         # v0.19.0 doesn't help — it ships an older Transformers that doesn't recognise gemma4 arch.
         # gemma4 image required for Transformers compat; AWQ required to avoid MoE+bnb block.
-        # 8-bit AWQ weights ≈ 26 GB; fits in 2× RTX 3090 with ~22 GB left for KV cache.
-        # Use plain "awq" not "awq_marlin" (marlin targets 4-bit only).
+        # cyankiwi model config.json declares compressed-tensors (llm-compressor format, not awq)
+        # despite the repo name — set quantization=None so vLLM reads it from config.json directly.
+        # 8-bit weights ≈ 26 GB; fits in 2× RTX 3090 with ~22 GB left for KV cache.
         "hf_id": "cyankiwi/gemma-4-26B-A4B-it-AWQ-8bit",
-        "quantization": "awq",
+        "quantization": None,
         "max_model_len": 32768,
         "reasoning_parser": None,
         "is_reasoning": False,
