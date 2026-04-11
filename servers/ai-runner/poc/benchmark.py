@@ -1925,9 +1925,13 @@ def start_vllm(cfg: dict) -> None:
     _remote(cmd, check=True, sudo=True)
 
 
-def _container_logs(tail: int = 200) -> str:
-    """Return the last `tail` lines of the vLLM container's stdout+stderr, or '' on failure."""
-    result = _remote(["podman", "logs", "--tail", str(tail), CONTAINER], sudo=True)
+def _container_logs(tail: int | None = None) -> str:
+    """Return container stdout+stderr. Pass tail=N to limit; omit for full log."""
+    cmd = ["podman", "logs"]
+    if tail is not None:
+        cmd += ["--tail", str(tail)]
+    cmd.append(CONTAINER)
+    result = _remote(cmd, sudo=True)
     combined = (result.stdout or "") + (result.stderr or "")
     return combined.strip()
 
@@ -1969,9 +1973,10 @@ def wait_for_ready(timeout: int = STARTUP_WAIT) -> tuple[str, float]:
         status = _container_status()
         if status not in ("running", "unknown"):
             elapsed = round(time.time() - t_start, 1)
-            logs = _container_logs(tail=80)
+            # Capture full log: crash containers are short-lived so the log is small.
+            logs = _container_logs()
             log(f"  Container exited early (status={status}) after {elapsed}s")
-            log(f"  --- container logs (last 80 lines) ---\n{logs}\n  ---")
+            log(f"  --- container logs (full) ---\n{logs}\n  ---")
             raise TimeoutError(
                 f"vLLM container exited (status={status}) after {elapsed}s\n\n"
                 f"Container logs:\n{logs}"
@@ -1985,10 +1990,11 @@ def wait_for_ready(timeout: int = STARTUP_WAIT) -> tuple[str, float]:
 
         time.sleep(5)
 
-    logs = _container_logs(tail=80)
-    log(f"  --- container logs on timeout (last 80 lines) ---\n{logs}\n  ---")
+    # Genuine timeout (model download / slow startup). Log could be large — cap at 200 lines.
+    logs = _container_logs(tail=200)
+    log(f"  --- container logs on timeout (last 200 lines) ---\n{logs}\n  ---")
     raise TimeoutError(
-        f"vLLM not ready after {timeout}s\n\nContainer logs:\n{logs}"
+        f"vLLM not ready after {timeout}s\n\nContainer logs (last 200 lines):\n{logs}"
     )
 
 
