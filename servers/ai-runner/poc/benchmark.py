@@ -123,9 +123,9 @@ MODEL_CONFIGS: dict[str, dict] = {
         },
     },
     "gemma4-26b": {
-        # No AWQ exists for Gemma 4 26B-A4B (NVFP4 is Blackwell-only, GGUF unsupported by vLLM).
-        # bitsandbytes quantizes layer-by-layer at load time so full BF16 (~52 GB) never needs to
-        # be resident simultaneously. Requires gemma4 image for architecture support.
+        # bitsandbytes failed to load on first run (vLLM timed out at 7200s, 0 VRAM used).
+        # wait_for_ready now captures container logs on exit/timeout — re-run to diagnose.
+        # Fallback if bnb is unfixable: cyankiwi/gemma-4-26B-A4B-it-AWQ-8bit (awq, ~15k dl/mo).
         "hf_id": "google/gemma-4-26b-A4B-it",
         "quantization": "bitsandbytes",
         "max_model_len": 32768,
@@ -1923,6 +1923,21 @@ def start_vllm(cfg: dict) -> None:
     _remote(cmd, check=True, sudo=True)
 
 
+def _container_logs(tail: int = 200) -> str:
+    """Return the last `tail` lines of the vLLM container's stdout+stderr, or '' on failure."""
+    result = _remote(["podman", "logs", "--tail", str(tail), CONTAINER], sudo=True)
+    combined = (result.stdout or "") + (result.stderr or "")
+    return combined.strip()
+
+
+def _container_status() -> str:
+    """Return the container's state (running/exited/…), or 'unknown' on failure."""
+    result = _remote(
+        ["podman", "inspect", "--format", "{{.State.Status}}", CONTAINER], sudo=True
+    )
+    return result.stdout.strip() if result.returncode == 0 else "unknown"
+
+
 def wait_for_ready(timeout: int = STARTUP_WAIT) -> tuple[str, float]:
     """
     Poll /v1/models until the model is loaded and serving.
@@ -1947,6 +1962,19 @@ def wait_for_ready(timeout: int = STARTUP_WAIT) -> tuple[str, float]:
         except Exception:
             pass
 
+        # Check if the container exited unexpectedly — no point waiting the full timeout
+        # if vLLM crashed on startup (e.g. unsupported quantization, OOM, bad config).
+        status = _container_status()
+        if status not in ("running", "unknown"):
+            elapsed = round(time.time() - t_start, 1)
+            logs = _container_logs(tail=80)
+            log(f"  Container exited early (status={status}) after {elapsed}s")
+            log(f"  --- container logs (last 80 lines) ---\n{logs}\n  ---")
+            raise TimeoutError(
+                f"vLLM container exited (status={status}) after {elapsed}s\n\n"
+                f"Container logs:\n{logs}"
+            )
+
         now = time.time()
         if now - last_log >= 30:
             elapsed = round(now - t_start)
@@ -1955,7 +1983,11 @@ def wait_for_ready(timeout: int = STARTUP_WAIT) -> tuple[str, float]:
 
         time.sleep(5)
 
-    raise TimeoutError(f"vLLM not ready after {timeout}s")
+    logs = _container_logs(tail=80)
+    log(f"  --- container logs on timeout (last 80 lines) ---\n{logs}\n  ---")
+    raise TimeoutError(
+        f"vLLM not ready after {timeout}s\n\nContainer logs:\n{logs}"
+    )
 
 
 # ── Prompt builders ────────────────────────────────────────────────────────────
@@ -2632,47 +2664,92 @@ def run_evalplus(model_id: str, cfg: dict) -> dict:
     evalplus_out_dir = os.path.join(poc_dir, "evalplus_results", "humaneval")
 
     # ── Step 1: generate samples ───────────────────────────────────────────────
-    codegen_cmd = [
-        sys.executable, "-m", "evalplus.codegen",
-        "--model", model_id,
-        "--dataset", "humaneval",
-        "--backend", "openai",
-        "--base-url", base_url,
-        "--n-samples", str(evalplus_n),
-        "--temperature", str(evalplus_temp),
-    ]
-    log(f"  Generating {evalplus_n} samples per problem (temp={evalplus_temp})...")
-    log(f"  cmd: {' '.join(codegen_cmd)}")
-
     t0 = time.time()
-    gen_result = subprocess.run(
-        codegen_cmd, capture_output=True, text=True, timeout=7200, cwd=poc_dir
-    )
-    gen_duration = round(time.time() - t0, 1)
 
-    if gen_result.returncode != 0:
-        log(f"  codegen failed (rc={gen_result.returncode})")
-        return {
-            "error": "codegen failed",
-            "stderr": gen_result.stderr[-2000:],
-            "stdout": gen_result.stdout[-1000:],
-        }
+    if is_reasoning:
+        # evalplus hardcodes max_new_tokens=768 with no CLI override. Thinking models
+        # consume 2000–4000+ tokens in the <think> block before producing any code,
+        # so the default silently truncates every response mid-thought and produces
+        # no evaluable output. We call the Python API directly and monkey-patch
+        # DecoderBase to raise the budget high enough to complete both thinking and code.
+        REASONING_MAX_TOKENS = 4096
+        log(f"  Generating {evalplus_n} samples per problem (temp={evalplus_temp}, "
+            f"max_tokens={REASONING_MAX_TOKENS} for thinking model)...")
+        try:
+            from evalplus.provider import base as _ep_base
+            from evalplus.codegen import run_codegen as _run_codegen
+        except ImportError:
+            log("  evalplus not installed — skipping (pip install evalplus)")
+            return {"error": "evalplus not installed"}
 
-    # evalplus names files: {model_id_with_/→--}_openai_temp_{temp}.jsonl
-    safe_model = model_id.replace("/", "--")
-    expected = os.path.join(evalplus_out_dir, f"{safe_model}_openai_temp_{evalplus_temp}.jsonl")
-    if os.path.exists(expected):
-        samples_file = expected
+        # DecoderBase.__init__ signature (excluding self and name which have no default):
+        #   batch_size=1, temperature=0.8, max_new_tokens=768, dtype="bfloat16",
+        #   trust_remote_code=False, instruction_prefix=None, response_prefix=None
+        # max_new_tokens is index 2 in __defaults__.
+        _orig_defaults = _ep_base.DecoderBase.__init__.__defaults__
+        patched = list(_orig_defaults)
+        patched[2] = REASONING_MAX_TOKENS
+        _ep_base.DecoderBase.__init__.__defaults__ = tuple(patched)
+        try:
+            samples_file = _run_codegen(
+                model=model_id,
+                dataset="humaneval",
+                backend="openai",
+                n_samples=evalplus_n,
+                temperature=evalplus_temp,
+                base_url=base_url,
+                root=os.path.join(poc_dir, "evalplus_results"),
+                resume=False,  # prior runs produced truncated results; always regenerate
+            )
+        except Exception as exc:
+            log(f"  codegen failed: {exc}")
+            return {"error": f"codegen failed: {exc}"}
+        finally:
+            _ep_base.DecoderBase.__init__.__defaults__ = _orig_defaults
+
+        gen_duration = round(time.time() - t0, 1)
+        log(f"  Codegen complete in {gen_duration}s → {samples_file}")
     else:
-        # Fallback: find any matching jsonl (handles minor naming variations)
-        candidates = _glob.glob(os.path.join(evalplus_out_dir, f"{safe_model}*.jsonl"))
-        candidates = [c for c in candidates if ".raw." not in c]
-        if not candidates:
-            log("  No .jsonl file found after codegen")
-            return {"error": "samples.jsonl not found after codegen",
-                    "stdout": gen_result.stdout[-500:]}
-        samples_file = sorted(candidates)[-1]
-    log(f"  Samples written to: {samples_file}")
+        codegen_cmd = [
+            sys.executable, "-m", "evalplus.codegen",
+            "--model", model_id,
+            "--dataset", "humaneval",
+            "--backend", "openai",
+            "--base-url", base_url,
+            "--n-samples", str(evalplus_n),
+            "--temperature", str(evalplus_temp),
+        ]
+        log(f"  Generating {evalplus_n} samples per problem (temp={evalplus_temp})...")
+        log(f"  cmd: {' '.join(codegen_cmd)}")
+
+        gen_result = subprocess.run(
+            codegen_cmd, capture_output=True, text=True, timeout=7200, cwd=poc_dir
+        )
+        gen_duration = round(time.time() - t0, 1)
+
+        if gen_result.returncode != 0:
+            log(f"  codegen failed (rc={gen_result.returncode})")
+            return {
+                "error": "codegen failed",
+                "stderr": gen_result.stderr[-2000:],
+                "stdout": gen_result.stdout[-1000:],
+            }
+
+        # evalplus names files: {model_id_with_/→--}_openai_temp_{temp}.jsonl
+        safe_model = model_id.replace("/", "--")
+        expected = os.path.join(evalplus_out_dir, f"{safe_model}_openai_temp_{evalplus_temp}.jsonl")
+        if os.path.exists(expected):
+            samples_file = expected
+        else:
+            # Fallback: find any matching jsonl (handles minor naming variations)
+            candidates = _glob.glob(os.path.join(evalplus_out_dir, f"{safe_model}*.jsonl"))
+            candidates = [c for c in candidates if ".raw." not in c]
+            if not candidates:
+                log("  No .jsonl file found after codegen")
+                return {"error": "samples.jsonl not found after codegen",
+                        "stdout": gen_result.stdout[-500:]}
+            samples_file = sorted(candidates)[-1]
+        log(f"  Samples written to: {samples_file}")
 
     # ── Step 2: evaluate ───────────────────────────────────────────────────────
     eval_cmd = [
