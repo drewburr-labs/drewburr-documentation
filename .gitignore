@@ -6,3 +6,4 @@ keys
 **/secrets
 __pycache__
 **/evalplus_results
+.env
