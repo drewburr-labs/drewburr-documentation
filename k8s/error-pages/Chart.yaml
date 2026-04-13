@@ -1,0 +1,5 @@
+apiVersion: v2
+name: error-pages
+description: Custom error pages for ingress-nginx
+type: application
+version: 0.1.0
