@@ -47,6 +47,8 @@ spec:
             items:
               - key: 503.html
                 path: 503.html
+              - key: 404.html
+                path: 404.html
         - name: nginx-conf
           configMap:
             name: error-pages
