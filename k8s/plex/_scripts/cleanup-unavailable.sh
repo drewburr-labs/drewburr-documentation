@@ -10,7 +10,7 @@
 set -euo pipefail
 
 # Configuration - Set these environment variables or modify defaults
-PLEX_URL="${PLEX_URL:-http://localhost:32400}"
+PLEX_URL="${PLEX_URL:-https://plex.drewburr.com}"
 PLEX_TOKEN="${PLEX_TOKEN:-}"
 
 # Flags
