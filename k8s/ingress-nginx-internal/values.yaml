@@ -11,7 +11,7 @@ ingress-nginx:
       # https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations-risk/
       annotation-risk-level: Critical
       proxy-body-size: 64m # Fafaults to 1m
-      custom-http-errors: "503,502,504,500"
+      custom-http-errors: "503,502,504,500,404"
 
     extraArgs:
       default-backend-service: error-pages/error-pages

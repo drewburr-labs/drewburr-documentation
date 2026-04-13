@@ -9,3 +9,5 @@ data:
 {{ .Files.Get "files/nginx.conf" | indent 4 }}
   503.html: |
 {{ .Files.Get "files/503.html" | indent 4 }}
+  404.html: |
+{{ .Files.Get "files/404.html" | indent 4 }}
