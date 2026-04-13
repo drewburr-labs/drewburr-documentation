@@ -1,0 +1,84 @@
+replicaCount: 1
+
+image:
+  repository: postgres
+  pullPolicy: IfNotPresent
+  tag: "18-alpine"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: "bazarr-postgres"
+
+serviceAccount:
+  create: false
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+
+# Run as postgres user (UID/GID 999) so PostgreSQL can own its data dir
+podSecurityContext:
+  fsGroup: 999
+  fsGroupChangePolicy: "OnRootMismatch"
+
+securityContext:
+  runAsUser: 999
+  runAsGroup: 999
+
+services:
+  - name: db
+    type: ClusterIP
+    port: 5432
+    protocol: TCP
+
+resources: {}
+
+env: []
+
+envVars:
+  POSTGRES_DB: bazarr
+  POSTGRES_USER: bazarr
+  POSTGRES_PASSWORD: bazarr
+  # Subdirectory avoids issues with non-empty mount points
+  PGDATA: /var/lib/postgresql/data/pgdata
+
+persistence:
+  - name: postgres-data
+    mountPath: var/lib/postgresql/data
+    accessModes:
+      - ReadWriteOnce
+    requests: 5Gi
+    storageClassName: zfs-nvmeof
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+startupProbe:
+  exec:
+    command:
+      - pg_isready
+      - -U
+      - bazarr
+      - -d
+      - bazarr
+  failureThreshold: 30
+  periodSeconds: 10
+livenessProbe:
+  exec:
+    command:
+      - pg_isready
+      - -U
+      - bazarr
+      - -d
+      - bazarr
+  timeoutSeconds: 5
+readinessProbe:
+  exec:
+    command:
+      - pg_isready
+      - -U
+      - bazarr
+      - -d
+      - bazarr
+  timeoutSeconds: 5
