@@ -1,0 +1,98 @@
+# https://hotio.dev/containers/bazarr/
+replicaCount: 1
+
+image:
+  repository: ghcr.io/hotio/bazarr
+  pullPolicy: Always
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext:
+  fsGroup: 1001
+  fsGroupChangePolicy: "OnRootMismatch"
+
+securityContext:
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # runAsNonRoot: true
+  # runAsUser: 1001
+  # runAsGroup: 1001
+
+services:
+  - name: http
+    type: ClusterIP
+    port: 6767
+    protocol: TCP
+    ingress:
+      className: nginx-internal
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt
+      hosts:
+        - host: bazarr.drewburr.com
+          paths:
+            - path: /
+              pathType: ImplementationSpecific
+      tls:
+      - secretName: bazarr-ingress
+        hosts:
+          - bazarr.drewburr.com
+
+resources: {}
+
+# Appended to env. Supports envFrom
+env: []
+
+# Key: value environment variables to be appended to env
+envVars:
+  PUID: 1001
+  PGID: 1001
+  TZ: America/New_York
+
+# All are mounted under fsroot `/`. Supports additions
+# plex-data is a shared PVC so Bazarr can write .srt files next to media
+persistence:
+  - name: bazarr-config
+    mountPath: config
+    accessModes:
+      - ReadWriteOnce
+    requests: 5Gi
+    storageClassName: zfs-nvmeof
+  - name: plex-data
+    mountPath: data
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+startupProbe:
+  httpGet:
+    path: /
+    port: 6767
+  failureThreshold: 30
+  periodSeconds: 10
+livenessProbe:
+  httpGet:
+    path: /
+    port: 6767
+readinessProbe:
+  httpGet:
+    path: /
+    port: 6767
