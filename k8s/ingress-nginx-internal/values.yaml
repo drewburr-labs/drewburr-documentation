@@ -13,7 +13,8 @@ ingress-nginx:
       proxy-body-size: 64m # Fafaults to 1m
       custom-http-errors: "503,502,504,500"
 
-    defaultBackendService: error-pages/error-pages
+    extraArgs:
+      default-backend-service: error-pages/error-pages
 
     admissionWebhooks:
       enabled: false
