@@ -93,7 +93,10 @@ livenessProbe:
   httpGet:
     path: /
     port: 6767
+  timeoutSeconds: 10
+  failureThreshold: 6
 readinessProbe:
   httpGet:
     path: /
     port: 6767
+  timeoutSeconds: 10
