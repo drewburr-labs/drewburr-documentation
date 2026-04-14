@@ -1,6 +1,6 @@
 apiVersion: v2
 name: overseerr
-description: A Helm chart for deploying overseerr
+description: A Helm chart for deploying seerr
 type: application
 version: 0.1.0
 appVersion: "latest"
