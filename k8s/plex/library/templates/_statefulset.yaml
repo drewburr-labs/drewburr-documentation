@@ -113,12 +113,18 @@ spec:
             {{- toYaml $initContainer.ports | nindent 12 }}
           resources:
             {{- toYaml $initContainer.resources | nindent 12 }}
+          {{- with $initContainer.livenessProbe }}
           livenessProbe:
-            {{- toYaml $initContainer.livenessProbe | nindent 12 }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with $initContainer.readinessProbe }}
           readinessProbe:
-            {{- toYaml $initContainer.readinessProbe | nindent 12 }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with $initContainer.startupProbe }}
           startupProbe:
-            {{- toYaml $initContainer.startupProbe | nindent 12 }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           volumeMounts:
             {{- if $initContainer.volumeMountsOverride }}
             {{-  range $initContainer.volumeMountsOverride }}
