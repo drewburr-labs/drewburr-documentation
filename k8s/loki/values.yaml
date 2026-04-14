@@ -13,6 +13,20 @@ loki:
             period: 24h
     ingester:
       chunk_encoding: snappy
+      # Flush WAL to object storage before shutdown so the next startup has nothing to replay.
+      # Without this, dirty WAL on the PVC causes write pods to hang waiting for MinIO during ring formation.
+      wal:
+        flush_on_shutdown: true
+      # Don't attempt to transfer in-memory chunks to peer ingesters on shutdown.
+      # With 0 retries, the ingester flushes to object storage immediately instead of
+      # waiting for peers that may already be down.
+      max_transfer_retries: 0
+    memberlist:
+      # Explicitly target the chart-managed headless service for ring discovery.
+      # Without this, pods rely on gossip broadcast which fails when all write replicas
+      # restart simultaneously — each waits for others to join, causing a deadlock.
+      join_members:
+        - loki-memberlist
     tracing:
       enabled: true
     querier:
