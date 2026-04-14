@@ -2,7 +2,7 @@
 replicaCount: 1
 
 image:
-  repository: ghcr.io/hotio/overseerr
+  repository: ghcr.io/sct/overseerr
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
@@ -23,7 +23,7 @@ serviceAccount:
 podAnnotations: {}
 
 podSecurityContext:
-  fsGroup: 1001
+  fsGroup: 1000
   fsGroupChangePolicy: "OnRootMismatch"
 
 securityContext:
@@ -74,15 +74,13 @@ env: []
 
 # Key: value environment variables to be appended to env
 envVars:
-  PUID: 1001
-  PGID: 1001
   TZ: America/New_York
 
 # All are mounted under fsroot `/`. Supports additions
 # Expected to be created already for Plex
 persistence:
   - name: overseerr-config
-    mountPath: config
+    mountPath: app/config
     accessModes:
       - ReadWriteOnce
     requests: 10Gi
