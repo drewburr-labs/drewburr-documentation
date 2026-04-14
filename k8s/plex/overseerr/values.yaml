@@ -98,9 +98,6 @@ initContainers:
       runAsUser: 0
       runAsNonRoot: false
     resources: {}
-    livenessProbe: {}
-    readinessProbe: {}
-    startupProbe: {}
     ports: []
 
 nodeSelector: {}
