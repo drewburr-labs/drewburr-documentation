@@ -77,7 +77,7 @@ envVars:
 # Expected to be created already for Plex
 persistence:
   - name: overseerr-config
-    mountPath: data
+    mountPath: app/config
     accessModes:
       - ReadWriteOnce
     requests: 10Gi
