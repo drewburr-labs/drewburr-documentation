@@ -28,13 +28,13 @@ MODELS=(
     "deepseek-coder-v2-lite"
     "phi-4"
     "codestral-22b"
-    "gemma4-26b"
+    # "gemma4-26b"  # BLOCKED: bitsandbytes quant times out loading in vLLM (needs AWQ)
     "qwen3-30b"
     "qwen2.5-coder-32b"
     "deepseek-r1-qwen-32b"
     "gemma4-31b"
     "qwq-32b"
-    "qwen3-coder-80b"
+    # "qwen3-coder-80b"  # BLOCKED: bullpoint/Qwen3-Coder-Next-AWQ-4bit quant broken; need alt source
     "llama3.3-70b"
     "deepseek-r1-llama-70b"
 )
@@ -61,11 +61,11 @@ for i in "${!MODELS[@]}"; do
 
     MODEL_START=$(date +%s)
 
-    if python3 "${BENCH}" "${MODEL}" \
+    if stdbuf -oL -eL python3 -u "${BENCH}" "${MODEL}" \
         --api-url "${API_URL}" \
         --ssh-host "${SSH_HOST}" \
         --evalplus \
-        "$@"; then
+        "$@" 2>&1; then
         MODEL_END=$(date +%s)
         ELAPSED=$(( MODEL_END - MODEL_START ))
         log "DONE: ${MODEL} in ${ELAPSED}s"
