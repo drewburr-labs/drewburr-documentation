@@ -38,10 +38,12 @@ services:
     ips:
       - 192.168.4.56
     port: 9835
+    interval: 10s
   - name: airunner-vllm-exporter
     ips:
       - 192.168.4.56
     port: 8001
+    interval: 10s
   - name: spud-process-exporter
     ips:
       - 192.168.1.177
