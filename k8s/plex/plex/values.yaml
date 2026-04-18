@@ -5,10 +5,10 @@
 replicaCount: 1
 
 image:
-  repository: ghcr.io/drewburr-labs/plex
+  repository: plexinc/pms-docker
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: latest
+  tag: beta
 
 imagePullSecrets: []
 nameOverride: ''
@@ -164,10 +164,10 @@ affinity:
 initContainers:
   - name: mkdir
     image:
-      repository: ghcr.io/drewburr-labs/plex
+      repository: plexinc/pms-docker
       pullPolicy: Always
       # Overrides the image tag whose default is the chart appVersion.
-      tag: latest
+      tag: beta
     command:
       - /bin/bash
       - -c
