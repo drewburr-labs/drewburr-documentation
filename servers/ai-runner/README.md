@@ -13,6 +13,20 @@ A dedicated bare metal AI/ML workstation with dual RTX 3090 GPUs, intended for l
 | Storage | 2TB NVMe SSD (Crucial CT2000P5PSSD8) |
 | Network | 1GbE (enp6s0) at 192.168.4.56/23 |
 
+### PCIe Slot Layout (top to bottom)
+
+| Position | Slot   | Physical Size | Electrical Speed | Notes                            |
+| -------- | ------ | ------------- | ---------------- | -------------------------------- |
+| 1st      | PCIE_5 | x1            | x1               |                                  |
+| 2nd      | PCIE_1 | x16           | x16              | GPU 1                            |
+| 3rd      | PCIE_4 | x16           | x8               | Shares bandwidth with PCIE_1     |
+| 4th      | PCIE_6 | x1            | x1               |                                  |
+| 5th      | PCIE_2 | x16           | x16              | GPU 2                            |
+| 6th      | PCIE_7 | x1            | x1               |                                  |
+| 7th      | PCIE_3 | x16           | x8               | Best slot for a third PCIe device |
+
+> PCIE_1 and PCIE_2 run at x16/x16 with the Xeon E5-2687W v3 (40 PCIe lanes). Populating PCIE_4 drops PCIE_1 to x8.
+
 ## Software
 
 | Component | Details |
