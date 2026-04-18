@@ -9,7 +9,12 @@ metadata:
     {{- toYaml $.Values.labels | nindent 4 }}
 spec:
   endpoints:
-  - {{ toYaml $.Values.endpoint | nindent 4 | trim }}
+  {{- $endpoint := deepCopy $.Values.endpoint }}
+  {{- if .interval }}
+    {{- $_ := set $endpoint "interval" .interval }}
+    {{- $_ := set $endpoint "scrapeTimeout" .interval }}
+  {{- end }}
+  - {{ toYaml $endpoint | nindent 4 | trim }}
     {{- if .metricRelabelings }}
     metricRelabelings:
     {{- toYaml .metricRelabelings | nindent 4 }}
