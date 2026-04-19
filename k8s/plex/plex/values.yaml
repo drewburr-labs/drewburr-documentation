@@ -105,6 +105,7 @@ envVars:
   TZ: America/New_York
   HOSTNAME: plex.drewburr.com
   ADVERTISE_IP: https://plex.drewburr.com
+  CHANGE_CONFIG_DIR_OWNERSHIP: 'false'
 
 # dnsPolicy: None
 # dnsConfig:
