@@ -30,6 +30,12 @@ podSecurityContext:
   fsGroupChangePolicy: "OnRootMismatch"
 
 securityContext:
+  # cri-containerd's default AppArmor profile denies DRM ioctls on the
+  # Arc B570 (xe driver), so DRM_IOCTL_VERSION fails with ECANCELED and
+  # libva can't init. Unconfined only on the plex container; the mkdir
+  # init still runs under the default profile.
+  appArmorProfile:
+    type: Unconfined
   # capabilities:
   #   drop:
   #   - ALL
