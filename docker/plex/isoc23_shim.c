@@ -28,18 +28,29 @@
 #include <unistd.h>
 #include <wchar.h>
 
-/* ---- C23 strto* wrappers: same signature as the plain function. ---- */
+/* ---- C23 strto* wrappers. glibc 2.38+ headers redirect plain strto*()
+ *      calls to __isoc23_strto*, so we have to reach the pre-C23 symbol
+ *      via asm() labels or we self-recurse through our own exports. ---- */
+extern unsigned long plain_strtoul(const char *, char **, int)
+    __asm__("strtoul");
+extern long plain_strtol(const char *, char **, int)
+    __asm__("strtol");
+extern long long plain_strtoll(const char *, char **, int)
+    __asm__("strtoll");
+extern unsigned long long plain_strtoull(const char *, char **, int)
+    __asm__("strtoull");
+
 unsigned long __isoc23_strtoul(const char *nptr, char **endptr, int base) {
-    return strtoul(nptr, endptr, base);
+    return plain_strtoul(nptr, endptr, base);
 }
 long __isoc23_strtol(const char *nptr, char **endptr, int base) {
-    return strtol(nptr, endptr, base);
+    return plain_strtol(nptr, endptr, base);
 }
 long long __isoc23_strtoll(const char *nptr, char **endptr, int base) {
-    return strtoll(nptr, endptr, base);
+    return plain_strtoll(nptr, endptr, base);
 }
 unsigned long long __isoc23_strtoull(const char *nptr, char **endptr, int base) {
-    return strtoull(nptr, endptr, base);
+    return plain_strtoull(nptr, endptr, base);
 }
 
 /* ---- C23 scanf wrappers: asm() labels reach the plain symbol past the
