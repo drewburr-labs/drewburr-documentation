@@ -1,30 +1,19 @@
-# Ubuntu 25.04 ships intel-media-driver 25.1.2 which supports Intel Battlemage (Arc B-series / xe driver).
-# Ubuntu 24.04 (the plexinc base) only has 24.1.0, and Plex's own bundled driver is 24.1.5 — neither
-# supports Battlemage. We pull the driver and its updated libigdgmm from 25.04 via multi-stage build.
-FROM ubuntu:25.04 AS media-driver
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-        intel-media-va-driver-non-free \
-        libigdgmm12 && \
-    rm -rf /var/lib/apt/lists/*
+# Plex 1.43.1.10611 now bundles a Battlemage-capable iHD driver, but the
+# bundled libgcompat.so.0 is stale vs. the glibc the driver was compiled
+# against — see README.md for the full analysis and symbol list. Build a
+# small ABI shim and LD_PRELOAD it into the transcoder runtime.
+FROM gcc:14 AS shim-builder
+WORKDIR /build
+COPY isoc23_shim.c .
+RUN gcc -shared -fPIC -O2 -std=gnu11 -U_FORTIFY_SOURCE \
+        -Wall -Wno-unused-parameter \
+        -Wl,-soname,libisoc23shim.so.0 \
+        -o libisoc23shim.so.0 isoc23_shim.c
 
 FROM plexinc/pms-docker:latest
 
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-        libva2 \
-        libva-drm2 \
-        libigdgmm12 && \
-    rm -rf /var/lib/apt/lists/*
-
-COPY --from=media-driver \
-    /usr/lib/x86_64-linux-gnu/dri/iHD_drv_video.so \
-    /usr/lib/x86_64-linux-gnu/dri/iHD_drv_video.so
-COPY --from=media-driver \
-    /usr/lib/x86_64-linux-gnu/libigdgmm.so.12.6.0 \
-    /usr/lib/x86_64-linux-gnu/libigdgmm.so.12.6.0
-RUN ln -sf /usr/lib/x86_64-linux-gnu/libigdgmm.so.12.6.0 \
-    /usr/lib/x86_64-linux-gnu/libigdgmm.so.12
+COPY --from=shim-builder /build/libisoc23shim.so.0 \
+    /usr/lib/plexmediaserver/lib/libisoc23shim.so.0
 
 COPY entrypoint.sh /entrypoint-wrapper.sh
 RUN chmod +x /entrypoint-wrapper.sh
