@@ -5,7 +5,7 @@
 replicaCount: 1
 
 image:
-  repository: lscr.io/linuxserver/plex
+  repository: ghcr.io/drewburr-labs/plex
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: latest
@@ -100,12 +100,11 @@ env: []
 
 # Key: value environment variables to be appended to env
 envVars:
-  PUID: 1001
-  PGID: 1001
+  PLEX_UID: 1001
+  PLEX_GID: 1001
   TZ: America/New_York
   HOSTNAME: plex.drewburr.com
   ADVERTISE_IP: https://plex.drewburr.com
-  ALLOWED_NETWORKS: '127.0.0.1/32'
 
 # dnsPolicy: None
 # dnsConfig:
@@ -163,7 +162,7 @@ affinity:
 initContainers:
   - name: mkdir
     image:
-      repository: lscr.io/linuxserver/plex
+      repository: ghcr.io/drewburr-labs/plex
       pullPolicy: Always
       # Overrides the image tag whose default is the chart appVersion.
       tag: latest
