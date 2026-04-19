@@ -24,19 +24,19 @@ API_URL="http://192.168.4.56:8001"
 # Models ordered small → large to fail fast on any env issues before committing
 # hours of compute to the 70B models.
 MODELS=(
-    "qwen2.5-coder-7b"
-    "deepseek-coder-v2-lite"
-    "phi-4"
-    "codestral-22b"
-    # "gemma4-26b"  # BLOCKED: bitsandbytes quant times out loading in vLLM (needs AWQ)
-    "qwen3-30b"
-    "qwen2.5-coder-32b"
-    "deepseek-r1-qwen-32b"
-    "gemma4-31b"
-    "qwq-32b"
-    # "qwen3-coder-80b"  # BLOCKED: bullpoint/Qwen3-Coder-Next-AWQ-4bit quant broken; need alt source
-    "llama3.3-70b"
-    "deepseek-r1-llama-70b"
+    # "qwen2.5-coder-7b"        # DONE 2026-04-18
+    # "deepseek-coder-v2-lite"  # DONE 2026-04-18
+    # "phi-4"                   # DONE 2026-04-18
+    # "codestral-22b"           # DONE 2026-04-18
+    # "gemma4-26b"              # BLOCKED: bitsandbytes quant times out loading in vLLM (needs AWQ)
+    "qwen3-30b"                 # FAILED: reasoning-parser strips content -> NoneType crash
+    # "qwen2.5-coder-32b"       # DONE 2026-04-18
+    "deepseek-r1-qwen-32b"      # FAILED: reasoning-parser strips content -> NoneType crash
+    # "gemma4-31b"              # DONE 2026-04-18
+    "qwq-32b"                   # FAILED: reasoning-parser strips content -> NoneType crash
+    # "qwen3-coder-80b"         # BLOCKED: bullpoint/Qwen3-Coder-Next-AWQ-4bit quant broken; need alt source
+    # "llama3.3-70b"            # DONE 2026-04-18
+    "deepseek-r1-llama-70b"     # FAILED: reasoning-parser strips content -> NoneType crash
 )
 
 TOTAL=${#MODELS[@]}
