@@ -1227,7 +1227,10 @@
     "dataset": "humaneval",
     "n_samples": 5,
     "temperature": 0.2,
-    "scores": {},
+    "scores": {
+      "pass_at_1_base": 0.866,
+      "pass_at_1_base_plus_extra": 0.807
+    },
     "samples_file": "/home/drewburr/projects/github/drewburr-labs/drewburr-documentation/servers/ai-runner/poc/evalplus_results/humaneval/Qwen--Qwen2.5-Coder-7B-Instruct_openai_temp_0.2.jsonl",
     "codegen_duration_seconds": 1.5,
     "raw_output_tail": "Load from previous results from /home/drewburr/projects/github/drewburr-labs/drewburr-documentation/servers/ai-runner/poc/evalplus_results/humaneval/Qwen--Qwen2.5-Coder-7B-Instruct_openai_temp_0.2_eval_results.json\nhumaneval (base tests)\npass@1:\t0.866\nhumaneval+ (base + extra tests)\npass@1:\t0.807\n"

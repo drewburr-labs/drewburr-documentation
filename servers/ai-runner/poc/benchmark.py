@@ -1674,7 +1674,9 @@ def chat_with_usage(messages: list[dict], max_tokens: int = 1024, temperature: f
             "max_tokens": max_tokens + _thinking_budget,
             "temperature": temperature,
         })
-        content = result["choices"][0]["message"]["content"]
+        # vLLM's reasoning-parser sets content=null when a reasoning model exhausts
+        # max_tokens mid-<think>. Treat as empty so callers (extract_code, etc.) don't crash.
+        content = result["choices"][0]["message"]["content"] or ""
         usage = result.get("usage", {})
         return content, usage
 
@@ -1696,7 +1698,8 @@ def chat(messages: list[dict], max_tokens: int = 1024, temperature: float = 0.0,
             "max_tokens": max_tokens + _thinking_budget,
             "temperature": temperature,
         })
-        return result["choices"][0]["message"]["content"]
+        # See chat_with_usage() — null content when reasoning runs out of budget.
+        return result["choices"][0]["message"]["content"] or ""
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=1) as ex:
         future = ex.submit(_call)
@@ -2683,11 +2686,15 @@ def run_evalplus(model_id: str, cfg: dict) -> dict:
         # so the default silently truncates every response mid-thought and produces
         # no evaluable output. We call the Python API directly and monkey-patch
         # DecoderBase to raise the budget high enough to complete both thinking and code.
-        REASONING_MAX_TOKENS = 4096
+        # 4096 wasn't enough for qwen3-30b on some HumanEval problems — vLLM returned
+        # null content after the budget was consumed by reasoning, crashing evalplus
+        # with NoneType.split. 8192 matches the bench-track headroom (512 + _thinking_budget).
+        REASONING_MAX_TOKENS = 8192
         log(f"  Generating {evalplus_n} samples per problem (temp={evalplus_temp}, "
             f"max_tokens={REASONING_MAX_TOKENS} for thinking model)...")
         try:
             from evalplus.provider import base as _ep_base
+            from evalplus.provider import openai as _ep_openai
             from evalplus.codegen import run_codegen as _run_codegen
         except ImportError:
             log("  evalplus not installed — skipping (pip install evalplus)")
@@ -2701,6 +2708,15 @@ def run_evalplus(model_id: str, cfg: dict) -> dict:
         patched = list(_orig_defaults)
         patched[2] = REASONING_MAX_TOKENS
         _ep_base.DecoderBase.__init__.__defaults__ = tuple(patched)
+
+        # Wrap OpenAIChatDecoder.codegen so None content (vLLM reasoning-parser strips
+        # unfinished <think> blocks) becomes "" instead of crashing downstream .split().
+        # Even at 8192 max_tokens, some HumanEval problems exhaust the budget on thinking.
+        _orig_codegen = _ep_openai.OpenAIChatDecoder.codegen
+        def _safe_codegen(self, *a, **kw):
+            return [(o if isinstance(o, str) else "") for o in _orig_codegen(self, *a, **kw)]
+        _ep_openai.OpenAIChatDecoder.codegen = _safe_codegen
+
         try:
             samples_file = _run_codegen(
                 model=model_id,
@@ -2717,6 +2733,7 @@ def run_evalplus(model_id: str, cfg: dict) -> dict:
             return {"error": f"codegen failed: {exc}"}
         finally:
             _ep_base.DecoderBase.__init__.__defaults__ = _orig_defaults
+            _ep_openai.OpenAIChatDecoder.codegen = _orig_codegen
 
         gen_duration = round(time.time() - t0, 1)
         log(f"  Codegen complete in {gen_duration}s → {samples_file}")
@@ -2772,16 +2789,24 @@ def run_evalplus(model_id: str, cfg: dict) -> dict:
     eval_result = subprocess.run(eval_cmd, capture_output=True, text=True, timeout=3600)
     combined = eval_result.stdout + eval_result.stderr
 
-    # Parse pass@k lines: "pass@1\t(base tests)\t: 0.890"  or  "pass@1 (base tests): 0.890"
+    # Parse pass@k. evalplus prints the label and score on separate lines:
+    #   humaneval (base tests)
+    #   pass@1:\t0.869
+    #   humaneval+ (base + extra tests)
+    #   pass@1:\t0.826
+    # Track the most recent label line, then attach it to the next pass@k line.
     scores: dict[str, float] = {}
+    last_label = None
     for line in combined.splitlines():
-        m = re.search(
-            r"pass@(\d+)\s*[\t(]\s*(base\s*\+?\s*extra\s*tests?|base\s*tests?)[)\t]?\s*:?\s*([\d.]+)",
-            line, re.IGNORECASE,
-        )
-        if m:
-            k, label, val = m.group(1), m.group(2).strip().lower(), float(m.group(3))
-            key = f"pass_at_{k}_{'base_plus_extra' if 'extra' in label else 'base'}"
+        ls = line.strip()
+        lbl = re.search(r"\((base\s*\+?\s*extra\s*tests?|base\s*tests?)\)", ls, re.IGNORECASE)
+        if lbl:
+            last_label = "base_plus_extra" if "extra" in lbl.group(1).lower() else "base"
+            continue
+        m = re.match(r"pass@(\d+)\s*:?\s*([\d.]+)", ls, re.IGNORECASE)
+        if m and last_label:
+            k, val = m.group(1), float(m.group(2))
+            key = f"pass_at_{k}_{last_label}"
             scores[key] = val
             log(f"  {key}: {val:.3f}")
 
@@ -2885,9 +2910,11 @@ def main() -> None:
     cfg = MODEL_CONFIGS[args.model_key]
     _api_url = args.api_url
     # Reasoning models think before answering; the thinking tokens consume max_tokens budget
-    # before any visible content is produced. Add a buffer so chat() never returns None
-    # because the model ran out of tokens mid-thought.
-    _thinking_budget = 2048 if cfg.get("is_reasoning") else 0
+    # before any visible content is produced. 2048 was insufficient — qwen3-30b regularly
+    # spent >2500 tokens reasoning on standard codegen prompts, exhausting the budget and
+    # leaving message.content=null after the parser stripped the unfinished <think>. 6144
+    # gives margin over the worst case observed in qwen3 probes (3312 completion tokens).
+    _thinking_budget = 6144 if cfg.get("is_reasoning") else 0
     tracks = [t.strip() for t in args.tracks.split(",")]
     os.makedirs(RESULTS_DIR, exist_ok=True)
     output_path = os.path.join(RESULTS_DIR, f"{args.model_key}.json")
