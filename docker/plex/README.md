@@ -1,36 +1,26 @@
-# Plex Battlemage HW Transcoding Shim (proposed)
+# Plex Battlemage HW Transcoding Shim
 
-Background for a rebuild of `docker/plex/` that makes Plex's bundled
-Battlemage-capable iHD driver actually load inside the Plex container.
-None of this is deployed today — the current `Dockerfile` + `entrypoint.sh`
-target an earlier failure mode (Plex base lacked the driver entirely)
-that Plex has since addressed upstream, exposing a different bug.
+Custom Plex image published as `ghcr.io/drewburr-labs/plex:latest`. The
+image adds a small ABI shim that lets Plex's bundled Battlemage-capable
+iHD driver relocate inside the musl-based Plex Transcoder runtime. The
+k8s deployment at `k8s/plex/plex/values.yaml` points at this image.
 
-## Current state (Plex `1.43.1.10611-1e34174b1`, any Docker image)
+**Status (2026-04-19):** deployed; HW decode + HW encode confirmed working
+on an Intel Arc B570 (Battlemage, `8086:e20c`, xe kernel driver) on
+kernel 6.17.0-20-generic.
 
-- `plexinc/pms-docker:latest` → Ubuntu 24.04 base, glibc 2.39.
-- Plex now bundles a Battlemage-capable iHD driver at
-  `/config/Library/Application Support/Plex Media Server/Drivers/imd-a5431fbbff9ce9568f94ae21-linux-x86_64/dri/iHD_drv_video.so`
-  (dated 2026-04-16, `intel-media-driver 25.2.6`).
-- Every transcode still falls back to CPU. Logs show:
+## The bug this works around
 
-  ```
-  Failed to initialise VAAPI connection: -1 (unknown libva error)
-  Error relocating .../iHD_drv_video.so: __isoc23_strtoul: symbol not found
-  TPU: hardware transcoding: enabled, but no hardware decode accelerator found
-  ```
-
-- Swapping to `lscr.io/linuxserver/plex:latest` does not help:
-  linuxserver repackages Plex's official `.deb` so the transcoder binary
-  and `libgcompat.so.0` are byte-identical (58688 bytes, mtime Apr 9).
-
-## Root cause
+Plex `1.43.1.10611-1e34174b1` bundles a Battlemage-capable iHD driver at
+`/config/Library/Application Support/Plex Media Server/Drivers/imd-a5431fbbff9ce9568f94ae21-linux-x86_64/dri/iHD_drv_video.so`
+(dated 2026-04-16, `intel-media-driver 25.2.6`).
 
 Plex Transcoder is **musl**-linked (`ld-musl-x86_64.so.1`) and loads
 glibc-linked libraries via `libgcompat.so.0` as a shim. Plex's latest
 rebuild updated the bundled iHD driver (and its transitive deps like
 the system `libstdc++.so.6`) to binaries compiled against glibc ≥2.38
-headers, which emit references to:
+headers, which emit references to symbols Plex's bundled
+`libgcompat.so.0` does not export:
 
 - C23 wrappers: `__isoc23_strtoul`, `__isoc23_strtol`, `__isoc23_strtoll`,
   `__isoc23_strtoull`, `__isoc23_fscanf`, `__isoc23_sscanf`
@@ -39,131 +29,154 @@ headers, which emit references to:
   `__fprintf_chk`, `__sprintf_chk`, `__realpath_chk`, `__read_chk`,
   `__memmove_chk`, `__wmemcpy_chk`, `__wmemset_chk`, `__mbsnrtowcs_chk`,
   `__mbsrtowcs_chk`, `__open_2`, `__openat_2`, `__open64_2`, `__openat64_2`
-- Recent libc additions: `arc4random`, `arc4random_buf`, `arc4random_uniform`,
-  `getentropy`, `secure_getenv`
+- Recent libc additions: `arc4random`, `arc4random_buf`,
+  `arc4random_uniform`, `getentropy`, `secure_getenv`
 - `_Float128` numerics: `strfromf128`, `strtof128`
 - Dynamic loader API: `_dl_find_object`
 
-Plex's own bundled `libgcompat.so.0` exports **zero** of these, so the
-musl loader refuses to relocate the iHD driver and libva init fails
-with `-1 (unknown libva error)`.
+Without the shim, the musl loader refuses to relocate the iHD driver
+and libva init fails with:
 
-The upstream driver overlay the current `Dockerfile` does
-(copying `intel-media-va-driver-non-free` from Ubuntu 25.04) does not
-help: that driver has the same `__isoc23_*` references because it's
-compiled against a newer glibc too.
+```text
+libva: dlopen of .../iHD_drv_video.so failed:
+  Error relocating .../iHD_drv_video.so: __isoc23_strtoul: symbol not found
+Failed to initialise VAAPI connection: -1 (unknown libva error).
+```
 
-## Proposed fix: ABI shim preloaded into Plex Transcoder
+Filed upstream on the Plex forum:
+<https://forums.plex.tv/t/bundled-ihd-driver-references-glibc-symbols-not-exported-by-libgcompat-vaapi-init-fails-on-arc-b570/938129>.
+The workaround should be deleted the moment Plex rebuilds `libgcompat.so.0`
+against a current glibc.
 
-Build a small `.so` that exports each of the missing symbols and forwards
-to the non-FORTIFY / non-C23 equivalents. Preload it via `LD_PRELOAD`
-so musl's loader resolves the iHD driver's undefined refs against it
-before falling through to `libgcompat.so.0`.
+## How the shim works
 
-Prototype work verified this approach: a hand-rolled shim (live in the
-test pod, reverted) successfully unblocked the VAAPI `dlopen` up through
-the `_dl_find_object` layer. Convergence testing wasn't completed because
-iteration against a shared pod isn't appropriate — further work should
-be done against an offline copy of the binaries.
+`isoc23_shim.c` exports each missing symbol and forwards it to the
+non-FORTIFY / non-C23 equivalent. `Dockerfile` builds it with `gcc:14`
+against glibc (not musl — it needs to run inside Plex's glibc-based
+container alongside the musl transcoder), drops the `.so` into
+`/usr/lib/plexmediaserver/lib/libisoc23shim.so.0`, and `entrypoint.sh`
+wraps Plex's `/init` with `LD_PRELOAD` set so the driver's undefined
+refs resolve against the shim before falling through to
+`libgcompat.so.0`.
 
-### Symbol signatures (forwarding stubs)
+FORTIFY wrappers drop the bounds argument and forward to the plain
+function — the runtime bounds-check becomes a no-op. Safe for the
+callers we care about (driver init, locale parsing); not a drop-in for
+code that genuinely relies on `__*_chk` for overflow enforcement.
+`arc4random*` and `getentropy` are backed by `/dev/urandom`.
+`strfromf128` is stubbed to empty-string, `strtof128` forwards to
+`strtold` (cast through `__float128` so the x86_64 ABI matches the real
+symbol). `_dl_find_object` returns `-1` so libgcc\_s falls back to
+`dl_iterate_phdr` for unwinding.
 
-All wrappers drop the FORTIFY bounds parameter and forward to the plain
-function. This discards FORTIFY's runtime bounds-check guarantee but is
-safe for Plex's callers (Intel's driver parsing PCI IDs, locale init,
-etc.).
+### Gotcha: glibc 2.38+ self-redirects plain strto\*() to the C23 name
 
-For scanf-family stubs, the C23 header redirection forces use of
-`asm()` labels to reference the plain symbol:
+The most subtle bug in this shim is that with `gcc:14` + glibc 2.38+,
+simply calling `strtoul(...)` inside the shim does **not** call the
+plain symbol. The header declares:
 
 ```c
-extern int plain_vfscanf(FILE *, const char *, va_list) __asm__("vfscanf");
-int __isoc23_fscanf(FILE *s, const char *f, ...) {
-    va_list a; va_start(a,f);
-    int r = plain_vfscanf(s, f, a);
-    va_end(a); return r;
+extern unsigned long strtoul (...) __asm__("__isoc23_strtoul");
+```
+
+…via `__REDIRECT_NTH` whenever `_GNU_SOURCE` (or any feature-test macro
+that pulls in C2x/C23 support) is set. The compiler emits the call as
+a reference to `__isoc23_strtoul` — which is the exact symbol the shim
+exports. Under `LD_PRELOAD` the resolved target is our own function,
+so the forwarding path becomes:
+
+```text
+__isoc23_strtoul  →  our shim  →  "strtoul"  →  __isoc23_strtoul  →  …
+```
+
+…infinite recursion, 99% CPU. Bash hung in `40-plex-first-run` on the
+first preferences-file parse the first time we deployed.
+
+Fix (already applied): reach the pre-C23 symbol via an explicit `asm()`
+label on a renamed extern prototype, the same trick used for the
+scanf family:
+
+```c
+extern unsigned long plain_strtoul(const char *, char **, int)
+    __asm__("strtoul");
+
+unsigned long __isoc23_strtoul(const char *nptr, char **endptr, int base) {
+    return plain_strtoul(nptr, endptr, base);
 }
 ```
 
-`strfromf128` / `strtof128` should also use `asm()` labels to avoid
-touching `_Float128` in the C signature (not portable across all
-toolchains); stub to empty-string and `strtold` respectively.
+When auditing the shim after a Plex rebuild, verify no new wrapper has
+slipped back into the same pattern. `objdump -d libisoc23shim.so.0`
+should show each `__isoc23_*` jumping to the plain symbol's PLT slot,
+not back to its own.
 
-`_dl_find_object` returns `-1` (not found) — libgcc_s falls back to
-the slower `dl_iterate_phdr` unwind path.
+## Deployment dependencies
 
-### Build pipeline
+### 1. `LD_PRELOAD` set by `entrypoint.sh`
 
-1. Produce the shim from a self-contained `isoc23_shim.c` compiled with
-   `gcc -shared -fPIC -O2` against glibc (not musl — it needs to run
-   inside Plex's glibc-based container alongside the musl transcoder).
-2. Multi-stage Dockerfile:
-   - Stage 1: `gcc:14` builds `libisoc23shim.so.0`.
-   - Stage 2: `FROM plexinc/pms-docker:latest`, copy the shim into
-     `/usr/lib/plexmediaserver/lib/`, wrap the entrypoint to export
-     `LD_PRELOAD=/usr/lib/plexmediaserver/lib/libisoc23shim.so.0`.
-3. Drop the Ubuntu 25.04 driver overlay — obsolete now that Plex
-   ships its own Battlemage driver.
-4. CI already publishes to `ghcr.io/drewburr-labs/plex:latest`;
-   `k8s/plex/plex/values.yaml` points at `lscr.io/linuxserver/plex:latest`
-   and needs to be updated to the GHCR image once the shim image is
-   validated.
+The wrapper exports
+`LD_PRELOAD=/usr/lib/plexmediaserver/lib/libisoc23shim.so.0` before
+`exec /init`. The shim is glibc-linked; it works because Plex's musl
+loader + libgcompat pick it up during the driver `dlopen`.
 
-### Before converging
+### 2. AppArmor Unconfined on the plex container
 
-Run `nm -D --undefined` against the live `iHD_drv_video.so` and
-`libstdc++.so.6` (copies extracted from the running container) and diff
-against symbols provided by musl + Plex's libgcompat + this shim. The
-list above was gathered iteratively; a full offline enumeration may
-reveal more FORTIFY or locale symbols that weren't hit yet.
+`cri-containerd`'s default AppArmor profile denies DRM ioctls on the
+xe driver — `DRM_IOCTL_VERSION` returns `ECANCELED` and libva can't
+even open the device. The helm values at `k8s/plex/plex/values.yaml`
+set:
 
-### Risks / maintenance
+```yaml
+securityContext:
+  appArmorProfile:
+    type: Unconfined
+```
 
-- Brittle: any Plex rebuild that pulls in a newer `libstdc++` or iHD may
-  introduce new unresolved symbols. The shim needs re-auditing whenever
-  Plex ships a transcoder update.
+only on the plex container. The `mkdir` initContainer keeps the
+default profile.
+
+### 3. Env var conventions
+
+The image is based on `plexinc/pms-docker:latest`, not linuxserver,
+so env vars follow the plexinc convention: `PLEX_UID` / `PLEX_GID`
+(not `PUID` / `PGID`), and `CHANGE_CONFIG_DIR_OWNERSHIP: 'false'` to
+avoid chowning the 80 Gi config volume on every start (`fsGroup: 1001`
+handles ownership).
+
+## Build pipeline
+
+`.github/workflows/docker-plex.yml` builds on every push to `main`
+that touches `docker/plex/**` and publishes `ghcr.io/drewburr-labs/plex:latest`.
+
+## Operational notes
+
+- **Do not `rmmod` / unbind the xe driver to recover from a hung GPU.**
+  On Battlemage with kernel 6.17.0-20, the driver's `.remove()` path
+  deadlocks against a hung GT and takes the node offline — recovery
+  requires a cold power cycle. See
+  [`incidents/kube05-xe-unbind-lockup.md`](../../incidents/kube05-xe-unbind-lockup.md)
+  for the full write-up. Use drain + reboot instead.
+
+- **When Plex ships a new Transcoder build**, re-audit the shim. Run
+  `nm -D --undefined` against the live `iHD_drv_video.so` and
+  `libstdc++.so.6` inside the running container, diff against what
+  musl + libgcompat + the shim provide, and add any new unresolved
+  symbols. The list above was enumerated iteratively — a silent new
+  dependency would present as "libva init fails" after an image
+  bump, not as a relocation error at load time.
+
+- **Delete this shim when upstream fixes libgcompat.** Revisit after
+  each Plex beta; monitor the forum thread linked above.
+
+## Risks / maintenance
+
+- Brittle: any Plex rebuild that pulls in a newer `libstdc++` or iHD
+  may introduce new unresolved symbols.
 - FORTIFY bypass is acceptable here but not stealthy — if Plex ever
   relies on `__memcpy_chk` for intentional runtime bounds enforcement,
   those checks become no-ops.
-- This workaround becomes unnecessary the moment Plex rebuilds
-  `libgcompat.so.0` in their transcoder runtime. Revisit after each
-  Plex beta release; the shim should be deleted, not maintained, as
-  soon as upstream fixes the packaging.
-
-## Filing with Plex
-
-The fix belongs upstream. A report on the Plex forum lets support match
-it to the existing Battlemage thread:
-
-- **Category:** Plex Media Server → Hardware Transcoding (or post as a
-  reply on the existing thread
-  <https://forums.plex.tv/t/intel-arc-b570-hardware-transcoding-support-timeline-request/922599>
-  if it's still open; otherwise open a new topic titled something like
-  *"Plex 1.43.1.10611 — iHD driver references glibc symbols not exported
-  by bundled libgcompat"*).
-- **Include:**
-  - Plex version: `1.43.1.10611-1e34174b1` (Docker, `plexinc/pms-docker:latest`,
-    Ubuntu 24.04 / glibc 2.39).
-  - GPU: Intel Arc B570 (Battlemage, PCI `8086:e20c`), xe kernel driver,
-    `/dev/dri/renderD128` exposed to the container.
-  - The exact relocation error from `Plex Media Server.log`:
-
-    ```
-    libva: dlopen of .../Drivers/imd-a5431fbbff9ce9568f94ae21-linux-x86_64/dri/iHD_drv_video.so failed:
-      Error relocating .../iHD_drv_video.so: __isoc23_strtoul: symbol not found
-    Failed to initialise VAAPI connection: -1 (unknown libva error).
-    ```
-
-  - The diagnostic:
-    - `grep -aoE "__isoc23_[a-z_]+" .../libgcompat.so.0` → empty.
-    - `grep -aoE "__isoc23_[a-z_]+" .../iHD_drv_video.so` → 6 matches
-      (`strtoul`, `strtol`, `strtoll`, `strtoull`, `fscanf`, `sscanf`).
-    - Same pattern for `arc4random`, `getentropy`, `__*_chk`, `strfromf128`,
-      `strtof128`, `_dl_find_object` undefined in the transcoder runtime.
-  - Request: rebuild `libgcompat.so.0` (or switch to a maintained fork)
-    so it exports the C23 / FORTIFY / recent-glibc symbols the newly
-    bundled iHD driver references. The bundled driver is fine; the
-    musl compatibility shim is stale relative to the compiler used
-    for the driver.
-- **Do not include** your Plex token, server ID, or library contents
-  in the ticket — the relocation error alone is sufficient reproduction.
+- AppArmor Unconfined is a security posture downgrade from the default
+  profile. The plex container already runs with broad device access
+  (`/dev/dri/*`, large storage mounts) so the marginal risk is small
+  in this environment, but it should be noted for anyone copying this
+  setup into a more security-sensitive context.
