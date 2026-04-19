@@ -5,7 +5,7 @@
 replicaCount: 1
 
 image:
-  repository: plexinc/pms-docker
+  repository: lscr.io/linuxserver/plex
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: latest
@@ -100,11 +100,10 @@ env: []
 
 # Key: value environment variables to be appended to env
 envVars:
-  PLEX_UID: 1001
-  PLEX_GID: 1001
+  PUID: 1001
+  PGID: 1001
   TZ: America/New_York
   HOSTNAME: plex.drewburr.com
-  CHANGE_CONFIG_DIR_OWNERSHIP: false
   ADVERTISE_IP: https://plex.drewburr.com
   ALLOWED_NETWORKS: '127.0.0.1/32'
 
@@ -164,7 +163,7 @@ affinity:
 initContainers:
   - name: mkdir
     image:
-      repository: plexinc/pms-docker
+      repository: lscr.io/linuxserver/plex
       pullPolicy: Always
       # Overrides the image tag whose default is the chart appVersion.
       tag: latest
