@@ -201,7 +201,11 @@ MODEL_CONFIGS: dict[str, dict] = {
     "deepseek-r1-llama-70b": {
         "hf_id": "casperhansen/deepseek-r1-distill-llama-70b-awq",  # community AWQ, 10k dl/mo, MIT
         "quantization": "awq_marlin",
-        "max_model_len": 8192,  # same ~2.65 GB KV headroom as llama3.3-70b
+        # 8192 was too tight: evalplus requests max_tokens=REASONING_MAX_TOKENS (8192),
+        # leaving 0 tokens for the prompt -> every HumanEval call returns 400. Long FIM
+        # prompts also overflowed chat() budget (6144 think + 512 = 6656). 16384 doubles
+        # KV cache to ~5.3 GB on TP=2, still within 70B-AWQ headroom.
+        "max_model_len": 16384,
         "reasoning_parser": "deepseek_r1",
         "is_reasoning": True,
         "fim_tokens": None,
