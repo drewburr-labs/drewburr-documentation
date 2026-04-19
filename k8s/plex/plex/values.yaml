@@ -8,7 +8,7 @@ image:
   repository: plexinc/pms-docker
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: beta
+  tag: latest
 
 imagePullSecrets: []
 nameOverride: ''
@@ -167,7 +167,7 @@ initContainers:
       repository: plexinc/pms-docker
       pullPolicy: Always
       # Overrides the image tag whose default is the chart appVersion.
-      tag: beta
+      tag: latest
     command:
       - /bin/bash
       - -c
