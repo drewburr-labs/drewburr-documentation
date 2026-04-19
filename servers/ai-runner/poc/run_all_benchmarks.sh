@@ -29,14 +29,14 @@ MODELS=(
     # "phi-4"                   # DONE 2026-04-18
     # "codestral-22b"           # DONE 2026-04-18
     # "gemma4-26b"              # BLOCKED: bitsandbytes quant times out loading in vLLM (needs AWQ)
-    "qwen3-30b"                 # FAILED: reasoning-parser strips content -> NoneType crash
+    "qwen3-30b"                 # reasoning model, pending rerun after parser/budget fixes
     # "qwen2.5-coder-32b"       # DONE 2026-04-18
-    "deepseek-r1-qwen-32b"      # FAILED: reasoning-parser strips content -> NoneType crash
+    "deepseek-r1-qwen-32b"      # reasoning model, pending rerun after parser/budget fixes
     # "gemma4-31b"              # DONE 2026-04-18
-    "qwq-32b"                   # FAILED: reasoning-parser strips content -> NoneType crash
+    "qwq-32b"                   # reasoning model, pending rerun after parser/budget fixes
     # "qwen3-coder-80b"         # BLOCKED: bullpoint/Qwen3-Coder-Next-AWQ-4bit quant broken; need alt source
     # "llama3.3-70b"            # DONE 2026-04-18
-    "deepseek-r1-llama-70b"     # FAILED: reasoning-parser strips content -> NoneType crash
+    "deepseek-r1-llama-70b"     # reasoning model, pending rerun after parser/budget fixes
 )
 
 TOTAL=${#MODELS[@]}

@@ -1223,7 +1223,10 @@
     "dataset": "humaneval",
     "n_samples": 5,
     "temperature": 0.2,
-    "scores": {},
+    "scores": {
+      "pass_at_1_base": 0.829,
+      "pass_at_1_base_plus_extra": 0.766
+    },
     "samples_file": "/home/drewburr/projects/github/drewburr-labs/drewburr-documentation/servers/ai-runner/poc/evalplus_results/humaneval/deepseek-ai--DeepSeek-Coder-V2-Lite-Instruct_openai_temp_0.2.jsonl",
     "codegen_duration_seconds": 1.7,
     "raw_output_tail": "Load from previous results from /home/drewburr/projects/github/drewburr-labs/drewburr-documentation/servers/ai-runner/poc/evalplus_results/humaneval/deepseek-ai--DeepSeek-Coder-V2-Lite-Instruct_openai_temp_0.2_eval_results.json\nhumaneval (base tests)\npass@1:\t0.829\nhumaneval+ (base + extra tests)\npass@1:\t0.766\n"
