@@ -8,6 +8,13 @@ Two of the thirteen candidates did not run: `gemma4-26b` (bitsandbytes quant tim
 in vLLM; needs an AWQ build) and `qwen3-coder-80b` (the only community AWQ quant is
 broken). Both are blocked on external quant work and are not included below.
 
+> **Heads-up before relying on this ranking for production agent use:** Phase 1
+> tested isolated single-turn problems on small prompts. Phase 4 (operational
+> Ralph+Goose testing) surfaced AWQ + greedy + long-context
+> failure modes that block the top-ranked model (`gemma4-31b`) from being
+> usable as-is. See [agentic-testing/](./agentic-testing/) before committing to
+> a production model choice.
+
 ## TL;DR
 
 - **Winner on pure correctness: `gemma4-31b`.** Tops HumanEval+ (96.5% / 92.8%),
