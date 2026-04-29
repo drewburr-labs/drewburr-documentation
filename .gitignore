@@ -7,3 +7,4 @@ keys
 __pycache__
 **/evalplus_results
 .env
+servers/ai-runner/poc/logs
