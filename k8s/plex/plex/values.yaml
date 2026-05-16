@@ -187,14 +187,47 @@ initContainers:
       runAsUser: 1001
       runAsGroup: 1001
 
+# /identity is unauthenticated and only returns 200 once PMS has actually
+# opened its databases and is serving — a bare tcpSocket check passes while
+# PMS is crash-looping on a corrupt DB (which is how a dead PMS reported
+# Running and 502'd plex.drewburr.com).
 startupProbe:
-  tcpSocket:
+  httpGet:
+    path: /identity
     port: 32400
+  # Allow up to 5m for first start (large library / DB checkpoint on boot).
   failureThreshold: 30
   periodSeconds: 10
 livenessProbe:
-  tcpSocket:
+  httpGet:
+    path: /identity
     port: 32400
+  periodSeconds: 10
+  timeoutSeconds: 5
+  # Tolerate transient stalls under heavy transcode before forcing a restart.
+  failureThreshold: 5
 readinessProbe:
-  tcpSocket:
+  httpGet:
+    path: /identity
     port: 32400
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+# PMS must checkpoint its SQLite WAL on shutdown. With the default 30s grace
+# period a busy server is SIGKILLed mid-write, leaving a huge inconsistent
+# WAL that PMS then refuses to open (DB::Exception crash loop). Give it time
+# to stop cleanly, and proactively signal + wait in a preStop hook.
+terminationGracePeriodSeconds: 120
+lifecycle:
+  preStop:
+    exec:
+      command:
+        - /bin/bash
+        - -c
+        - >-
+          pkill -TERM -f 'Plex Media Server' || true;
+          for i in $(seq 1 110); do
+          pgrep -f 'Plex Media Server' >/dev/null 2>&1 || exit 0;
+          sleep 1;
+          done
