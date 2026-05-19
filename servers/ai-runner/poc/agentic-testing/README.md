@@ -26,7 +26,9 @@ These are exactly the regimes that don't show up in HumanEval+ scores.
 
 - ✅ `qwen2.5-coder-32b` — see [qwen2.5-coder-32b-results.md](./qwen2.5-coder-32b-results.md).
 - ✅ `gemma4-31b` — see [gemma4-31b-results.md](./gemma4-31b-results.md).
+- 🔄 `devstral-small-2-24b` (FP8) — currently deployed; tool-call surface clean, instruction-following gap vs Claude is the binding constraint. Per-model writeup pending.
 - ⏳ `qwq-32b`, `deepseek-r1-qwen-32b` (the reasoning models) — not yet tested.
+- ⏳ Higher-capability tier (GLM-4.5-Air, Llama 3.3 70B, Mistral Large 2, DeepSeek-V3) — see [next-models-poc.md](./next-models-poc.md) for the planned matrix and order of operations.
 - ⏳ Other Phase 1 candidates — not prioritized; Phase 1 + agentic gap is large.
 
 ## Bottom line as of the latest gemma run
