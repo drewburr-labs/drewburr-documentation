@@ -92,14 +92,27 @@ path as unstable on this kernel until an upstream GuC scheduler fix lands.
 
 ## Resolution
 
-The only safe recovery is a cold reboot. **Do not unbind/rmmod the hung
-device** — the April incident proved that deadlocks the node and forces an
-IPMI power cycle. See [`kube05-xe-unbind-lockup.md`](./kube05-xe-unbind-lockup.md).
+> ⛔ **DANGER — READ FIRST.** kube05 is a VM with the GPU PCI-passed-through.
+> When the GT is hung (i.e. *whenever this incident applies*), an in-guest
+> `systemctl reboot` **takes down the entire physical hypervisor host**, not
+> just kube05. This is a confirmed incident (2026-05-18), see
+> [`kube05-vm-reboot-hung-gpu-host-lockup.md`](./kube05-vm-reboot-hung-gpu-host-lockup.md).
+> **Do NOT run the in-guest reboot below when the GPU is hung.** Likewise do
+> not unbind/rmmod the hung device (deadlocks the node — see
+> [`kube05-xe-unbind-lockup.md`](./kube05-xe-unbind-lockup.md)).
+
+Because this incident is *by definition* a hung GPU, the safe recovery is a
+**cold power cycle of the physical hypervisor host**, not an in-guest reboot:
 
 ```bash
 kubectl cordon kube05
 kubectl drain kube05 --ignore-daemonsets --delete-emptydir-data
-ssh ubuntu@192.168.4.45 'sudo systemctl reboot'
+# Confirm the GPU is hung (it is, if this incident applies):
+ssh ubuntu@192.168.4.45 'sudo dmesg | grep -m1 guc_exec_queue_timedout_job'
+#   match  → DO NOT reboot the guest. Cold power-cycle the hypervisor host
+#            via IPMI/BMC (every VM on it bounces). See the host-lockup doc.
+#   empty  → GPU healthy; in-guest reboot below is safe:
+#            ssh ubuntu@192.168.4.45 'sudo systemctl reboot'
 kubectl get nodes -w          # wait for Ready
 kubectl uncordon kube05
 ```
