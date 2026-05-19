@@ -1,9 +1,27 @@
-sdz     5QJPHE0B       0x5000cca2b097d2bc
-sdaa    5QJN3BUB       0x5000cca2b0954c7c
+  What needs to change
 
-/dev/disk/by-id/scsi-SHGST_HUH721212AL4205_5QJPHE0B
-/dev/disk/by-id/scsi-SHGST_HUH721212AL4205_5QJN3BUB
+  1. Increase max_tokens for thinking models in evalplus — Since there's no CLI flag, run_evalplus in benchmark.py needs to either:
+  - Call the evalplus Python API directly (instead of subprocess) with a subclassed decoder where max_new_tokens is set to ~4096+
+  - Or monkey-patch DecoderBase.__init__ defaults before invoking evalplus
+
+  2. Confirm or fix vLLM reasoning-parser stripping — If we fix the reasoning-parser so content = code only, 768 tokens would be sufficient and nothing else needs to change. Worth investigating why it's not working for evalplus's API calls (possibly a difference in the OpenAI SDK request format vs benchmark.py's raw requests calls).
+
+  3. gemma4-26b — Uses bitsandbytes quantization; vLLM timed out loading it (VRAM shows 0 used — it never even started).
+  Need either an AWQ quant of gemma4-26b or to investigate why bitsandbytes fails here. Note: gemma4-31b (AWQ) loaded and ran fine.
+
+  4. qwen3-coder-80b — bullpoint/Qwen3-Coder-Next-AWQ-4bit also failed to load. This is a community quant that may not exist or may be broken. Need a different quant source for Qwen3-Coder 80B.
 
 
 
-I want to create a service that is a proxy for smart home devices, used for reverse engineering and monitoring. The intention is to do DNS redirection of forced proxying to capture and monitor traffic to aid in the development of custom integrations when services may be closed-source otherwise
+Temp sensor
+
+ZMT tubing
+
+Leak tester
+
+6 90 deg rotary adapters
+12 compression fittings
+
+T fitting
+ball valve
+male-to-male extender
