@@ -4,8 +4,8 @@ Prometheus exporters for monitoring the AI runner. Three sources are configured:
 
 | Exporter | Port | Covers |
 |---|---|---|
-| node_exporter | 9100 | CPU, memory, disk, network, system |
-| nvidia_gpu_exporter | 9835 | GPU utilization, VRAM, temperature, power |
+| node_exporter | 9100 | CPU, memory, disk, network, system, GPU die hot-spot + GDDR6X VRAM temps (textfile collector) |
+| nvidia_gpu_exporter | 9835 | GPU utilization, VRAM size, edge temperature, power, throttle reasons |
 | vLLM (built-in) | 8001 | Request latency, token throughput, KV cache utilization, queue depth |
 
 > **Note:** The `ollama_exporter` transparent proxy (frcooper) has been removed. vLLM exposes
@@ -99,9 +99,44 @@ curl -s http://localhost:9835/metrics | grep nvidia_smi_gpu_utilization_ratio
 | `nvidia_smi_gpu_utilization_ratio` | GPU core utilization (0–1) |
 | `nvidia_smi_memory_used_bytes` | VRAM in use |
 | `nvidia_smi_memory_free_bytes` | VRAM free |
-| `nvidia_smi_temperature_gpu` | GPU temp in °C |
+| `nvidia_smi_temperature_gpu` | GPU edge temp in °C (averaged die sensor — does NOT include hot spot or VRAM) |
 | `nvidia_smi_power_draw_watts` | Current power draw |
-| `nvidia_smi_fan_speed_ratio` | Fan speed (0–1) |
+| `nvidia_smi_fan_speed_ratio` | Fan speed (0–1) — always 0 here, no air fans on water-cooled blocks |
+
+---
+
+## 2b. GPU die hot-spot + GDDR6X VRAM temps (out-of-tree)
+
+NVIDIA does not expose GPU die hot-spot or GDDR6X memory junction temperatures via nvidia-smi or NVML on consumer Ampere cards. This is filled in by a small C tool that reads the GPU's MMIO temperature registers directly, then exports as `nvidia_gddr6_*` metrics through the existing node_exporter via its textfile collector.
+
+Source: [ThomasBaruzier/gddr6-core-junction-vram-temps](https://github.com/ThomasBaruzier/gddr6-core-junction-vram-temps) (derived from olealgoritme/gddr6).
+
+Local copy on host: `~/build/gddr6-temps/`. Note: the repo's stock source uses `/dev/mem`, which CONFIG_IO_STRICT_DEVMEM blocks unless `iomem=relaxed` is in the kernel cmdline — that flag is set on this host. (A patch to use `/sys/bus/pci/.../resource0` instead was attempted but Linux blocks mmap of non-prefetchable BARs through sysfs on this kernel; reboot with `iomem=relaxed` is the working path.)
+
+### Layout
+
+| File | Purpose |
+| --- | --- |
+| `/usr/local/bin/gputemps` | The C binary (root required to read MMIO) |
+| `/usr/local/bin/gpu-extra-temps-export.py` | Wrapper: runs gputemps, joins to nvidia-smi UUID, writes Prometheus textfile |
+| `/etc/systemd/system/gpu-extra-temps.service` | oneshot, runs the wrapper |
+| `/etc/systemd/system/gpu-extra-temps.timer` | every 10s, calls the service |
+| `/etc/systemd/system/node_exporter.service.d/textfile.conf` | drop-in adding `--collector.textfile.directory=/var/lib/node_exporter/textfile_collector` |
+| `/var/lib/node_exporter/textfile_collector/gpu_extra_temps.prom` | output file consumed by node_exporter |
+
+### Metrics exposed (via node_exporter on :9100)
+
+| Metric | Description |
+| --- | --- |
+| `nvidia_gddr6_core_temp_celsius` | Same as `nvidia_smi_temperature_gpu` but read via NVML directly (sanity check / matches the value at `index` for the same UUID) |
+| `nvidia_gddr6_junction_temp_celsius` | **GPU die hot-spot** — peak point on the silicon. Healthy delta vs core is 10-15°C; we observed 35°C, indicating poor cold-plate contact at the hottest die region |
+| `nvidia_gddr6_vram_temp_celsius` | **GDDR6X memory junction** — typically the limiting factor on 3090s under load, but on this host it sits at 70-72°C even under full load, well within safe range |
+
+Both metrics are labeled with `uuid` matching the gpu-exporter, so they join cleanly with `nvidia_smi_*` series in dashboards.
+
+### Kernel parameter
+
+`iomem=relaxed` was added via `grubby --update-kernel=ALL --args='iomem=relaxed'`, and to `/etc/default/grub` for future kernel installs. Required for `/dev/mem` mmap of GPU MMIO regions claimed by the nvidia driver.
 
 ---
 

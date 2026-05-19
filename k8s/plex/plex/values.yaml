@@ -34,6 +34,11 @@ securityContext:
   # Arc B570 (xe driver), so DRM_IOCTL_VERSION fails with ECANCELED and
   # libva can't init. Unconfined only on the plex container; the mkdir
   # init still runs under the default profile.
+  # NOTE: an identical DRM_IOCTL_VERSION/ECANCELED symptom also appears when
+  # the Battlemage GT is hard-hung (GuC queue timeout). This Unconfined fix
+  # does NOT address that — if the error persists with this set, the GPU is
+  # wedged, not blocked by AppArmor. See
+  # incidents/kube05-xe-gt1-hang-maul-transcode.md.
   appArmorProfile:
     type: Unconfined
   # capabilities:
@@ -198,14 +203,28 @@ startupProbe:
   # Allow up to 5m for first start (large library / DB checkpoint on boot).
   failureThreshold: 30
   periodSeconds: 10
+# /identity returns 200 even when PMS is fully deadlocked (it never touches
+# the library DB), so an httpGet /identity liveness check cannot detect a
+# connection-pool deadlock — PMS sat dead 12h+ until noticed, 3x in a week.
+# This exec probe issues a real token-authed library-DB query; when the pool
+# is exhausted the request hangs, the probe times out, and kubelet restarts
+# PMS within ~1m. Uses bash /dev/tcp (no curl in image); fails closed.
 livenessProbe:
-  httpGet:
-    path: /identity
-    port: 32400
-  periodSeconds: 10
-  timeoutSeconds: 5
-  # Tolerate transient stalls under heavy transcode before forcing a restart.
-  failureThreshold: 5
+  exec:
+    command:
+      - /bin/bash
+      - -c
+      - >-
+        T=$(sed -n 's/.*PlexOnlineToken="\([^"]*\)".*/\1/p'
+        "/config/Library/Application Support/Plex Media Server/Preferences.xml");
+        exec 3<>/dev/tcp/127.0.0.1/32400 || exit 1;
+        printf 'GET /library/sections?X-Plex-Token=%s HTTP/1.0\r\nHost: localhost\r\n\r\n' "$T" >&3;
+        head -1 <&3 | grep -q ' 200 '
+  periodSeconds: 20
+  timeoutSeconds: 10
+  # ~3 missed checks (~60-80s) before restart: tolerant of brief stalls
+  # under heavy transcode, fast enough to end a deadlock automatically.
+  failureThreshold: 3
 readinessProbe:
   httpGet:
     path: /identity
