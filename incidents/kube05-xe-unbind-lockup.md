@@ -116,6 +116,16 @@ unresponsive hardware. The safe recovery is a cold power cycle.
 
 ### Correct procedure: drain + reboot
 
+> ⛔ **For kube05 specifically: step 3's in-guest reboot is UNSAFE while the
+> GPU is hung.** kube05 is a VM with the Battlemage GPU PCI-passed-through;
+> an in-guest `systemctl reboot` on a hung GT takes down the **entire
+> physical hypervisor host**. Confirmed 2026-05-18 —
+> [`kube05-vm-reboot-hung-gpu-host-lockup.md`](./kube05-vm-reboot-hung-gpu-host-lockup.md).
+> On kube05, if `dmesg` shows `guc_exec_queue_timedout_job`, **skip step 3
+> and cold power-cycle the hypervisor host via IPMI/BMC instead.** The
+> sequence below is safe only for bare-metal nodes or a kube05 with a
+> *healthy* GPU.
+
 ```bash
 # 1. Cordon to prevent new schedules while draining.
 kubectl cordon <node>
@@ -125,6 +135,7 @@ kubectl cordon <node>
 kubectl drain <node> --ignore-daemonsets --delete-emptydir-data
 
 # 3. Reboot. SSH first, or IPMI/BMC if SSH is already unresponsive.
+#    kube05 + hung GPU → DO NOT run this; power-cycle the hypervisor host.
 ssh ubuntu@<node>.drewburr.com 'sudo systemctl reboot'
 
 # 4. Wait for Ready.
