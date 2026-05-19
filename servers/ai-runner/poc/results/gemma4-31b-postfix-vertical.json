@@ -5,8 +5,8 @@
     "quantization": "awq_marlin",
     "max_model_len_config": 32768,
     "is_reasoning": false,
-    "timestamp_utc": "2026-05-01T22:16:25.851001+00:00",
-    "duration_seconds": 368.6
+    "timestamp_utc": "2026-04-29T03:50:34.026733+00:00",
+    "duration_seconds": 360.3
   },
   "hardware_baseline": {
     "source": "nvidia-smi-ssh:drewburr@airunner01.drewburr.com",
@@ -17,7 +17,7 @@
         "vram_used_mb": 1,
         "vram_free_mb": 24124,
         "vram_total_mb": 24576,
-        "temp_c": 26
+        "temp_c": 23
       },
       {
         "index": 1,
@@ -25,14 +25,14 @@
         "vram_used_mb": 1,
         "vram_free_mb": 24122,
         "vram_total_mb": 24576,
-        "temp_c": 25
+        "temp_c": 22
       }
     ],
     "total_used_mb": 2
   },
   "model_info": {
     "reported_model_id": "QuantTrio/gemma-4-31B-it-AWQ",
-    "startup_seconds": 243.6,
+    "startup_seconds": 238.3,
     "api_max_model_len": 32768,
     "api_context_window": 32768
   },
@@ -45,7 +45,7 @@
         "vram_used_mb": 23514,
         "vram_free_mb": 611,
         "vram_total_mb": 24576,
-        "temp_c": 29
+        "temp_c": 26
       },
       {
         "index": 1,
@@ -53,7 +53,7 @@
         "vram_used_mb": 23514,
         "vram_free_mb": 609,
         "vram_total_mb": 24576,
-        "temp_c": 28
+        "temp_c": 25
       }
     ],
     "total_used_mb": 47028
@@ -61,24 +61,24 @@
   "performance": {
     "ttft_ms": {
       "samples": [
-        2678.8,
-        791.0,
+        2574.1,
+        782.9,
+        55.6,
         56.2,
-        56.7,
-        56.6
+        56.4
       ],
-      "min": 56.2,
-      "max": 2678.8,
-      "mean": 727.9,
-      "p50": 56.7,
-      "p95": 2678.8
+      "min": 55.6,
+      "max": 2574.1,
+      "mean": 705.0,
+      "p50": 56.4,
+      "p95": 2574.1
     },
     "throughput": {
-      "answer_toks_per_sec": 64.63,
-      "total_toks_per_sec": 71.1,
+      "answer_toks_per_sec": 64.81,
+      "total_toks_per_sec": 71.29,
       "reasoning_tokens_observed": 0,
       "requests": 5,
-      "wall_seconds": 15.47,
+      "wall_seconds": 15.43,
       "note": "answer_toks_per_sec counts only visible completion tokens; total_toks_per_sec includes all tokens vLLM reports (prompt+completion); reasoning tokens are stripped by vLLM before reporting so this figure understates true GPU work for reasoning models"
     },
     "vllm_metrics_snapshot": {
@@ -97,19 +97,19 @@
         "8192": {
           "status": "pass",
           "coherence_reason": "ok",
-          "elapsed_s": 2.3,
+          "elapsed_s": 2.2,
           "response_snippet": "READY"
         },
         "16384": {
           "status": "pass",
           "coherence_reason": "ok",
-          "elapsed_s": 5.1,
+          "elapsed_s": 5.0,
           "response_snippet": "READY"
         },
         "32768": {
           "status": "pass",
           "coherence_reason": "ok",
-          "elapsed_s": 12.6,
+          "elapsed_s": 12.3,
           "response_snippet": "READY"
         }
       }
@@ -485,8 +485,8 @@
         "total": 3,
         "test_lines": [
           "# command-line-arguments",
-          "/tmp/tmpg5h8sym6.go:5:2: \"strings\" imported and not used",
-          "/tmp/tmpg5h8sym6.go:6:2: \"unicode\" imported and not used"
+          "/tmp/tmpnium9tf7.go:5:2: \"strings\" imported and not used",
+          "/tmp/tmpnium9tf7.go:6:2: \"unicode\" imported and not used"
         ],
         "response_snippet": "func IsPalindrome(s string) bool {\n\ti, j := 0, len(s)-1\n\tfor i < j {\n\t\tleft := s[i]\n\t\tif !((left >= 'a' && left <= 'z') || (left >= 'A' && left <= 'Z') || (left >= '0' && left <= '9')) {\n\t\t\ti++\n\t\t\tcontinue\n\t\t}\n\t\tright := s[j]\n\t\tif !((right >= 'a' && right <= 'z') || (right >= 'A' && right <= 'Z') ||"
       },
@@ -566,7 +566,7 @@
         "vram_used_mb": 23644,
         "vram_free_mb": 481,
         "vram_total_mb": 24576,
-        "temp_c": 62
+        "temp_c": 57
       },
       {
         "index": 1,
@@ -574,7 +574,7 @@
         "vram_used_mb": 23644,
         "vram_free_mb": 479,
         "vram_total_mb": 24576,
-        "temp_c": 60
+        "temp_c": 36
       }
     ],
     "total_used_mb": 47288
@@ -1167,7 +1167,7 @@
         "language": "go",
         "passed": false,
         "detail": [
-          "FAIL: got '' exp 'PASS\\nPASS' | stderr: # command-line-arguments\n/tmp/tmpu2nit6i2.go:6:5: \"errors\" imported and not used"
+          "FAIL: got '' exp 'PASS\\nPASS' | stderr: # command-line-arguments\n/tmp/tmp2697fxcp.go:6:5: \"errors\" imported and not used"
         ],
         "middle": "return 0, fmt.Errorf(\"cannot take square root of negative number\")"
       },
@@ -1222,7 +1222,7 @@
       "pass_at_1_base_plus_extra": 0.928
     },
     "samples_file": "/home/drewburr/projects/github/drewburr-labs/drewburr-documentation/servers/ai-runner/poc/evalplus_results/humaneval/QuantTrio--gemma-4-31B-it-AWQ_openai_temp_0.2.jsonl",
-    "codegen_duration_seconds": 2.2,
+    "codegen_duration_seconds": 1.5,
     "raw_output_tail": "Load from previous results from /home/drewburr/projects/github/drewburr-labs/drewburr-documentation/servers/ai-runner/poc/evalplus_results/humaneval/QuantTrio--gemma-4-31B-it-AWQ_openai_temp_0.2_eval_results.json\nhumaneval (base tests)\npass@1:\t0.965\nhumaneval+ (base + extra tests)\npass@1:\t0.928\n"
   },
   "phase1_score": {
@@ -1244,7 +1244,7 @@
         "vram_used_mb": 23644,
         "vram_free_mb": 481,
         "vram_total_mb": 24576,
-        "temp_c": 50
+        "temp_c": 49
       },
       {
         "index": 1,
@@ -1252,7 +1252,7 @@
         "vram_used_mb": 23644,
         "vram_free_mb": 479,
         "vram_total_mb": 24576,
-        "temp_c": 48
+        "temp_c": 35
       }
     ],
     "total_used_mb": 47288
