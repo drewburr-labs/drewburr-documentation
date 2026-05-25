@@ -12,6 +12,8 @@ argocd:
 
   redis-ha:
     enabled: true
+    # Sentinel quorum needs 3; with 2 worker nodes, soft anti-affinity lets two pods co-locate.
+    hardAntiAffinity: false
     metrics:
       enabled: true
     redis:
@@ -23,6 +25,7 @@ argocd:
           cpu: 500m
           memory: 100Mi
     haproxy:
+      hardAntiAffinity: false
       resources:
         limits:
           cpu: 250m
@@ -44,7 +47,7 @@ argocd:
         memory: 256Mi
 
   server:
-    replicas: 3
+    replicas: 2
     metrics:
       enabled: true
     resources:
