@@ -19,6 +19,10 @@ growth runs at 1.5x logical instead of 3-4x.
 
 ## Phase 0 — Orphaned zvol cleanup (~2.2T, no app impact)
 
+**Executed 2026-06-13**: 21 orphans destroyed (plus 5 stale nvmet subsystems
+torn down and the persisted `/etc/nvmet/config.json` regenerated). Pool went
+from 89% to 54% CAP (~2.5T reclaimed). Procedure kept below for reuse.
+
 ### 0.1 Regenerate the orphan list
 
 Don't trust a stale list — PVCs come and go. Diff live state:
@@ -30,6 +34,15 @@ ssh ubuntu@storage01.drewburr.com \
   | sort > /tmp/storage-zvols.txt
 comm -23 /tmp/storage-zvols.txt /tmp/cluster-pvs.txt
 ```
+
+**WARNING — compare against ALL PVs, never filter the PV list by CSI driver.**
+The zfs-nfs driver's `datasetParentName` also points at
+`sas-pool/k8s/nvmeof/dataset`, so live NFS-backed datasets (e.g.
+`plex/backups`) live in the same tree as the nvmeof zvols. A driver-filtered
+PV list makes those look orphaned; this nearly destroyed live Plex backup
+data on 2026-06-13. (Tell: NFS volumes are datasets, `VOLSIZE -`, while
+nvmeof volumes are zvols.) Consider moving the zfs-nfs parent to its own
+dataset to remove this trap.
 
 As of 2026-06-12 this returned 21 orphans. Largest:
 
