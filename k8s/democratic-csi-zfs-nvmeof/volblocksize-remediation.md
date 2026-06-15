@@ -13,7 +13,13 @@ Two problems, three phases:
    Phase 1 fixes new volumes; Phase 2 migrates existing ones.
 
 Expected end state: pool drops from ~6.5T ALLOC to roughly 3.5T, and future
-growth runs at 1.5x logical instead of 3-4x.
+growth runs at 1.5x logical instead of 3-4x. (As of 2026-06-15: pool at **40%**
+after Phase 0 + Loki/transcode/prometheus migrations.)
+
+> **Note on deletions:** CSI does NOT auto-destroy a zvol on PVC delete — sanoid
+> snapshots block it (see §0.5). Every PVC delete in this runbook requires the
+> **"Deleting a CSI PVC"** snapshot-clearing step. This is a deliberate ongoing
+> manual step (2026-06-15 decision), not a bug to route around.
 
 ---
 
@@ -116,6 +122,66 @@ then democratic-csi controller logs. Consider symlinking prefs.bin to
 occasionally (or alert on it). Note: orphans from before May 19 predate
 this bug and had some other cause.
 
+### 0.5 Second orphan cause — sanoid snapshots block CSI delete (ONGOING)
+
+Even with nvmetcli healthy, **every CSI PVC deletion fails on its own** because
+sanoid takes an hourly autosnap of every zvol under `sas-pool/k8s/nvmeof/dataset`
+(see `/etc/sanoid/sanoid.conf`: `recursive=yes`, `hourly=1`). democratic-csi's
+`DeleteVolume` runs a **non-recursive** `zfs destroy`, which fails with:
+
+```
+GrpcError code=9 "filesystem has dependent snapshots"
+```
+
+The PV is then stuck `Released` and the controller retries forever — the zvol is
+orphaned and its space never returns. This is what generated the bulk of the 2.2T
+orphan pile, and it fires on EVERY delete (migrations, scale-downs, decommissions).
+
+**Decision (2026-06-15): sanoid left as-is** (the hourly snap is a wanted 1-hour
+rollback net). We accept that PVC deletion requires a manual snapshot-clearing
+step — see the **"Deleting a CSI PVC"** procedure below. Do not skip it; skipping
+silently orphans the zvol.
+
+(Alternatives considered and rejected: disabling sanoid autosnap on this dataset
+— loses the rollback net; forcing CSI recursive destroy — risks nuking
+CSI-managed VolumeSnapshots. If the manual step becomes too painful, revisit.)
+
+---
+
+## Deleting a CSI PVC (REQUIRED procedure — clears blocking snapshots)
+
+Any time you delete a `zfs-nvmeof` PVC (migration, decommission, cleanup), the
+backing zvol will **not** be destroyed by CSI on its own — sanoid's hourly
+snapshot blocks the non-recursive `zfs destroy` (see 0.5). You must clear the
+snapshot so CSI's retry can complete. Two equivalent ways:
+
+**Preferred — let CSI finish its own teardown** (also tears down the nvmet export
+cleanly). Delete the PVC, then destroy only the blocking snapshot(s):
+
+```sh
+PV=$(kubectl get pvc <name> -n <ns> -o jsonpath='{.spec.volumeName}')
+kubectl delete pvc <name> -n <ns> --wait=false      # PV -> Released, CSI retries (and fails on snapshot)
+ssh ubuntu@storage01.drewburr.com \
+  "for s in \$(sudo zfs list -H -t snapshot -o name sas-pool/k8s/nvmeof/dataset/$PV 2>/dev/null); do sudo zfs destroy \"\$s\"; done"
+# within ~1 retry cycle CSI completes: nvmet unexport + zvol destroy + PV removed
+```
+
+Verify it actually went away (don't assume):
+
+```sh
+kubectl get pv $PV 2>&1 | tail -1                                            # NotFound = good
+ssh ubuntu@storage01.drewburr.com "sudo zfs list sas-pool/k8s/nvmeof/dataset/$PV 2>&1 | tail -1"  # 'does not exist'
+```
+
+**Fallback — PV is `Retain`, or you already manually own cleanup.** Then CSI
+won't reclaim it; do the whole teardown by hand (this is the Phase-0 sequence):
+tear down the nvmet subsystem, regenerate the persisted config, `zfs destroy -r`,
+delete the PV. See Phase 0.2/0.3 and the prometheus-db cleanup
+(2026-06-15) for the full sequence.
+
+> Watch for fresh snapshots: sanoid may snap again between your clear and CSI's
+> retry. If the zvol lingers, re-check for snapshots and clear again.
+
 ---
 
 ## Phase 1 — Fix volblocksize for new volumes (one secret, zero risk)
@@ -167,12 +233,22 @@ ssh ubuntu@storage01.drewburr.com \
   'sudo zfs list -o name,used,volsize -s used -r sas-pool/k8s/nvmeof/dataset | tail -15'
 ```
 
-As of 2026-06-12 the in-use targets are:
+**Completed migrations (all 64K, old zvols destroyed):**
 
-| PVC | Namespace | Size | Physical |
-|---|---|---|---|
-| `crafty-backups` (`pvc-1a52cb52`) | `minecraft-derailed` | 200Gi | 121G |
-| `bluemap-web` (`pvc-1e0d1ec1`) | `minecraft-paper` | 50Gi | 56G |
+| volume | done | reclaim |
+|---|---|---|
+| Loki stack (7 PVCs: write/backend/minio) | 2026-06-13 | recreated empty (logs discardable) |
+| `plex/transcode-large` (506G→0) | 2026-06-15 | ~580G (scratch, recreated empty) |
+| `kube-prometheus-stack/prometheus-db` (382G→90G) | 2026-06-15 | ~292G (data copied, 92d history preserved) |
+
+Pool went 97% → **40%** across Phase 0 + these. **Remaining 16K targets** (by
+physical size), as of 2026-06-15:
+
+| PVC | Namespace | Size | Physical | notes |
+|---|---|---|---|---|
+| `crafty-backups` | `minecraft-jinkies` | 429G | 1185G | real data copy (actual backups) |
+| `plex/plex-config` | `plex` | 86G | 262G | RMW-sensitive SQLite — keep 64K |
+| `crafty-servers` ×3 | underground/derailed/jinkies | 54–107G | 117–155G | data copy |
 
 Everything else is small enough to ignore; it ages out as apps get rebuilt.
 
@@ -182,6 +258,21 @@ The swap keeps the original PVC name so GitOps manifests stay untouched.
 
 1. **Scale the app down.** Disable ArgoCD auto-sync for the app first so it
    doesn't fight you, then scale the StatefulSet/Deployment to 0.
+   - **Operator/ApplicationSet-managed apps** (e.g. `prometheus`): a `paused`
+     patch or a `kubectl scale` gets reverted within seconds. The `prometheus`
+     Application has `selfHeal:true` AND is generated by an ApplicationSet, so
+     disabling auto-sync on the Application alone isn't enough — suspend at the
+     **ApplicationSet** (or parent app) level first, then pause the operator CR.
+     During the 2026-06-15 prometheus migration this reconcile un-paused the
+     operator mid-flight and briefly restarted the pod on the old PVC.
+   - **RWO single-replica** workloads need a true scale-to-0 (not a rolling
+     restart) — the old pod holds the volume, so the new pod can't mount it.
+   - **Stale mounts:** after the pod terminates, kubelet sometimes leaves the
+     CSI globalmount (or dead-pod bind mounts) behind. CSI's next stage is
+     idempotent and will reuse a stale mount, handing the new pod a read-only or
+     wrong volume. Check `grep <pvc-uuid> /proc/mounts` on the node and
+     `umount`/`umount -l` any leftovers (no VolumeAttachment = safe to unmount)
+     before bringing the app back.
 
 2. **Create a temp PVC** (gets 64K automatically post-Phase 1):
 
@@ -229,8 +320,13 @@ The swap keeps the original PVC name so GitOps manifests stay untouched.
    kubectl delete pvc <orig-name>-migrate -n <ns>
    kubectl patch pv $NEWPV --type json -p '[{"op":"remove","path":"/spec/claimRef"}]'   # Released -> Available
 
-   # delete the old PVC; CSI destroys the old 16K zvol (verify on storage01 afterwards)
-   kubectl delete pvc <orig-name> -n <ns>
+   # delete the old PVC -- CSI will NOT destroy the old 16K zvol by itself;
+   # follow the "Deleting a CSI PVC" procedure above to clear its sanoid
+   # snapshot, or the old zvol orphans and you reclaim nothing.
+   kubectl delete pvc <orig-name> -n <ns> --wait=false
+   OLDPV=<old-pvc-uuid>
+   ssh ubuntu@storage01.drewburr.com \
+     "for s in \$(sudo zfs list -H -t snapshot -o name sas-pool/k8s/nvmeof/dataset/$OLDPV 2>/dev/null); do sudo zfs destroy \"\$s\"; done"
 
    # rebind the original name to the new PV
    cat <<EOF | kubectl apply -f -
@@ -262,8 +358,11 @@ The swap keeps the original PVC name so GitOps manifests stay untouched.
 
 ## Verification / exit criteria
 
-- `zpool list sas-pool` CAP at or below ~50% after Phases 0+2.
-- New PVCs show `volblocksize 64K` on storage01.
+- `zpool list sas-pool` CAP at or below ~50% after Phases 0+2. ✅ (40% as of 2026-06-15)
+- New PVCs show `volblocksize 64K` on storage01. ✅
 - Orphan diff (0.1) returns empty.
-- Consider a Prometheus alert on pool capacity (>80%) — today's outage had
-  zero warning at the k8s layer because the pods stayed Running/Ready.
+- ✅ Pool-capacity alert is live: Grafana `ZfsPoolCapacityHigh` (folder Spud,
+  group `storage.zfs`), fed by a `zpool list` textfile collector on storage01
+  (`/usr/local/bin/zpool-textfile-collector.sh` + systemd timer) emitting
+  `zpool_capacity_ratio`. Warns >80% → drewburr-labs Discord. Covers all pools
+  (also catches `lake` DEGRADED at 86%).
