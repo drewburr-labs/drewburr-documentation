@@ -361,8 +361,15 @@ The swap keeps the original PVC name so GitOps manifests stay untouched.
 - `zpool list sas-pool` CAP at or below ~50% after Phases 0+2. ✅ (40% as of 2026-06-15)
 - New PVCs show `volblocksize 64K` on storage01. ✅
 - Orphan diff (0.1) returns empty.
-- ✅ Pool-capacity alert is live: Grafana `ZfsPoolCapacityHigh` (folder Spud,
-  group `storage.zfs`), fed by a `zpool list` textfile collector on storage01
-  (`/usr/local/bin/zpool-textfile-collector.sh` + systemd timer) emitting
-  `zpool_capacity_ratio`. Warns >80% → drewburr-labs Discord. Covers all pools
-  (also catches `lake` DEGRADED at 86%).
+- ✅ Storage alerts live (Grafana, folder Spud → drewburr-labs Discord):
+  - `ZfsPoolCapacityHigh` (group `storage.zfs`) — `zpool_capacity_ratio` >80%,
+    fed by `/usr/local/bin/zpool-textfile-collector.sh` + systemd timer on
+    storage01 (also emits `zpool_health`).
+  - `ZfsPoolNotOnline` (group `storage.zfs`, critical) — `zpool_health` < 1,
+    fires on any non-ONLINE pool. Currently firing on `lake` (DEGRADED).
+  - `NodeExt4EmergencyReadOnly` (group `storage.nodes`, critical) —
+    `node_ext4_emergency_ro` > 0, the exact signal that was missing when 9 pods
+    sat read-only for a day. Fed by the `emergency-ro-exporter` DaemonSet
+    (see `../monitoring-extras/emergency-ro-exporter.yaml`; applied directly,
+    not yet ArgoCD-wired). node_filesystem_readonly does NOT work for this —
+    emergency_ro shows as `rw` and kubelet mounts are collector-excluded.

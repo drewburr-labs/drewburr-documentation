@@ -1,0 +1,111 @@
+# emergency_ro exporter — detects ext4 volumes that have gone emergency read-only.
+#
+# Why this exists: the June 2026 sas-pool outage left 9 pods running on
+# read-only PVCs for a day with NO alert, because:
+#   - the newer ext4 `emergency_ro` flag keeps the mount showing `rw` in
+#     /proc/mounts, so node_exporter's node_filesystem_readonly reports 0;
+#   - node_exporter's filesystem collector excludes /var/lib/kubelet/* anyway;
+#   - promtail only ships pod logs, so the kernel EXT4-fs errors aren't in Loki.
+# So there was no signal at all. This DaemonSet greps each node's /proc/mounts
+# for `emergency_ro` and exposes node_ext4_emergency_ro{node=...}.
+#
+# Scraped via ServiceMonitor (kube-prometheus-stack's serviceMonitorSelector is
+# empty = matches all). Alert: Grafana "NodeExt4EmergencyReadOnly" (folder Spud,
+# group storage.nodes), fires >0 for 2m -> drewburr-labs Discord.
+#
+# STATUS: applied directly to the cluster 2026-06-16 (NOT yet wired into ArgoCD).
+# To GitOps it, add an Application/ApplicationSet entry pointing at this dir.
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring-extras
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: emergency-ro-exporter
+  namespace: monitoring-extras
+data:
+  exporter.py: |
+    import http.server, os
+    NODE = os.environ.get("NODE_NAME", "")
+    class H(http.server.BaseHTTPRequestHandler):
+        def do_GET(self):
+            n = 0
+            try:
+                with open("/host/proc/mounts") as f:
+                    for line in f:
+                        if "emergency_ro" in line:
+                            n += 1
+            except Exception:
+                pass
+            out = ("# HELP node_ext4_emergency_ro ext4 mounts in emergency read-only state on this node\n"
+                   "# TYPE node_ext4_emergency_ro gauge\n"
+                   'node_ext4_emergency_ro{node="%s"} %d\n' % (NODE, n))
+            b = out.encode()
+            self.send_response(200)
+            self.send_header("Content-Type", "text/plain; version=0.0.4")
+            self.send_header("Content-Length", str(len(b)))
+            self.end_headers()
+            self.wfile.write(b)
+        def log_message(self, *a):
+            return
+    http.server.HTTPServer(("0.0.0.0", 9102), H).serve_forever()
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: emergency-ro-exporter
+  namespace: monitoring-extras
+  labels: { app: emergency-ro-exporter }
+spec:
+  selector:
+    matchLabels: { app: emergency-ro-exporter }
+  template:
+    metadata:
+      labels: { app: emergency-ro-exporter }
+    spec:
+      tolerations:
+      - operator: Exists
+      containers:
+      - name: exporter
+        image: python:3.12-alpine
+        command: ["python3", "/scripts/exporter.py"]
+        ports:
+        - { name: metrics, containerPort: 9102 }
+        env:
+        - name: NODE_NAME
+          valueFrom: { fieldRef: { fieldPath: spec.nodeName } }
+        resources:
+          requests: { cpu: 5m, memory: 16Mi }
+          limits: { memory: 32Mi }
+        volumeMounts:
+        - { name: proc, mountPath: /host/proc, readOnly: true }
+        - { name: script, mountPath: /scripts, readOnly: true }
+      volumes:
+      - { name: proc, hostPath: { path: /proc } }
+      - { name: script, configMap: { name: emergency-ro-exporter } }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: emergency-ro-exporter
+  namespace: monitoring-extras
+  labels: { app: emergency-ro-exporter }
+spec:
+  selector: { app: emergency-ro-exporter }
+  ports:
+  - { name: metrics, port: 9102, targetPort: metrics }
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: emergency-ro-exporter
+  namespace: monitoring-extras
+  labels: { app: emergency-ro-exporter }
+spec:
+  selector:
+    matchLabels: { app: emergency-ro-exporter }
+  endpoints:
+  - { port: metrics, interval: 30s }
