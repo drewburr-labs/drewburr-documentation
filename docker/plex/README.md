@@ -4,6 +4,8 @@ Custom Plex image published as `ghcr.io/drewburr-labs/plex:latest`. The image ad
 
 **Status (2026-04-19):** deployed; HW decode + HW encode confirmed working on an Intel Arc B570 (Battlemage, `8086:e20c`, xe kernel driver) on kernel 6.17.0-20-generic.
 
+**Base re-audit (2026-06-20):** re-checked `plexinc/pms-docker:latest` (digest `sha256:c37106c5…`, PMS binary dated 2026-05-02). The bundled `libgcompat.so.0` has **partially** caught up but the shim is **still required** — see [Base-image audit log](#base-image-audit-log) below. Rebuilt against this base; shim retained.
+
 ## The bug this works around
 
 Plex `1.43.1.10611-1e34174b1` bundles a Battlemage-capable iHD driver at `/config/Library/Application Support/Plex Media Server/Drivers/imd-a5431fbbff9ce9568f94ae21-linux-x86_64/dri/iHD_drv_video.so` (dated 2026-04-16, `intel-media-driver 25.2.6`).
@@ -94,6 +96,25 @@ The image is based on `plexinc/pms-docker:latest`, not linuxserver, so env vars 
 - **When Plex ships a new Transcoder build**, re-audit the shim. Run `nm -D --undefined` against the live `iHD_drv_video.so` and `libstdc++.so.6` inside the running container, diff against what musl + libgcompat + the shim provide, and add any new unresolved symbols. The list above was enumerated iteratively — a silent new dependency would present as "libva init fails" after an image bump, not as a relocation error at load time.
 
 - **Delete this shim when upstream fixes libgcompat.** Revisit after each Plex beta; monitor the forum thread linked above.
+
+## Base-image audit log
+
+### 2026-06-20 — `plexinc/pms-docker:latest` (PMS binary 2026-05-02, image digest `sha256:c37106c5…`)
+
+Re-ran the symbol check against the new base's bundled `libgcompat.so.0` (extract the `.so` and `nm -D --defined-only`). Upstream has rebuilt `libgcompat` against a newer glibc and now exports **15 of the 34** symbols the shim provides — but the **C23 `__isoc23_*` family is still missing**, which is the exact class that triggers the load-time relocation failure (`__isoc23_strtoul: symbol not found` → VAAPI init fails). **Shim still required; do not drop the patch.**
+
+Now exported by `libgcompat` (shim is redundant for these, but harmless):
+`__memcpy_chk`, `__memset_chk`, `__strcpy_chk`, `__snprintf_chk`, `__vsnprintf_chk`, `__vasprintf_chk`, `__printf_chk`, `__fprintf_chk`, `__sprintf_chk`, `__realpath_chk`, `__read_chk`, `__memmove_chk`, `__open_2`, `__open64_2`, `secure_getenv`
+
+Still missing — the shim continues to supply these:
+- C23 wrappers: `__isoc23_strtoul`, `__isoc23_strtol`, `__isoc23_strtoll`, `__isoc23_strtoull`, `__isoc23_fscanf`, `__isoc23_sscanf`
+- Wide/multibyte FORTIFY: `__wmemcpy_chk`, `__wmemset_chk`, `__mbsnrtowcs_chk`, `__mbsrtowcs_chk`
+- `__openat_2`, `__openat64_2`
+- Recent libc additions: `arc4random`, `arc4random_buf`, `arc4random_uniform`, `getentropy`
+- `_Float128` numerics: `strfromf128`, `strtof128`
+- Dynamic loader API: `_dl_find_object`
+
+Note: this audit checks `libgcompat` only. It confirms upstream hasn't fixed the shim out of existence, which is enough to justify keeping the patch. It does **not** re-enumerate the live driver's undefined refs — if a future base bump pulls in a newer `iHD_drv_video.so` / `libstdc++.so.6`, still run the `nm -D --undefined` diff described under Operational notes to catch any *new* unresolved symbol.
 
 ## Risks / maintenance
 
