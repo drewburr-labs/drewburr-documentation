@@ -53,7 +53,7 @@ craftycontroller:
         metallb.universe.tf/loadBalancerIPs: '192.168.4.67'
       ports:
         - name: simple-vc
-          port: 24455
+          port: 24457
           protocol: UDP
     metrics:
       type: ClusterIP
