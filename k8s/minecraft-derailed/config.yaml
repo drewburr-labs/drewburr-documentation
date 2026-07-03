@@ -1,0 +1,3 @@
+managedNamespaceMetadata:
+  labels:
+    ghcr.drewburr.com/crafty-4: "true" # ESO pushes the ghcr-crafty-4 pull secret here
