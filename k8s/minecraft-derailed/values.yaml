@@ -1,4 +1,10 @@
 craftycontroller:
+  image:
+    repository: ghcr.io/drewburr-labs/crafty-4
+    tag: latest
+  imagePullSecrets:
+    - name: ghcr-crafty-4 # distributed by ESO via the ghcr.drewburr.com/crafty-4 namespace label
+
   persistence:
     crafty-app-config:
       requests: 1Gi

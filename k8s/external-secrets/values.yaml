@@ -29,7 +29,7 @@ controllerNamespace: external-secrets
 labelPrefix: ghcr.drewburr.com
 
 pullSecrets:
-  - name: example-repo        # -> label ghcr.drewburr.com/example-repo, secret ghcr-example-repo
+  - name: crafty-4            # -> label ghcr.drewburr.com/crafty-4, secret ghcr-crafty-4
 
 # --- External Secrets Operator subchart values ---
 external-secrets:
