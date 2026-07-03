@@ -18,7 +18,10 @@ controllerNamespace: external-secrets
 #        kubectl -n shared-secrets create secret generic ghcr-<name> \
 #          --from-literal=dockerconfigjson='{"auths":{"ghcr.io":{"auth":"<base64 user:PAT>"}}}'
 #   2. A namespace opts in by carrying the label `<labelPrefix>/<name>: "true"`.
-#      For an Argo-managed app, set it in that app's config.yaml:
+#      For an Argo-managed app, set it in that app's config.yaml (CreateNamespace
+#      is required for managedNamespaceMetadata to actually be applied):
+#        syncOptions:
+#          - CreateNamespace=true
 #        managedNamespaceMetadata:
 #          labels:
 #            ghcr.drewburr.com/<name>: "true"
