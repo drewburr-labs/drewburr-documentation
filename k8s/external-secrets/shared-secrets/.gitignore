@@ -1,0 +1,7 @@
+# Everything in this folder is a REAL secret applied by hand — never commit it.
+*
+# ...except the docs and templates that make the folder usable.
+!.gitignore
+!README.md
+!*.example.yaml
+!*.template

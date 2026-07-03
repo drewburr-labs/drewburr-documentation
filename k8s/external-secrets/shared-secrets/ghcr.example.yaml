@@ -1,0 +1,15 @@
+# Example GHCR pull-token source secret. Copy to `ghcr-<repo>.yaml` (git-ignored),
+# fill in the real value, then `kubectl apply -f ghcr-<repo>.yaml`.
+#
+# The `auth` value is base64 of "<github-username>:<read:packages PAT>".
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ghcr-example-repo # must match `ghcr-<name>` for the pullSecrets entry
+  namespace: shared-secrets
+type: Opaque
+stringData:
+  # ESO reads this `dockerconfigjson` key and repackages it as a
+  # kubernetes.io/dockerconfigjson secret in each consuming namespace.
+  dockerconfigjson: |
+    {"auths":{"ghcr.io":{"auth":"REPLACE_WITH_BASE64_USER_COLON_PAT"}}}

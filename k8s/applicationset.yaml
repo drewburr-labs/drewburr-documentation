@@ -61,6 +61,10 @@ spec:
         automated:
           {{- toYaml .automated | nindent 6 }}
         {{- end }}
+        {{- if .managedNamespaceMetadata }}
+        managedNamespaceMetadata:
+          {{- toYaml .managedNamespaceMetadata | nindent 6 }}
+        {{- end }}
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
@@ -123,4 +127,8 @@ spec:
         {{- if .automated }}
         automated:
           {{- toYaml .automated | nindent 6 }}
+        {{- end }}
+        {{- if .managedNamespaceMetadata }}
+        managedNamespaceMetadata:
+          {{- toYaml .managedNamespaceMetadata | nindent 6 }}
         {{- end }}
