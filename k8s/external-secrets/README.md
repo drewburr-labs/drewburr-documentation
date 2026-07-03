@@ -35,9 +35,14 @@ no central namespace list.
 
 3. Opt a namespace in by labeling it `ghcr.drewburr.com/<repo>: "true"`. For an
    Argo-managed app, set it in that app's `config.yaml` — the ApplicationSet
-   passes `managedNamespaceMetadata` straight through to the Application:
+   passes `managedNamespaceMetadata` straight through to the Application.
+   `CreateNamespace=true` is **required**: Argo only applies
+   `managedNamespaceMetadata` as part of namespace auto-creation, so without it
+   the labels are declared but never written to the namespace.
 
    ```yaml
+   syncOptions:
+     - CreateNamespace=true
    managedNamespaceMetadata:
      labels:
        ghcr.drewburr.com/<repo>: "true"

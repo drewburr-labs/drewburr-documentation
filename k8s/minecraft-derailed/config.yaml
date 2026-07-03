@@ -1,3 +1,5 @@
+syncOptions:
+  - CreateNamespace=true # required for managedNamespaceMetadata to be applied to the namespace
 managedNamespaceMetadata:
   labels:
     ghcr.drewburr.com/crafty-4: "true" # ESO pushes the ghcr-crafty-4 pull secret here
