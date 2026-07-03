@@ -11,6 +11,13 @@ pool `DEGRADED`. It had been degraded for **~4 weeks** before being noticed
 diagnosed as **dead** and replaced with a 14TB WD (`9RG9UZEC`); the pool is
 resilvering.
 
+> **Update 2026-07-03:** the replacement `9RG9UZEC` itself began throwing silent
+> checksum errors 19h after the resilver and the pool is DEGRADED again — see
+> [storage01-lake-replacement-drive-silent-checksum-errors.md](storage01-lake-replacement-drive-silent-checksum-errors.md).
+> That investigation also corrected this doc's timeline: the journal shows
+> `8DGT7DMH` FAULTED with I/O errors on **2026-04-30** and went REMOVED
+> 2026-05-05 — not during the 2026-05-19 reboot.
+
 `lake` is raidz2 (tolerates 2 failures); with one drive gone it was down to a
 single parity drive — functional but one failure away from data loss on ~65T.
 
