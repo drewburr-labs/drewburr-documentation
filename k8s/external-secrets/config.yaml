@@ -1,0 +1,3 @@
+syncOptions:
+  - ServerSideApply=true # CRDs + conversion webhook annotations can exceed the client-side apply limit
+  - CreateNamespace=true # operator release namespace (external-secrets) isn't templated by the chart
