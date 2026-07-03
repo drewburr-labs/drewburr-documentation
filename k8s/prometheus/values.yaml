@@ -83,6 +83,9 @@ kube-prometheus-stack:
     # https://grafana.com/docs/grafana/latest/setup-grafana/configure-grafana/#override-configuration-with-environment-variables
     env:
       GF_AUTH_ANONYMOUS_ENABLED: true
+      # Ensures alert notification/deeplink URLs use the public HTTPS host
+      # instead of the default http://<host>:3000
+      GF_SERVER_ROOT_URL: https://grafana.drewburr.com
 
     ingress:
       enabled: true
