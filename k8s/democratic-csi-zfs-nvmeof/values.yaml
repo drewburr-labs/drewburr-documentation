@@ -19,7 +19,11 @@ democratic-csi:
     parameters:
       # for block-based storage can be ext3, ext4, xfs
       # for nfs should be nfs
-      fsType: ext4
+      # xfs (not ext4): ext4 online-resize exhausts its reserved GDT blocks after
+      # repeated grows and fails NodeStageVolume with "resize2fs: Permission denied
+      # to resize filesystem" (misleading — not a perms issue). xfs_growfs grows
+      # online without that ceiling. Only affects volumes created after this change.
+      fsType: xfs
 
       # if true, volumes created from other snapshots will be
       # zfs send/received instead of zfs cloned
