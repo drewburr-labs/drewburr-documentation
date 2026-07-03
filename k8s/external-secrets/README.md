@@ -33,18 +33,18 @@ no central namespace list.
      --from-literal=dockerconfigjson='{"auths":{"ghcr.io":{"auth":"<base64 user:PAT>"}}}'
    ```
 
-3. Opt a namespace in by labeling it `ghcr.drewburr.dev/<repo>: "true"`. For an
+3. Opt a namespace in by labeling it `ghcr.drewburr.com/<repo>: "true"`. For an
    Argo-managed app, set it in that app's `config.yaml` — the ApplicationSet
    passes `managedNamespaceMetadata` straight through to the Application:
 
    ```yaml
    managedNamespaceMetadata:
      labels:
-       ghcr.drewburr.dev/<repo>: "true"
+       ghcr.drewburr.com/<repo>: "true"
    ```
 
    (A namespace can carry several such labels for several repos.) Ad hoc:
-   `kubectl label ns <ns> ghcr.drewburr.dev/<repo>=true`.
+   `kubectl label ns <ns> ghcr.drewburr.com/<repo>=true`.
 
 ESO then creates a `kubernetes.io/dockerconfigjson` secret named `ghcr-<repo>`
 in every labeled namespace. Reference it as an `imagePullSecrets` entry (name
