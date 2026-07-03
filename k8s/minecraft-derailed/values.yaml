@@ -10,7 +10,7 @@ craftycontroller:
       requests: 1Gi
       storageClassName: zfs-nvmeof
     crafty-servers:
-      requests: 100Gi
+      requests: 150Gi
       storageClassName: zfs-nvmeof
     crafty-backups:
       enabled: true
