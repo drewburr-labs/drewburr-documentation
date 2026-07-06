@@ -12,4 +12,4 @@ stringData:
   # ESO reads this `dockerconfigjson` key and repackages it as a
   # kubernetes.io/dockerconfigjson secret in each consuming namespace.
   dockerconfigjson: |
-    {"auths":{"ghcr.io":{"auth":"REPLACE_WITH_BASE64_USER_COLON_PAT"}}}
+    {"auths":{"ghcr.io":{"auth":"username:gh_pat"}}}
