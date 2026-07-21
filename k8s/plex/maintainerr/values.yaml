@@ -1,0 +1,106 @@
+# https://docs.maintainerr.info/
+# Rules-based media cleanup: builds collections from Plex/Tautulli/Radarr/Sonarr/
+# Overseerr rules, shows candidates, then deletes after a grace period.
+# Deletes are routed THROUGH Radarr/Sonarr so torrents can keep seeding.
+replicaCount: 1
+
+image:
+  repository: ghcr.io/jorenn92/maintainerr
+  pullPolicy: Always
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+
+# Maintainerr does not use PUID/PGID; run as the media uid/gid directly.
+podSecurityContext:
+  runAsUser: 1001
+  runAsGroup: 1001
+  fsGroup: 1001
+  fsGroupChangePolicy: "OnRootMismatch"
+
+securityContext: {}
+
+services:
+  - name: http
+    type: ClusterIP
+    port: 6246
+    protocol: TCP
+    ingress:
+      className: nginx-internal
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt
+      hosts:
+        - host: maintainerr.drewburr.com
+          paths:
+            - path: /
+              pathType: ImplementationSpecific
+      tls:
+      - secretName: maintainerr-ingress
+        hosts:
+          - maintainerr.drewburr.com
+
+resources: {}
+
+env: []
+
+envVars:
+  TZ: America/New_York
+
+# Maintainerr stores its SQLite DB + config under /opt/data.
+persistence:
+  - name: maintainerr-config
+    mountPath: opt/data
+    accessModes:
+      - ReadWriteOnce
+    requests: 5Gi
+    storageClassName: zfs-nvmeof
+  - name: backups
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+startupProbe:
+  httpGet:
+    path: /
+    port: 6246
+  failureThreshold: 30
+  periodSeconds: 10
+livenessProbe:
+  httpGet:
+    path: /
+    port: 6246
+readinessProbe:
+  httpGet:
+    path: /
+    port: 6246
+
+# ---------------------------------------------------------------------------
+# Hardlink-safety audit CronJob (see templates/hardlink-guard-cronjob.yaml).
+# Scans the shared plex-data library and reports which files are genuinely
+# safe to reclaim (link count == 1) vs. protected (hardlinked, count > 1 --
+# deleting frees no space and would need the torrent kept for seeding).
+# This is scoped to plex-data ONLY; the alt/private ecosystem lives on the
+# separate plex-alt-data volume and is never touched here.
+# ---------------------------------------------------------------------------
+hardlinkGuard:
+  enabled: true
+  schedule: "0 6 * * *"   # daily 06:00
+  image: alpine:3.20
+  # Path inside the container to scan (plex-data mounted at /data).
+  libraryPath: /data/media
+  # Subtree(s) to skip so we don't list the torrent seed copies themselves.
+  # Adjust to your actual download root under plex-data.
+  excludePath: /data/torrents

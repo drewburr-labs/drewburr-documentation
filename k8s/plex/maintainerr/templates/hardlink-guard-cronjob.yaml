@@ -1,0 +1,78 @@
+{{- if .Values.hardlinkGuard.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "maintainerr.fullname" . }}-hardlink-guard
+  labels:
+    {{- include "maintainerr.labels" . | nindent 4 }}
+spec:
+  schedule: {{ .Values.hardlinkGuard.schedule | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        metadata:
+          labels:
+            {{- include "maintainerr.selectorLabels" . | nindent 12 }}
+        spec:
+          restartPolicy: Never
+          securityContext:
+            runAsUser: 1001
+            runAsGroup: 1001
+            fsGroup: 1001
+          containers:
+            - name: hardlink-guard
+              image: {{ .Values.hardlinkGuard.image | quote }}
+              env:
+                - name: LIBRARY_PATH
+                  value: {{ .Values.hardlinkGuard.libraryPath | quote }}
+                - name: EXCLUDE_PATH
+                  value: {{ .Values.hardlinkGuard.excludePath | quote }}
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  set -eu
+                  apk add --no-cache findutils coreutils >/dev/null
+
+                  ts="$(date +%Y-%m-%dT%H-%M-%S)"
+                  outdir="/backups/hardlink-guard"
+                  mkdir -p "$outdir"
+                  safe="$outdir/reclaimable-${ts}.txt"
+                  prot="$outdir/protected-${ts}.txt"
+
+                  # SAFE: link count == 1 -> deleting actually frees space.
+                  # PROTECTED: link count > 1 -> hardlinked (likely a seeding
+                  # torrent); deletion frees nothing, so never remove these.
+                  find "$LIBRARY_PATH" -type f -links 1  -not -path "${EXCLUDE_PATH}/*" > "$safe"  || true
+                  find "$LIBRARY_PATH" -type f -links +1 -not -path "${EXCLUDE_PATH}/*" > "$prot"  || true
+
+                  safe_n="$(wc -l < "$safe" | tr -d ' ')"
+                  prot_n="$(wc -l < "$prot" | tr -d ' ')"
+                  safe_b="$(find "$LIBRARY_PATH" -type f -links 1 -not -path "${EXCLUDE_PATH}/*" -printf '%s\n' | awk '{s+=$1} END{print s+0}')"
+
+                  echo "==================== hardlink-guard @ ${ts} ===================="
+                  echo "library path      : $LIBRARY_PATH  (excluding ${EXCLUDE_PATH})"
+                  echo "reclaimable files : $safe_n  ($(numfmt --to=iec "$safe_b") if deleted)"
+                  echo "protected files   : $prot_n  (hardlinked -> deleting frees nothing)"
+                  echo "reports written   : $safe"
+                  echo "                    $prot"
+                  echo "NOTE: audit only -- this job never deletes. Feed the"
+                  echo "reclaimable list into Maintainerr / arr for actual cleanup."
+              volumeMounts:
+                - name: plex-data
+                  mountPath: /data
+                  readOnly: true
+                - name: backups
+                  mountPath: /backups
+          volumes:
+            - name: plex-data
+              persistentVolumeClaim:
+                claimName: plex-data
+            - name: backups
+              persistentVolumeClaim:
+                claimName: backups
+{{- end }}
