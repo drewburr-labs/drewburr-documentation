@@ -1,0 +1,92 @@
+# https://hotio.dev/containers/tautulli/
+replicaCount: 1
+
+image:
+  repository: ghcr.io/hotio/tautulli
+  pullPolicy: Always
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext:
+  fsGroup: 1001
+  fsGroupChangePolicy: "OnRootMismatch"
+
+securityContext: {}
+
+# Ports to be exposed, grouped by services
+services:
+  - name: http
+    type: ClusterIP
+    port: 8181
+    protocol: TCP
+    ingress:
+      className: nginx-internal
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt
+      hosts:
+        - host: tautulli.drewburr.com
+          paths:
+            - path: /
+              pathType: ImplementationSpecific
+      tls:
+      - secretName: tautulli-ingress
+        hosts:
+          - tautulli.drewburr.com
+
+resources: {}
+
+# Appended to env. Supports envFrom
+env: []
+
+# Key: value environment variables to be appended to env
+envVars:
+  PUID: 1001
+  PGID: 1001
+  TZ: America/New_York
+
+# All are mounted under fsroot `/`. Supports additions
+# Only a config PVC is needed; Tautulli talks to Plex over the network API.
+persistence:
+  - name: tautulli-config
+    mountPath: config
+    accessModes:
+      - ReadWriteOnce
+    requests: 10Gi
+    storageClassName: zfs-nvmeof
+  - name: backups
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+startupProbe:
+  httpGet:
+    path: /
+    port: 8181
+  failureThreshold: 30
+  periodSeconds: 10
+livenessProbe:
+  httpGet:
+    path: /
+    port: 8181
+readinessProbe:
+  httpGet:
+    path: /
+    port: 8181
