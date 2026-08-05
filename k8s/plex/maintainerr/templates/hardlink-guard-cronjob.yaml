@@ -36,7 +36,6 @@ spec:
                 - -c
                 - |
                   set -eu
-                  apk add --no-cache findutils coreutils >/dev/null
 
                   ts="$(date +%Y-%m-%dT%H-%M-%S)"
                   outdir="/backups/hardlink-guard"

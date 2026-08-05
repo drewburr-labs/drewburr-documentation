@@ -98,7 +98,7 @@ readinessProbe:
 hardlinkGuard:
   enabled: true
   schedule: "0 6 * * *"   # daily 06:00
-  image: alpine:3.20
+  image: debian:stable-slim
   # Path inside the container to scan (plex-data mounted at /data).
   libraryPath: /data/media
   # Subtree(s) to skip so we don't list the torrent seed copies themselves.
