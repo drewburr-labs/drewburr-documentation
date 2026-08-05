@@ -6,10 +6,10 @@ replicaCount: 1
 
 image:
   # Development moved from jorenn92/maintainerr (frozen at 2.19.0) to the
-  # maintainerr org; pin the tag so upgrades are explicit git changes.
+  # maintainerr org.
   repository: ghcr.io/maintainerr/maintainerr
-  pullPolicy: IfNotPresent
-  tag: "3.21.1"
+  pullPolicy: Always
+  tag: "latest"
 
 imagePullSecrets: []
 nameOverride: ""
