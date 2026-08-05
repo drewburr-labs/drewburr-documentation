@@ -5,10 +5,11 @@
 replicaCount: 1
 
 image:
-  repository: ghcr.io/jorenn92/maintainerr
+  # Development moved from jorenn92/maintainerr (frozen at 2.19.0) to the
+  # maintainerr org.
+  repository: ghcr.io/maintainerr/maintainerr
   pullPolicy: Always
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  tag: "latest"
 
 imagePullSecrets: []
 nameOverride: ""
