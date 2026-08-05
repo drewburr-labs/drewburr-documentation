@@ -1,0 +1,56 @@
+{{- if .Values.seedingGuard.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "maintainerr.fullname" . }}-seeding-guard
+  labels:
+    {{- include "maintainerr.labels" . | nindent 4 }}
+spec:
+  schedule: {{ .Values.seedingGuard.schedule | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        metadata:
+          labels:
+            {{- include "maintainerr.selectorLabels" . | nindent 12 }}
+        spec:
+          restartPolicy: Never
+          securityContext:
+            runAsUser: 1001
+            runAsGroup: 1001
+            fsGroup: 1001
+          containers:
+            - name: seeding-guard
+              image: {{ .Values.seedingGuard.image | quote }}
+              env:
+                - name: MAINTAINERR_URL
+                  value: http://{{ include "maintainerr.fullname" . }}-http:{{ (index .Values.services 0).port }}
+                - name: LIBRARY_PATH
+                  value: {{ .Values.seedingGuard.libraryPath | quote }}
+                - name: SEED_LABEL
+                  value: {{ .Values.seedingGuard.label | quote }}
+              command: ["python3", "/scripts/seeding-guard.py"]
+              volumeMounts:
+                - name: plex-data
+                  mountPath: /data
+                  readOnly: true
+                - name: backups
+                  mountPath: /backups
+                - name: script
+                  mountPath: /scripts
+                  readOnly: true
+          volumes:
+            - name: plex-data
+              persistentVolumeClaim:
+                claimName: plex-data
+            - name: backups
+              persistentVolumeClaim:
+                claimName: backups
+            - name: script
+              configMap:
+                name: {{ include "maintainerr.fullname" . }}-seeding-guard
+{{- end }}

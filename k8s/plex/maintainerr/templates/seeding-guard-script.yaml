@@ -1,0 +1,109 @@
+{{- if .Values.seedingGuard.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "maintainerr.fullname" . }}-seeding-guard
+  labels:
+    {{- include "maintainerr.labels" . | nindent 4 }}
+data:
+  seeding-guard.py: |
+    """Label Plex items that are still hardlinked into the torrent dir.
+
+    A file with link count > 1 under LIBRARY_PATH is still referenced by a
+    seeding torrent. Any movie -- or any show with even one such episode --
+    gets the Plex label SEED_LABEL; the label is removed once no file of the
+    item is hardlinked anymore. Maintainerr review rules exclude that label,
+    so labeled media can never be matched for cleanup. This script only ever
+    edits Plex labels; it never deletes anything.
+    """
+    import json
+    import os
+    import sys
+    import urllib.parse
+    import urllib.request
+    import xml.etree.ElementTree as ET
+
+    MAINTAINERR_URL = os.environ["MAINTAINERR_URL"]
+    LIBRARY_PATH = os.environ["LIBRARY_PATH"]
+    SEED_LABEL = os.environ.get("SEED_LABEL", "seeding")
+    REPORT_DIR = os.environ.get("REPORT_DIR", "/backups/seeding-guard")
+
+    def fetch(url, method="GET"):
+        req = urllib.request.Request(url, method=method)
+        with urllib.request.urlopen(req, timeout=60) as res:
+            return res.read()
+
+    # Plex connection details come from Maintainerr's own settings, so there
+    # is no separate token secret to manage.
+    settings = json.loads(fetch(MAINTAINERR_URL + "/api/settings"))
+    scheme = "https" if settings["plex_ssl"] else "http"
+    plex = f'{scheme}://{settings["plex_hostname"]}:{settings["plex_port"]}'
+    token = settings["plex_auth_token"]
+
+    def plex_get(path, **params):
+        params["X-Plex-Token"] = token
+        return ET.fromstring(fetch(f"{plex}{path}?{urllib.parse.urlencode(params)}"))
+
+    def is_seeding(el):
+        for part in el.iter("Part"):
+            path = part.get("file")
+            if not path or not path.startswith(LIBRARY_PATH):
+                continue
+            try:
+                if os.stat(path).st_nlink > 1:
+                    return True
+            except OSError:
+                continue
+        return False
+
+    def set_labels(section, plex_type, key, labels):
+        q = {"type": plex_type, "id": key, "X-Plex-Token": token}
+        for i, tag in enumerate(sorted(labels)):
+            q[f"label[{i}].tag.tag"] = tag
+        fetch(f"{plex}/library/sections/{section}/all?{urllib.parse.urlencode(q)}",
+              method="PUT")
+
+    added, removed, seeding_titles = [], [], []
+    for sec in plex_get("/library/sections").iter("Directory"):
+        sec_id, sec_type = sec.get("key"), sec.get("type")
+        if sec_type not in ("movie", "show"):
+            continue
+        plex_type = 1 if sec_type == "movie" else 2
+
+        # ratingKey -> (title, current labels); for shows the file check walks
+        # episodes (type=4) and rolls up via grandparentRatingKey.
+        items, seeding = {}, set()
+        for el in plex_get(f"/library/sections/{sec_id}/all").iter(
+            "Video" if sec_type == "movie" else "Directory"
+        ):
+            key = el.get("ratingKey")
+            if not key:
+                continue
+            labels = {l.get("tag") for l in el.findall("Label")}
+            items[key] = (el.get("title", key), labels)
+            if sec_type == "movie" and is_seeding(el):
+                seeding.add(key)
+        if sec_type == "show":
+            for ep in plex_get(f"/library/sections/{sec_id}/all", type=4).iter("Video"):
+                show_key = ep.get("grandparentRatingKey")
+                if show_key in items and show_key not in seeding and is_seeding(ep):
+                    seeding.add(show_key)
+
+        for key, (title, labels) in items.items():
+            if key in seeding:
+                seeding_titles.append(title)
+                if SEED_LABEL not in labels:
+                    set_labels(sec_id, plex_type, key, labels | {SEED_LABEL})
+                    added.append(title)
+            elif SEED_LABEL in labels:
+                set_labels(sec_id, plex_type, key, labels - {SEED_LABEL})
+                removed.append(title)
+
+    os.makedirs(REPORT_DIR, exist_ok=True)
+    with open(os.path.join(REPORT_DIR, "seeding.txt"), "w") as f:
+        f.write("\n".join(sorted(seeding_titles)) + "\n")
+    print(f"seeding (protected): {len(seeding_titles)}")
+    print(f"label added: {len(added)} {added}")
+    print(f"label removed: {len(removed)} {removed}")
+    sys.exit(0)
+{{- end }}
