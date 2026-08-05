@@ -35,19 +35,6 @@ services:
     type: ClusterIP
     port: 6246
     protocol: TCP
-    ingress:
-      className: nginx-internal
-      annotations:
-        cert-manager.io/cluster-issuer: letsencrypt
-      hosts:
-        - host: maintainerr.drewburr.com
-          paths:
-            - path: /
-              pathType: ImplementationSpecific
-      tls:
-      - secretName: maintainerr-ingress
-        hosts:
-          - maintainerr.drewburr.com
 
 resources: {}
 
