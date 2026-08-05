@@ -76,19 +76,21 @@ readinessProbe:
     port: 6246
 
 # ---------------------------------------------------------------------------
-# Hardlink-safety audit CronJob (see templates/hardlink-guard-cronjob.yaml).
-# Scans the shared plex-data library and reports which files are genuinely
-# safe to reclaim (link count == 1) vs. protected (hardlinked, count > 1 --
-# deleting frees no space and would need the torrent kept for seeding).
-# This is scoped to plex-data ONLY; the alt/private ecosystem lives on the
-# separate plex-alt-data volume and is never touched here.
+# Seeding-guard CronJob (see templates/seeding-guard-cronjob.yaml).
+# Scans the shared plex-data library for files still hardlinked into the
+# torrent dir (link count > 1 = an active torrent still references them) and
+# applies the Plex label below to the owning movie/show -- whole show even if
+# only one episode is seeding. Maintainerr review rules exclude that label,
+# so labeled media can never be matched for cleanup. Labels are removed
+# automatically once nothing is hardlinked anymore. The job never deletes.
+# Scoped to plex-data ONLY; the alt ecosystem on plex-alt-data is untouched.
 # ---------------------------------------------------------------------------
-hardlinkGuard:
+seedingGuard:
   enabled: true
   schedule: "0 6 * * *"   # daily 06:00
-  image: debian:stable-slim
-  # Path inside the container to scan (plex-data mounted at /data).
+  image: python:3.12-slim
+  # Plex label applied to seeding media; must match the Maintainerr rule guard.
+  label: seeding
+  # Library root inside the container (plex-data mounted at /data, same paths
+  # Plex itself reports).
   libraryPath: /data/media
-  # Subtree(s) to skip so we don't list the torrent seed copies themselves.
-  # Adjust to your actual download root under plex-data.
-  excludePath: /data/torrents
