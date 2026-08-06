@@ -16,14 +16,14 @@ data:
     so labeled media can never be matched for cleanup. This script only ever
     edits Plex labels; it never deletes anything.
     """
-    import json
     import os
     import sys
     import urllib.parse
     import urllib.request
     import xml.etree.ElementTree as ET
 
-    MAINTAINERR_URL = os.environ["MAINTAINERR_URL"]
+    PLEX_URL = os.environ["PLEX_URL"]
+    token = os.environ["PLEX_TOKEN"]
     LIBRARY_PATH = os.environ["LIBRARY_PATH"]
     SEED_LABEL = os.environ.get("SEED_LABEL", "seeding")
     REPORT_DIR = os.environ.get("REPORT_DIR", "/backups/seeding-guard")
@@ -33,12 +33,7 @@ data:
         with urllib.request.urlopen(req, timeout=60) as res:
             return res.read()
 
-    # Plex connection details come from Maintainerr's own settings, so there
-    # is no separate token secret to manage.
-    settings = json.loads(fetch(MAINTAINERR_URL + "/api/settings"))
-    scheme = "https" if settings["plex_ssl"] else "http"
-    plex = f'{scheme}://{settings["plex_hostname"]}:{settings["plex_port"]}'
-    token = settings["plex_auth_token"]
+    plex = PLEX_URL.rstrip("/")
 
     def plex_get(path, **params):
         params["X-Plex-Token"] = token

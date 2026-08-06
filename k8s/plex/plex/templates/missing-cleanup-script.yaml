@@ -20,14 +20,14 @@ data:
     <mediaId>): the file is already gone, so nothing is removed from disk, and
     other intact versions of the same item are untouched.
     """
-    import json
     import os
     import sys
     import urllib.parse
     import urllib.request
     import xml.etree.ElementTree as ET
 
-    MAINTAINERR_URL = os.environ["MAINTAINERR_URL"]
+    PLEX_URL = os.environ["PLEX_URL"]
+    token = os.environ["PLEX_TOKEN"]
     LIBRARY_PATH = os.environ["LIBRARY_PATH"]
     DRY_RUN = os.environ.get("DRY_RUN", "false").lower() == "true"
     MAX_MISSING_PERCENT = float(os.environ.get("MAX_MISSING_PERCENT", "10"))
@@ -37,10 +37,7 @@ data:
         with urllib.request.urlopen(req, timeout=60) as res:
             return res.read()
 
-    settings = json.loads(fetch(MAINTAINERR_URL + "/api/settings"))
-    scheme = "https" if settings["plex_ssl"] else "http"
-    plex = f'{scheme}://{settings["plex_hostname"]}:{settings["plex_port"]}'
-    token = settings["plex_auth_token"]
+    plex = PLEX_URL.rstrip("/")
 
     def plex_get(path, **params):
         params["X-Plex-Token"] = token
