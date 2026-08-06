@@ -91,6 +91,9 @@ seedingGuard:
   image: python:3.12-slim
   # Plex label applied to seeding media; must match the Maintainerr rule guard.
   label: seeding
+  # Plex URL for direct API access; token comes from the plex-token secret
+  # (projected by the ExternalSecret in the plex chart).
+  plexUrl: http://plex-plex-https:32400
   # Library root inside the container (plex-data mounted at /data, same paths
   # Plex itself reports).
   libraryPath: /data/media
