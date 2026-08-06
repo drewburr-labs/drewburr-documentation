@@ -15,8 +15,12 @@ spec:
       backoffLimit: 1
       template:
         metadata:
+          # Deliberately NOT the chart selectorLabels: those would match the
+          # Service selector and make kube-proxy load-balance service traffic
+          # to this job pod (instant connection-refused for callers).
           labels:
-            {{- include "maintainerr.selectorLabels" . | nindent 12 }}
+            app.kubernetes.io/name: {{ include "maintainerr.name" . }}-seeding-guard
+            app.kubernetes.io/instance: {{ .Release.Name }}
         spec:
           restartPolicy: Never
           # Run as the media uid/gid directly; no fsGroup -- it would make the
