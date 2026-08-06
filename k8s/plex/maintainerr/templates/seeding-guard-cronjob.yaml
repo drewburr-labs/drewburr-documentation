@@ -28,8 +28,13 @@ spec:
             - name: seeding-guard
               image: {{ .Values.seedingGuard.image | quote }}
               env:
-                - name: MAINTAINERR_URL
-                  value: http://{{ include "maintainerr.fullname" . }}-http:{{ (index .Values.services 0).port }}
+                - name: PLEX_URL
+                  value: {{ .Values.seedingGuard.plexUrl | quote }}
+                - name: PLEX_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: plex-token
+                      key: token
                 - name: LIBRARY_PATH
                   value: {{ .Values.seedingGuard.libraryPath | quote }}
                 - name: SEED_LABEL

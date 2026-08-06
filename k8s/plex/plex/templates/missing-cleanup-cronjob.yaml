@@ -28,8 +28,13 @@ spec:
             - name: missing-cleanup
               image: {{ .Values.missingCleanup.image | quote }}
               env:
-                - name: MAINTAINERR_URL
-                  value: {{ .Values.missingCleanup.maintainerrUrl | quote }}
+                - name: PLEX_URL
+                  value: {{ .Values.missingCleanup.plexUrl | quote }}
+                - name: PLEX_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: plex-token
+                      key: token
                 - name: LIBRARY_PATH
                   value: {{ .Values.missingCleanup.libraryPath | quote }}
                 - name: DRY_RUN
