@@ -15,8 +15,13 @@ spec:
       backoffLimit: 1
       template:
         metadata:
+          # Deliberately NOT the chart selectorLabels: those would match the
+          # plex-plex-https Service selector and make kube-proxy load-balance
+          # Plex traffic to this job pod (instant connection-refused — this is
+          # exactly what broke the first missing-cleanup runs).
           labels:
-            {{- include "plex.selectorLabels" . | nindent 12 }}
+            app.kubernetes.io/name: {{ include "plex.name" . }}-missing-cleanup
+            app.kubernetes.io/instance: {{ .Release.Name }}
         spec:
           restartPolicy: Never
           # Run as the media uid/gid directly; no fsGroup -- it would make the
