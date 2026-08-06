@@ -250,3 +250,22 @@ lifecycle:
           pgrep -f 'Plex Media Server' >/dev/null 2>&1 || exit 0;
           sleep 1;
           done
+
+# ---------------------------------------------------------------------------
+# Missing-media cleanup CronJob (see templates/missing-cleanup-cronjob.yaml).
+# Automated version of _scripts/cleanup-unavailable.sh: removes Plex media
+# entries whose file no longer exists on disk (checked by stat() on the
+# read-only plex-data mount, never HTTP probes). A circuit breaker aborts
+# without deleting if more than maxMissingPercent of the library looks
+# missing (mount/scan problem, not routine cleanup). Plex credentials are
+# read from Maintainerr's settings API at runtime.
+# ---------------------------------------------------------------------------
+missingCleanup:
+  enabled: true
+  schedule: "30 6 * * *"   # daily 06:30, after the seeding-guard
+  image: python:3.12-slim
+  maintainerrUrl: http://plex-maintainerr-http:6246
+  libraryPath: /data/media
+  # Set true to only report what would be removed.
+  dryRun: false
+  maxMissingPercent: 10
