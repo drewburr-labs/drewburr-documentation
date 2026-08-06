@@ -1,0 +1,53 @@
+{{- if .Values.missingCleanup.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "plex.fullname" . }}-missing-cleanup
+  labels:
+    {{- include "plex.labels" . | nindent 4 }}
+spec:
+  schedule: {{ .Values.missingCleanup.schedule | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        metadata:
+          labels:
+            {{- include "plex.selectorLabels" . | nindent 12 }}
+        spec:
+          restartPolicy: Never
+          securityContext:
+            runAsUser: 1001
+            runAsGroup: 1001
+            fsGroup: 1001
+          containers:
+            - name: missing-cleanup
+              image: {{ .Values.missingCleanup.image | quote }}
+              env:
+                - name: MAINTAINERR_URL
+                  value: {{ .Values.missingCleanup.maintainerrUrl | quote }}
+                - name: LIBRARY_PATH
+                  value: {{ .Values.missingCleanup.libraryPath | quote }}
+                - name: DRY_RUN
+                  value: {{ .Values.missingCleanup.dryRun | quote }}
+                - name: MAX_MISSING_PERCENT
+                  value: {{ .Values.missingCleanup.maxMissingPercent | quote }}
+              command: ["python3", "/scripts/missing-cleanup.py"]
+              volumeMounts:
+                - name: plex-data
+                  mountPath: /data
+                  readOnly: true
+                - name: script
+                  mountPath: /scripts
+                  readOnly: true
+          volumes:
+            - name: plex-data
+              persistentVolumeClaim:
+                claimName: plex-data
+            - name: script
+              configMap:
+                name: {{ include "plex.fullname" . }}-missing-cleanup
+{{- end }}
