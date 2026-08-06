@@ -1,0 +1,102 @@
+{{- if .Values.missingCleanup.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "plex.fullname" . }}-missing-cleanup
+  labels:
+    {{- include "plex.labels" . | nindent 4 }}
+data:
+  missing-cleanup.py: |
+    """Remove Plex media entries whose file no longer exists on disk.
+
+    Automated replacement for _scripts/cleanup-unavailable.sh. Missing-ness is
+    decided by stat()ing the file on the read-only plex-data mount -- not via
+    HTTP probes -- so a broken volume mount keeps the pod from starting rather
+    than making the whole library look deleted. A circuit breaker aborts the
+    run without deleting anything if more than MAX_MISSING_PERCENT of checked
+    parts are missing (a systemic problem, not routine cleanup).
+
+    Deletes the Plex *media entry* only (DELETE /library/metadata/<key>/media/
+    <mediaId>): the file is already gone, so nothing is removed from disk, and
+    other intact versions of the same item are untouched.
+    """
+    import json
+    import os
+    import sys
+    import urllib.parse
+    import urllib.request
+    import xml.etree.ElementTree as ET
+
+    MAINTAINERR_URL = os.environ["MAINTAINERR_URL"]
+    LIBRARY_PATH = os.environ["LIBRARY_PATH"]
+    DRY_RUN = os.environ.get("DRY_RUN", "false").lower() == "true"
+    MAX_MISSING_PERCENT = float(os.environ.get("MAX_MISSING_PERCENT", "10"))
+
+    def fetch(url, method="GET"):
+        req = urllib.request.Request(url, method=method)
+        with urllib.request.urlopen(req, timeout=60) as res:
+            return res.read()
+
+    settings = json.loads(fetch(MAINTAINERR_URL + "/api/settings"))
+    scheme = "https" if settings["plex_ssl"] else "http"
+    plex = f'{scheme}://{settings["plex_hostname"]}:{settings["plex_port"]}'
+    token = settings["plex_auth_token"]
+
+    def plex_get(path, **params):
+        params["X-Plex-Token"] = token
+        return ET.fromstring(fetch(f"{plex}{path}?{urllib.parse.urlencode(params)}"))
+
+    # (ratingKey, mediaId, title, file) for every media version whose every
+    # part under LIBRARY_PATH is gone. Paths outside LIBRARY_PATH are not ours
+    # to judge and never count as missing.
+    total_parts, missing = 0, []
+    for sec in plex_get("/library/sections").iter("Directory"):
+        if sec.get("type") not in ("movie", "show"):
+            continue
+        params = {"type": 4} if sec.get("type") == "show" else {}
+        for video in plex_get(f'/library/sections/{sec.get("key")}/all', **params).iter("Video"):
+            title = " - ".join(
+                filter(None, (video.get("grandparentTitle"), video.get("title")))
+            )
+            for media in video.findall("Media"):
+                files, gone = [], []
+                for part in media.findall("Part"):
+                    path = part.get("file")
+                    if not path or not path.startswith(LIBRARY_PATH):
+                        continue
+                    total_parts += 1
+                    files.append(path)
+                    if not os.path.exists(path):
+                        gone.append(path)
+                if files and len(gone) == len(files):
+                    missing.append(
+                        (video.get("ratingKey"), media.get("id"), title, gone[0])
+                    )
+
+    if total_parts == 0:
+        print("ABORT: no library files were checked -- refusing to act on an "
+              "empty view of the library")
+        sys.exit(1)
+
+    pct = 100.0 * len(missing) / total_parts
+    print(f"checked {total_parts} parts, {len(missing)} missing ({pct:.1f}%)")
+    for _, _, title, path in missing:
+        print(f"  missing: {title} ({path})")
+
+    if pct > MAX_MISSING_PERCENT:
+        print(f"ABORT: {pct:.1f}% missing exceeds the {MAX_MISSING_PERCENT}% "
+              "circuit breaker -- this looks like a mount/scan problem, not "
+              "routine cleanup. Nothing was deleted.")
+        sys.exit(1)
+
+    for rating_key, media_id, title, _ in missing:
+        if DRY_RUN:
+            print(f"  [dry-run] would delete media {media_id} of '{title}'")
+            continue
+        fetch(f"{plex}/library/metadata/{rating_key}/media/{media_id}"
+              f"?X-Plex-Token={urllib.parse.quote(token)}", method="DELETE")
+        print(f"  deleted media entry {media_id} of '{title}'")
+
+    print(f"done: {len(missing)} entr{'y' if len(missing) == 1 else 'ies'} "
+          f"{'found (dry-run)' if DRY_RUN else 'removed'}")
+{{- end }}
