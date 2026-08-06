@@ -19,10 +19,11 @@ spec:
             {{- include "plex.selectorLabels" . | nindent 12 }}
         spec:
           restartPolicy: Never
+          # Run as the media uid/gid directly; no fsGroup -- it would make the
+          # kubelet recursively chown the entire plex-data volume every mount.
           securityContext:
             runAsUser: 1001
             runAsGroup: 1001
-            fsGroup: 1001
           containers:
             - name: missing-cleanup
               image: {{ .Values.missingCleanup.image | quote }}
