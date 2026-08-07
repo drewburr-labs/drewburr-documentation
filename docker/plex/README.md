@@ -4,6 +4,8 @@ Custom Plex image published as `ghcr.io/drewburr-labs/plex:latest`. The image ad
 
 **Status (2026-04-19):** deployed; HW decode + HW encode confirmed working on an Intel Arc B570 (Battlemage, `8086:e20c`, xe kernel driver) on kernel 6.17.0-20-generic.
 
+**Base re-audit (2026-08-06):** re-checked `plexinc/pms-docker:latest` (digest `sha256:5bc1d13f…`, PMS **1.43.3.10861**). No change from the June audit — the `__isoc23_*` family is still missing from `libgcompat.so.0`. **Shim still required.** See [Base-image audit log](#base-image-audit-log). Rebuilt against this base; shim retained.
+
 **Base re-audit (2026-06-20):** re-checked `plexinc/pms-docker:latest` (digest `sha256:c37106c5…`, PMS binary dated 2026-05-02). The bundled `libgcompat.so.0` has **partially** caught up but the shim is **still required** — see [Base-image audit log](#base-image-audit-log) below. Rebuilt against this base; shim retained.
 
 ## The bug this works around
@@ -98,6 +100,14 @@ The image is based on `plexinc/pms-docker:latest`, not linuxserver, so env vars 
 - **Delete this shim when upstream fixes libgcompat.** Revisit after each Plex beta; monitor the forum thread linked above.
 
 ## Base-image audit log
+
+### 2026-08-06 — `plexinc/pms-docker:latest` (PMS 1.43.3.10861-07dfddaeb, image digest `sha256:5bc1d13f…`)
+
+Re-ran the `nm -D --defined-only` check against the new base's `libgcompat.so.0`. Result identical to 2026-06-20: the same 15 FORTIFY/`secure_getenv` symbols are exported; everything else is still missing, including the entire C23 `__isoc23_*` family that causes the load-time relocation failure. The upstream forum thread (938129) auto-closed 2026-07-18 with zero replies. **Shim still required.**
+
+Still missing (unchanged): `__isoc23_strtoul`, `__isoc23_strtol`, `__isoc23_strtoll`, `__isoc23_strtoull`, `__isoc23_fscanf`, `__isoc23_sscanf`, `__wmemcpy_chk`, `__wmemset_chk`, `__mbsnrtowcs_chk`, `__mbsrtowcs_chk`, `__openat_2`, `__openat64_2`, `arc4random`, `arc4random_buf`, `arc4random_uniform`, `getentropy`, `strfromf128`, `strtof128`, `_dl_find_object`
+
+As before, this audits `libgcompat` only. The 1.43.3 transcoder may download a newer iHD driver at runtime — after deploying the rebuilt image, run the `nm -D --undefined` diff from Operational notes against the live driver to catch any new unresolved symbol.
 
 ### 2026-06-20 — `plexinc/pms-docker:latest` (PMS binary 2026-05-02, image digest `sha256:c37106c5…`)
 
