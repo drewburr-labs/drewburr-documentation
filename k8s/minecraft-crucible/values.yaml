@@ -67,10 +67,10 @@ craftycontroller:
   resources:
     limits:
       # cpu: 5
-      memory: 9Gi
+      memory: 10Gi
     requests:
       cpu: 1
-      memory: 9Gi
+      memory: 10Gi
 
   sftp:
     enabled: true
