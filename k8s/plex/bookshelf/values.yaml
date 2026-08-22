@@ -1,0 +1,115 @@
+# https://github.com/pennydreadful/bookshelf
+# Readarr fork for monitored-author grabs via the existing qbittorrent and
+# sabnzbd deployments. The hardcover tag uses the Hardcover metadata service
+# (softcover = Goodreads). Runs non-root as uid 1001.
+replicaCount: 1
+
+image:
+  repository: ghcr.io/pennydreadful/bookshelf
+  pullPolicy: Always
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ''
+
+imagePullSecrets: []
+nameOverride: ''
+fullnameOverride: ''
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ''
+
+podAnnotations: {}
+
+podSecurityContext:
+  fsGroup: 1001
+  fsGroupChangePolicy: "OnRootMismatch"
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1001
+  runAsGroup: 1001
+
+# Ports to be exposed, grouped by services
+services:
+  - name: http
+    type: ClusterIP
+    port: 8787
+    protocol: TCP
+    ingress:
+      className: nginx-internal
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt
+      hosts:
+        - host: bookshelf.drewburr.com
+          paths:
+            - path: /
+              pathType: ImplementationSpecific
+      tls:
+        - secretName: bookshelf-ingress
+          hosts:
+            - bookshelf.drewburr.com
+
+resources: {}
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+# Appended to env. Supports envFrom
+env: []
+
+# Key: value environment variables to be appended to env
+envVars:
+  TZ: America/New_York
+
+# Mounts the full plex-data volume at /data so download client paths
+# (qbittorrent/sabnzbd category dirs) resolve without remote path mappings.
+persistence:
+  - name: bookshelf-config
+    mountPath: config
+    accessModes:
+      - ReadWriteOnce
+    requests: 10Gi
+    storageClassName: zfs-nvmeof
+  - name: plex-data
+    mountPath: data
+
+nodeSelector: {}
+
+tolerations:
+  - key: compute
+    operator: Exists
+    effect: PreferNoSchedule
+
+affinity:
+  nodeAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        preference:
+          matchExpressions:
+            - key: compute
+              operator: In
+              values:
+                - 'true'
+
+startupProbe:
+  httpGet:
+    path: /
+    port: 8787
+  failureThreshold: 30
+  periodSeconds: 10
+livenessProbe:
+  httpGet:
+    path: /
+    port: 8787
+readinessProbe:
+  httpGet:
+    path: /
+    port: 8787
