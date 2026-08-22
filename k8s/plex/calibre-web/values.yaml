@@ -45,6 +45,19 @@ services:
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt
         external-dns.alpha.kubernetes.io/target: ip.drewburr.com
+        # Injects a "Request a Book" sidebar entry linking to shelfmark at
+        # /request — NextGen has no native outbound-link setting yet
+        # (new-usemame/Calibre-Web-NextGen#1785). The anchor is the sidebar
+        # <ul> opening tag from cps/templates/layout.html; if an image
+        # update changes that tag the filter stops matching and the link
+        # silently disappears (nothing breaks — re-check the template and
+        # update the anchor). Accept-Encoding is stripped because sub_filter
+        # can't rewrite gzipped upstream responses; sub_filter only touches
+        # text/html by default.
+        nginx.ingress.kubernetes.io/configuration-snippet: |
+          proxy_set_header Accept-Encoding "";
+          sub_filter '<ul class="list-unstyled" id="scnd-nav" intent in-standard-append="nav.navigation" in-mobile-after="#main-nav" in-mobile-class="nav navbar-nav">' '<ul class="list-unstyled" id="scnd-nav" intent in-standard-append="nav.navigation" in-mobile-after="#main-nav" in-mobile-class="nav navbar-nav"><li><a href="/request/"><span class="glyphicon glyphicon-search"></span> Request a Book</a></li>';
+          sub_filter_once on;
       hosts:
         - host: books.drewburr.com
           paths:
