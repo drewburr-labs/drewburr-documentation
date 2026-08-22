@@ -28,15 +28,10 @@ privilege-drop loop), which is why NextGen is used.
                               bookshelf root folder: /data/books/ingest)
 ```
 
-fsGroup does not chown NFS volumes, so the subtree must be pre-created on
-storage01 before first sync:
-
-```sh
-ssh ubuntu@storage01.drewburr.com
-D=/lake/k8s/nvmeof/dataset/pvc-1a6ee17d-54a9-47e3-808f-b266d21d1fd9
-sudo mkdir -p $D/books/calibre-library $D/books/ingest
-sudo chown -R 1001:1001 $D/books
-```
+The subtree is created by `mkdir` initContainers (same pattern as the plex
+chart's mkdir init), running as 1001 since fsGroup does not chown NFS
+volumes. calibre-web creates both dirs; shelfmark creates the ingest dir so
+neither app depends on the other's sync order.
 
 ## Post-deploy wiring (one-time, in-app)
 

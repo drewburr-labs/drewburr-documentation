@@ -115,6 +115,29 @@ affinity:
               values:
                 - 'true'
 
+# Creates the books subtree on plex-data before the subPath mounts resolve.
+# Runs as 1001 like the plex mkdir init; fsGroup can't chown NFS so the dirs
+# must be created by the owning uid.
+initContainers:
+  - name: mkdir
+    image:
+      repository: alpine
+      pullPolicy: Always
+      tag: latest
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 1001
+      runAsGroup: 1001
+    command:
+      - sh
+      - -c
+      - >-
+        mkdir -p /data/books/calibre-library &&
+        mkdir -p /data/books/ingest
+    volumeMountsOverride:
+      - name: plex-data
+        mountPath: /data
+
 startupProbe:
   httpGet:
     path: /
