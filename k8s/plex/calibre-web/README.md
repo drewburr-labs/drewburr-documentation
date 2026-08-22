@@ -89,3 +89,11 @@ Amazon silently drops mail otherwise:
    → scroll to the bottom (**Personal Document Settings → Approved Personal
    Document E-mail List**) → "Add a new approved e-mail address" →
    `books@drewburr.com`.
+
+After sending: a "Finished" task in calibre-web means the mail was handed
+off — delivery is then Amazon's side and takes several minutes. The book
+does NOT appear on its own until the device syncs: Kindle → Settings →
+**Sync**, then look under **Library → Docs** (sent books file as personal
+documents, not store purchases). Verified working 2026-08-22. If it still
+isn't there after ~20 min and a sync, the approved-sender entry is the
+usual culprit (Amazon drops unapproved mail with no bounce).
