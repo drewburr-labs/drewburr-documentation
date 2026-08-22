@@ -46,7 +46,13 @@ services:
     # likewise owned by the calibre-web ingress record.
     ingress:
       className: nginx-external
-      annotations: {}
+      # Release lookups run through the Cloudflare bypasser and can take up
+      # to EXT_BYPASSER_TIMEOUT (180s, set in shelfmark's settings UI);
+      # nginx's default 60s proxy-read timeout returned the HTML error page
+      # mid-lookup, which the UI failed to parse as JSON.
+      annotations:
+        nginx.ingress.kubernetes.io/proxy-read-timeout: "200"
+        nginx.ingress.kubernetes.io/proxy-send-timeout: "200"
       hosts:
         - host: books.drewburr.com
           paths:
