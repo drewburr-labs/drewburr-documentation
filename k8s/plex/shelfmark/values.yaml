@@ -118,6 +118,26 @@ affinity:
               values:
                 - 'true'
 
+# Same mkdir pattern as plex/calibre-web so shelfmark doesn't depend on
+# calibre-web having synced first.
+initContainers:
+  - name: mkdir
+    image:
+      repository: alpine
+      pullPolicy: Always
+      tag: latest
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 1001
+      runAsGroup: 1001
+    command:
+      - sh
+      - -c
+      - mkdir -p /data/books/ingest
+    volumeMountsOverride:
+      - name: plex-data
+        mountPath: /data
+
 startupProbe:
   httpGet:
     path: /
