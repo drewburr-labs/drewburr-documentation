@@ -115,6 +115,11 @@ additionalVolumeMounts:
   - name: plex-data
     mountPath: /cwa-book-ingest
     subPath: books/ingest
+  # sabnzbd/qbittorrent report completed paths under /data/downloads;
+  # shelfmark must see the same paths to collect finished downloads.
+  - name: plex-data
+    mountPath: /data/downloads
+    subPath: downloads
   - name: tmp-shelfmark
     mountPath: /tmp/shelfmark
   - name: log-shelfmark
