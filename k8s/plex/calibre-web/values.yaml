@@ -47,16 +47,25 @@ services:
         external-dns.alpha.kubernetes.io/target: ip.drewburr.com
         # Injects a "Request a Book" sidebar entry linking to shelfmark at
         # /request — NextGen has no native outbound-link setting yet
-        # (new-usemame/Calibre-Web-NextGen#1785). The anchor is the sidebar
-        # <ul> opening tag from cps/templates/layout.html; if an image
-        # update changes that tag the filter stops matching and the link
-        # silently disappears (nothing breaks — re-check the template and
-        # update the anchor). Accept-Encoding is stripped because sub_filter
-        # can't rewrite gzipped upstream responses; sub_filter only touches
-        # text/html by default.
+        # (new-usemame/Calibre-Web-NextGen#1785). Two injections, one per UI:
+        # - Classic UI: static <li> spliced after the sidebar <ul> opening
+        #   tag from cps/templates/layout.html.
+        # - New (React SPA) UI: a <script> before </head> that finds the
+        #   rendered /authors sidebar link, clones its classes/icon (CSS
+        #   module class names are build-hashed, so cloning beats
+        #   hardcoding), and appends the entry; a MutationObserver re-adds
+        #   it after React re-renders. No-ops on classic pages (scnd-nav
+        #   guard). The script must contain no single quotes (nginx
+        #   sub_filter quoting) and no "</" sequence outside the closing
+        #   script tag.
+        # If an image update changes either anchor the link silently
+        # disappears (nothing breaks — re-check and update the anchor).
+        # Accept-Encoding is stripped because sub_filter can't rewrite
+        # gzipped upstream responses; sub_filter only touches text/html.
         nginx.ingress.kubernetes.io/configuration-snippet: |
           proxy_set_header Accept-Encoding "";
           sub_filter '<ul class="list-unstyled" id="scnd-nav" intent in-standard-append="nav.navigation" in-mobile-after="#main-nav" in-mobile-class="nav navbar-nav">' '<ul class="list-unstyled" id="scnd-nav" intent in-standard-append="nav.navigation" in-mobile-after="#main-nav" in-mobile-class="nav navbar-nav"><li><a href="/request/"><span class="glyphicon glyphicon-search"></span> Request a Book</a></li>';
+          sub_filter '</head>' '<script>(function(){function add(){if(document.getElementById("cwng-req"))return;if(document.getElementById("scnd-nav"))return;var links=document.querySelectorAll("nav a");var ref=null;for(var i=0;i<links.length;i++){if(links[i].getAttribute("href")==="/authors"){ref=links[i];break}}if(!ref)return;var ul=ref.closest("ul");var rli=ref.closest("li");if(!ul||!rli)return;var li=document.createElement("li");li.className=rli.className;var a=document.createElement("a");a.id="cwng-req";a.href="/request/";a.className=ref.className;var svg=ref.querySelector("svg");if(svg)a.appendChild(svg.cloneNode(true));var sp=document.createElement("span");var rsp=ref.querySelector("span");if(rsp)sp.className=rsp.className;sp.textContent="Request a Book";a.appendChild(sp);li.appendChild(a);ul.appendChild(li)}var mo=new MutationObserver(add);function go(){add();mo.observe(document.body,{childList:true,subtree:true})}if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",go)}else{go()}})()</script></head>';
           sub_filter_once on;
       hosts:
         - host: books.drewburr.com
