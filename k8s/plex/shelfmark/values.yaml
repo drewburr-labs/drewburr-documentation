@@ -41,9 +41,10 @@ services:
     port: 8084
     protocol: TCP
     ingress:
-      className: nginx-internal
+      className: nginx-external
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt
+        external-dns.alpha.kubernetes.io/target: ip.drewburr.com
       hosts:
         - host: shelfmark.drewburr.com
           paths:
@@ -73,6 +74,12 @@ envVars:
   # non-root; reuse the existing flare-bypasser deployment instead.
   USING_EXTERNAL_BYPASSER: true
   EXT_BYPASSER_URL: http://plex-flaresolverr-flare-bypasser-http:8080
+  # Family logins reuse calibre-web's user database (same accounts as
+  # books.drewburr.com). The whole config dir is mounted (not just app.db)
+  # so sqlite WAL/shm sidecar files stay visible to the reader.
+  AUTH_METHOD: cwa
+  CWA_DB_PATH: /auth-cw/app.db
+  SESSION_COOKIE_SECURE: true
 
 persistence:
   - name: shelfmark-config
@@ -90,6 +97,10 @@ additionalVolumes:
     emptyDir: {}
   - name: log-shelfmark
     emptyDir: {}
+  - name: calibre-web-config
+    persistentVolumeClaim:
+      claimName: calibre-web-config
+      readOnly: true
 
 additionalVolumeMounts:
   - name: plex-data
@@ -99,6 +110,9 @@ additionalVolumeMounts:
     mountPath: /tmp/shelfmark
   - name: log-shelfmark
     mountPath: /var/log/shelfmark
+  - name: calibre-web-config
+    mountPath: /auth-cw
+    readOnly: true
 
 nodeSelector: {}
 
@@ -107,7 +121,15 @@ tolerations:
     operator: Exists
     effect: PreferNoSchedule
 
+# Hard co-scheduling with calibre-web: calibre-web-config is RWO block
+# storage (zfs-nvmeof), only mountable by pods on the same node.
 affinity:
+  podAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchLabels:
+            app.kubernetes.io/instance: plex-calibre-web
+        topologyKey: kubernetes.io/hostname
   nodeAffinity:
     preferredDuringSchedulingIgnoredDuringExecution:
       - weight: 100
