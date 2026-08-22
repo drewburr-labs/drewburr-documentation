@@ -1,0 +1,10 @@
+apiVersion: v2
+name: calibre-web
+description: A Helm chart for deploying Calibre-Web NextGen (CWA continuation)
+type: application
+version: 0.1.0
+appVersion: "latest"
+dependencies:
+- name: library
+  version: 0.0.0
+  repository: file://../library

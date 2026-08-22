@@ -1,0 +1,3 @@
+{{- include "library.deployment" (list . "shelfmark.deployment") -}}
+{{- define "shelfmark.deployment" -}}
+{{- end -}}
