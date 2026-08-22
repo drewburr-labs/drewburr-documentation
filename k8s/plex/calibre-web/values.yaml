@@ -94,6 +94,11 @@ envVars:
   # Library and ingest live on plex-data (NFS); enables sqlite-safe locking
   # and polling file-watch instead of inotify.
   NETWORK_SHARE_MODE: true
+  # The cwa-ingest-service run script falls back to grepping dirs.json for
+  # the ingest folder and expects a space after the colon; the image's
+  # compact dirs.json doesn't match, leaving the watcher on an empty path
+  # (books sat in ingest forever). Setting the env skips that fragile parse.
+  WATCH_FOLDER: /cwa-book-ingest
 
 persistence:
   - name: calibre-web-config
