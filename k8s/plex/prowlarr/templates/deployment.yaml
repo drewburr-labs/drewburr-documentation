@@ -1,0 +1,3 @@
+{{- include "library.deployment" (list . "prowlarr.deployment") -}}
+{{- define "prowlarr.deployment" -}}
+{{- end -}}
