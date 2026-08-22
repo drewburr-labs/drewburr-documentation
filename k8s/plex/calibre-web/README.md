@@ -7,13 +7,16 @@ existing qbittorrent, sabnzbd, flare-bypasser, and plex-data infrastructure.
   Calibre-Web-Automated). Family-facing library UI at
   <https://books.drewburr.com> (external ingress). Per-user accounts,
   send-to-kindle email, OPDS, auto-convert, auto-ingest.
-- **shelfmark** — search/download UI at <https://shelfmark.drewburr.com>
-  (external; `AUTH_METHOD=cwa` reuses calibre-web's user database, so family
-  members log in with their books.drewburr.com account). Drops books into
-  the shared ingest folder. Uses the existing flare-bypasser instead of its
-  bundled SeleniumBase one. Pinned to calibre-web's node via required
-  podAffinity — it mounts the RWO calibre-web-config PVC read-only for
-  app.db.
+- **shelfmark** — search/request UI at <https://books.drewburr.com/request>
+  (subpath on the books host via `URL_BASE`; `AUTH_METHOD=cwa` reuses
+  calibre-web's user database, so family members log in with their
+  books.drewburr.com account, and `CALIBRE_WEB_URL` gives it a "Library"
+  button back to the main site). Drops books into the shared ingest folder.
+  Uses the existing flare-bypasser instead of its bundled SeleniumBase one.
+  Pinned to calibre-web's node via required podAffinity — it mounts the RWO
+  calibre-web-config PVC read-only for app.db. Its ingress carries no tls
+  block or DNS annotation: the calibre-web ingress owns cert and DNS for
+  the host.
 - **bookshelf** — Readarr fork at <https://bookshelf.drewburr.com> (internal).
   Monitored-author automation via the existing download clients. `hardcover`
   image tag = Hardcover metadata; `softcover` = Goodreads.

@@ -40,20 +40,18 @@ services:
     type: ClusterIP
     port: 8084
     protocol: TCP
+    # Served under books.drewburr.com/request (URL_BASE below). No tls block:
+    # the calibre-web ingress already terminates TLS for this host and a
+    # second cert-manager claim on the same host would fight it. DNS is
+    # likewise owned by the calibre-web ingress record.
     ingress:
       className: nginx-external
-      annotations:
-        cert-manager.io/cluster-issuer: letsencrypt
-        external-dns.alpha.kubernetes.io/target: ip.drewburr.com
+      annotations: {}
       hosts:
-        - host: shelfmark.drewburr.com
+        - host: books.drewburr.com
           paths:
-            - path: /
+            - path: /request
               pathType: ImplementationSpecific
-      tls:
-        - secretName: shelfmark-ingress
-          hosts:
-            - shelfmark.drewburr.com
 
 resources: {}
   # limits:
@@ -80,6 +78,11 @@ envVars:
   AUTH_METHOD: cwa
   CWA_DB_PATH: /auth-cw/app.db
   SESSION_COOKIE_SECURE: true
+  # Subpath hosting under the books host (natively supported; UI, API,
+  # assets, and Socket.IO all serve under this base).
+  URL_BASE: /request/
+  # Adds a "Library" button in shelfmark's header linking back to the library.
+  CALIBRE_WEB_URL: https://books.drewburr.com
 
 persistence:
   - name: shelfmark-config
