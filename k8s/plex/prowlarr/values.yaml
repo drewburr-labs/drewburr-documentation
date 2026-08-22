@@ -1,0 +1,114 @@
+# https://github.com/home-operations/containers
+# Indexer manager: gives shelfmark torrent release sources (shelfmark speaks
+# Prowlarr, not Jackett) and can sync indexers to bookshelf/sonarr/radarr,
+# eventually retiring jackett. home-operations image chosen over
+# linuxserver/hotio: rootless by design (no s6 root init; default user is
+# nobody), verified as 1001 via podman and trivy-scanned (0 critical, 6
+# inherited .NET runtime highs) on 2026-08-22.
+replicaCount: 1
+
+image:
+  repository: ghcr.io/home-operations/prowlarr
+  pullPolicy: Always
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ''
+
+imagePullSecrets: []
+nameOverride: ''
+fullnameOverride: ''
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ''
+
+podAnnotations: {}
+
+podSecurityContext:
+  fsGroup: 1001
+  fsGroupChangePolicy: "OnRootMismatch"
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1001
+  runAsGroup: 1001
+
+# Ports to be exposed, grouped by services
+services:
+  - name: http
+    type: ClusterIP
+    port: 9696
+    protocol: TCP
+    ingress:
+      className: nginx-internal
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt
+      hosts:
+        - host: prowlarr.drewburr.com
+          paths:
+            - path: /
+              pathType: ImplementationSpecific
+      tls:
+        - secretName: prowlarr-ingress
+          hosts:
+            - prowlarr.drewburr.com
+
+resources: {}
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+# Appended to env. Supports envFrom
+env: []
+
+# Key: value environment variables to be appended to env
+envVars:
+  TZ: America/New_York
+
+persistence:
+  - name: prowlarr-config
+    mountPath: config
+    accessModes:
+      - ReadWriteOnce
+    requests: 10Gi
+    storageClassName: zfs-nvmeof
+
+nodeSelector: {}
+
+tolerations:
+  - key: compute
+    operator: Exists
+    effect: PreferNoSchedule
+
+affinity:
+  nodeAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        preference:
+          matchExpressions:
+            - key: compute
+              operator: In
+              values:
+                - 'true'
+
+startupProbe:
+  httpGet:
+    path: /ping
+    port: 9696
+  failureThreshold: 30
+  periodSeconds: 10
+livenessProbe:
+  httpGet:
+    path: /ping
+    port: 9696
+readinessProbe:
+  httpGet:
+    path: /ping
+    port: 9696
