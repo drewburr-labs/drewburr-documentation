@@ -1,14 +1,18 @@
-# https://github.com/pennydreadful/bookshelf
+# https://github.com/EasyAsABC123/bookshelfng
 # Readarr fork for monitored-author grabs via the existing qbittorrent and
-# sabnzbd deployments. The hardcover tag uses the Hardcover metadata service
-# (softcover = Goodreads). Runs non-root as uid 1001.
+# sabnzbd deployments. bookshelfng over pennydreadful/bookshelf: qBittorrent
+# 5.2+ returns HTTP 204 on login, which pennydreadful mislabels as an auth
+# failure (pennydreadful/bookshelf#160, stale since Feb 2026); bookshelfng
+# carries the fix. Tag pinned to an immutable build (trivy-scanned 2026-08-22:
+# 0 critical / 3 inherited .NET-runtime highs). hardcover-* tags use the
+# Hardcover metadata service (softcover = Goodreads). Runs non-root as 1001.
 replicaCount: 1
 
 image:
-  repository: ghcr.io/pennydreadful/bookshelf
+  repository: ghcr.io/easyasabc123/bookshelfng
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: ''
+  tag: 'hardcover-develop-50cd486'
 
 imagePullSecrets: []
 nameOverride: ''
