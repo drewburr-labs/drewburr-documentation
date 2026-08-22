@@ -163,17 +163,19 @@ initContainers:
       - name: plex-data
         mountPath: /data
 
+# Probe paths must live under URL_BASE — with /request/ set, nothing is
+# served at / and the startup probe kills the pod after 5 minutes.
 startupProbe:
   httpGet:
-    path: /
+    path: /request/
     port: 8084
   failureThreshold: 30
   periodSeconds: 10
 livenessProbe:
   httpGet:
-    path: /
+    path: /request/
     port: 8084
 readinessProbe:
   httpGet:
-    path: /
+    path: /request/
     port: 8084
