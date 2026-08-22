@@ -1,0 +1,10 @@
+apiVersion: v2
+name: shelfmark
+description: A Helm chart for deploying Shelfmark (book search/download UI)
+type: application
+version: 0.1.0
+appVersion: "latest"
+dependencies:
+- name: library
+  version: 0.0.0
+  repository: file://../library

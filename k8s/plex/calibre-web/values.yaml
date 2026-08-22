@@ -1,0 +1,154 @@
+# https://github.com/new-usemame/Calibre-Web-NextGen
+# Community continuation of Calibre-Web-Automated. Chosen over
+# crocodilestick/calibre-web-automated because the original's s6 init cannot
+# start non-root (s6-applyuidgid loops); NextGen runs cleanly as uid 1001.
+replicaCount: 1
+
+image:
+  repository: ghcr.io/new-usemame/calibre-web-nextgen
+  pullPolicy: Always
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ''
+
+imagePullSecrets: []
+nameOverride: ''
+fullnameOverride: ''
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ''
+
+podAnnotations: {}
+
+podSecurityContext:
+  fsGroup: 1001
+  fsGroupChangePolicy: "OnRootMismatch"
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1001
+  runAsGroup: 1001
+
+# Ports to be exposed, grouped by services
+services:
+  - name: http
+    type: ClusterIP
+    port: 8083
+    protocol: TCP
+    ingress:
+      className: nginx-external
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt
+        external-dns.alpha.kubernetes.io/target: ip.drewburr.com
+      hosts:
+        - host: books.drewburr.com
+          paths:
+            - path: /
+              pathType: ImplementationSpecific
+      tls:
+        - secretName: calibre-web-ingress
+          hosts:
+            - books.drewburr.com
+
+resources: {}
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+# Appended to env. Supports envFrom
+env: []
+
+# Key: value environment variables to be appended to env
+envVars:
+  TZ: America/New_York
+  # Library and ingest live on plex-data (NFS); enables sqlite-safe locking
+  # and polling file-watch instead of inotify.
+  NETWORK_SHARE_MODE: true
+
+persistence:
+  - name: calibre-web-config
+    mountPath: config
+    accessModes:
+      - ReadWriteOnce
+    requests: 10Gi
+    storageClassName: zfs-nvmeof
+
+# Library chart persistence has no subPath support, so plex-data subdirs are
+# mounted via additionalVolumes/Mounts. The books/ subtree must exist on the
+# share and be owned 1001 (fsGroup does not chown NFS volumes).
+additionalVolumes:
+  - name: plex-data
+    persistentVolumeClaim:
+      claimName: plex-data
+
+additionalVolumeMounts:
+  - name: plex-data
+    mountPath: /calibre-library
+    subPath: books/calibre-library
+  - name: plex-data
+    mountPath: /cwa-book-ingest
+    subPath: books/ingest
+
+nodeSelector: {}
+
+tolerations:
+  - key: compute
+    operator: Exists
+    effect: PreferNoSchedule
+
+affinity:
+  nodeAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        preference:
+          matchExpressions:
+            - key: compute
+              operator: In
+              values:
+                - 'true'
+
+# Creates the books subtree on plex-data before the subPath mounts resolve.
+# Runs as 1001 like the plex mkdir init; fsGroup can't chown NFS so the dirs
+# must be created by the owning uid.
+initContainers:
+  - name: mkdir
+    image:
+      repository: alpine
+      pullPolicy: Always
+      tag: latest
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 1001
+      runAsGroup: 1001
+    command:
+      - sh
+      - -c
+      - >-
+        mkdir -p /data/books/calibre-library &&
+        mkdir -p /data/books/ingest
+    volumeMountsOverride:
+      - name: plex-data
+        mountPath: /data
+
+startupProbe:
+  httpGet:
+    path: /
+    port: 8083
+  failureThreshold: 30
+  periodSeconds: 10
+livenessProbe:
+  httpGet:
+    path: /
+    port: 8083
+readinessProbe:
+  httpGet:
+    path: /
+    port: 8083
