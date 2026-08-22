@@ -171,11 +171,20 @@ startupProbe:
     port: 8083
   failureThreshold: 30
   periodSeconds: 10
+# NextGen's single gevent worker wedges (stops answering HTTP) while
+# in-process tasks run — send-to-ereader conversion+SMTP reliably wedged it
+# for ~1min and the default liveness (3x10s) killed the pod mid-send, every
+# send. Tolerate ~3min of wedge before restarting; readiness keeps pulling
+# the endpoint so the UI 503s briefly instead of the pod dying.
 livenessProbe:
   httpGet:
     path: /
     port: 8083
+  periodSeconds: 30
+  timeoutSeconds: 5
+  failureThreshold: 6
 readinessProbe:
   httpGet:
     path: /
     port: 8083
+  timeoutSeconds: 5
