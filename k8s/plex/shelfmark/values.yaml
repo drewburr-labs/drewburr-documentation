@@ -1,0 +1,134 @@
+# https://github.com/calibrain/shelfmark
+# Formerly calibre-web-automated-book-downloader. Search/download UI that
+# drops books into the CWA ingest folder. Runs non-root; entrypoint requires
+# writable /tmp/shelfmark, /var/log/shelfmark, and /config in that mode.
+replicaCount: 1
+
+image:
+  repository: ghcr.io/calibrain/shelfmark
+  pullPolicy: Always
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ''
+
+imagePullSecrets: []
+nameOverride: ''
+fullnameOverride: ''
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ''
+
+podAnnotations: {}
+
+podSecurityContext:
+  fsGroup: 1001
+  fsGroupChangePolicy: "OnRootMismatch"
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1001
+  runAsGroup: 1001
+
+# Ports to be exposed, grouped by services
+services:
+  - name: http
+    type: ClusterIP
+    port: 8084
+    protocol: TCP
+    ingress:
+      className: nginx-internal
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt
+      hosts:
+        - host: shelfmark.drewburr.com
+          paths:
+            - path: /
+              pathType: ImplementationSpecific
+      tls:
+        - secretName: shelfmark-ingress
+          hosts:
+            - shelfmark.drewburr.com
+
+resources: {}
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+# Appended to env. Supports envFrom
+env: []
+
+# Key: value environment variables to be appended to env
+envVars:
+  TZ: America/New_York
+  INGEST_DIR: /cwa-book-ingest
+  # Built-in SeleniumBase bypasser needs image-layer writes that fail
+  # non-root; reuse the existing flare-bypasser deployment instead.
+  USING_EXTERNAL_BYPASSER: true
+  EXT_BYPASSER_URL: http://plex-flaresolverr-flare-bypasser-http:8080
+
+persistence:
+  - name: shelfmark-config
+    mountPath: config
+    accessModes:
+      - ReadWriteOnce
+    requests: 10Gi
+    storageClassName: zfs-nvmeof
+
+additionalVolumes:
+  - name: plex-data
+    persistentVolumeClaim:
+      claimName: plex-data
+  - name: tmp-shelfmark
+    emptyDir: {}
+  - name: log-shelfmark
+    emptyDir: {}
+
+additionalVolumeMounts:
+  - name: plex-data
+    mountPath: /cwa-book-ingest
+    subPath: books/ingest
+  - name: tmp-shelfmark
+    mountPath: /tmp/shelfmark
+  - name: log-shelfmark
+    mountPath: /var/log/shelfmark
+
+nodeSelector: {}
+
+tolerations:
+  - key: compute
+    operator: Exists
+    effect: PreferNoSchedule
+
+affinity:
+  nodeAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        preference:
+          matchExpressions:
+            - key: compute
+              operator: In
+              values:
+                - 'true'
+
+startupProbe:
+  httpGet:
+    path: /
+    port: 8084
+  failureThreshold: 30
+  periodSeconds: 10
+livenessProbe:
+  httpGet:
+    path: /
+    port: 8084
+readinessProbe:
+  httpGet:
+    path: /
+    port: 8084
