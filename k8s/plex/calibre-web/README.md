@@ -39,9 +39,9 @@ neither app depends on the other's sync order.
 ## Post-deploy wiring (one-time, in-app)
 
 1. **calibre-web**: create the library at `/calibre-library`; set ingest dir
-   `/cwa-book-ingest`; configure SMTP for send-to-kindle; create family user
-   accounts (each user sets their own `@kindle.com` address and whitelists
-   the sender address in their Amazon account).
+   `/cwa-book-ingest`; configure SMTP for send-to-kindle (see below); create
+   family user accounts (each user sets their own `@kindle.com` address and
+   whitelists the sender address in their Amazon account).
 2. **bookshelf**: add download clients `plex-qbittorrent-http:8080`
    (category `books`) and `plex-sabnzbd-http:8080` (category `books`); add
    indexers (Jackett Torznab feeds); set root folder `/data/books/ingest` so
@@ -49,3 +49,31 @@ neither app depends on the other's sync order.
    also exists if the primary's VPN egress isn't wanted for books.
 3. **qbittorrent/sabnzbd**: create the `books` categories with save paths
    under `/data/` so bookshelf can import without path mapping.
+
+## Send-to-kindle email (iCloud SMTP, configured 2026-08-22)
+
+Settings live in calibre-web's admin UI (stored in app.db, not this repo):
+
+```text
+SMTP host   smtp.mail.me.com:587 STARTTLS
+Login       drewburr@icloud.com          <- MUST be the @icloud.com address
+Password    app-specific password         (account.apple.com, not the real one)
+From        books@drewburr.com            <- custom-domain address on iCloud+
+```
+
+Hard-won quirks, in the order they bit:
+
+- The login must be the **@icloud.com address**. The Apple ID primary (a
+  gmail address) authenticates fine (no 5.7.8) but every send then fails
+  with `5.1.1 Mailbox does not exist` regardless of From/recipient, because
+  iCloud can't map a third-party login to the iCloud mailbox as a sender.
+- A custom-domain alias as login fails outright with `5.7.8 authentication
+  failed`.
+- The From address must exist under **iCloud+ Custom Email Domain → Manage
+  email addresses** (being listed in the Apple ID "Email & Phone Numbers"
+  sign-in list is a different registry and not sufficient).
+
+Per family member (the "email never arrives" checklist): calibre-web user
+profile has their `@kindle.com` address, and `books@drewburr.com` is in
+their Amazon **Approved Personal Document E-mail List** (amazon.com →
+Content & Devices → Preferences) — Amazon silently drops mail otherwise.
