@@ -1,17 +1,19 @@
-# https://github.com/blampe/rreading-glasses
-# Self-hosted Readarr-compatible metadata server backed by Hardcover's
-# official API. Replaces the community proxy hardcover.bookinfo.pro that
-# bookshelf's hardcover build defaults to — that shared instance rate-limits
-# by IP (429s took bookshelf search down on 2026-08-22) while Drew's own
-# Hardcover quota sat idle. Image is distroless, runs as 65532 by design.
+# Self-hosted Readarr-compatible metadata server (blampe/rreading-glasses)
+# backed by Hardcover's official API, so bookshelf uses our own Hardcover
+# quota instead of the shared hardcover.bookinfo.pro proxy (which
+# rate-limited bookshelf search to death on 2026-08-22).
+#
+# We build our OWN image (docker/rreading-glasses) because upstream sends
+# Hasura-style array-batched GraphQL that Hardcover rejects with 400,
+# breaking all lookups — the patch un-batches it. Distroless, runs as 65532.
 # No ingress: only bookshelf talks to it, via the cluster service.
 replicaCount: 1
 
 image:
-  repository: docker.io/blampe/rreading-glasses
+  repository: ghcr.io/drewburr-labs/rreading-glasses
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: ''
+  tag: 'latest'
 
 imagePullSecrets: []
 nameOverride: ''
