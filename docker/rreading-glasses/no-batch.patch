@@ -1,21 +1,32 @@
 diff --git a/internal/graphql.go b/internal/graphql.go
-index fa3a870..3d7e8c9 100644
+index fa3a870..5505dac 100644
 --- a/internal/graphql.go
 +++ b/internal/graphql.go
-@@ -40,6 +40,18 @@ type batchedgqlclient struct {
+@@ -40,6 +40,29 @@ type batchedgqlclient struct {
  // NewBatchedGraphQLClient creates a batching GraphQL client. Queries are
  // accumulated and executed regularly accurding to the given rate.
  func NewBatchedGraphQLClient(url string, client *http.Client, every time.Duration, batchSize int, reg *prometheus.Registry) (graphql.Client, error) {
-+	// PATCH (drewburr-labs): Hardcover's GraphQL endpoint rejects the
-+	// Hasura-style array-batched request this client sends ([{query...}])
-+	// with 400 "Unexpected end of document", breaking all lookups. Use the
-+	// stock genqlient client (one bare-object request per query). Hardcover's
-+	// rate limit is ample for a home library; results cache in Postgres.
++	// PATCH (drewburr-labs): Hardcover rejects this client's Hasura-style
++	// array-batched requests (400) and caps ANY request at 5 top-level
++	// queries (403 over that); upstream merges up to 25, so batching is
++	// doubly incompatible. Send one bare-object query per request (stock
++	// genqlient) and throttle to Hardcover's 60/min so the concurrent work
++	// fanout stays under the burst bucket instead of 429ing and dropping
++	// every result. Cold lookups are paced ~1/sec; results cache in
++	// Postgres so this only bites the first fetch of a given work/author.
 +	if true {
 +		_ = every
 +		_ = batchSize
 +		_ = reg
-+		return graphql.NewClient(url, client), nil
++		rt := client.Transport
++		if rt == nil {
++			rt = http.DefaultTransport
++		}
++		throttled := &http.Client{
++			Transport:     throttledTransport{RoundTripper: rt, ticker: time.NewTicker(time.Second)},
++			CheckRedirect: client.CheckRedirect,
++		}
++		return graphql.NewClient(url, throttled), nil
 +	}
 +
  	wrapped := graphql.NewClient(url, client)
