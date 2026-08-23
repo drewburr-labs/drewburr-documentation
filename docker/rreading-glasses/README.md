@@ -16,16 +16,26 @@ search and metadata lookup fails with a 400 the UI surfaces as
 
 Diagnosed by MITM-capturing the exact outbound request (2026-08-22): the
 identical query as a bare object returns `200`; wrapped in a one-element
-array it returns `400`. `no-batch.patch` makes `NewBatchedGraphQLClient`
-return the stock genqlient client, which sends one bare-object request per
-query. Verified end-to-end against the live Hardcover API — search returns
-real results.
+array it returns `400`. Hardcover also caps any request at **5 top-level
+queries** (`403` over that, per their rate-limit docs), so upstream merging
+up to 25 into one request is doubly incompatible.
 
-**Trade-off:** no request batching means more calls to Hardcover. Their free
-tier is 60/min + burst 10, ample for a home library, and rreading-glasses
-caches everything in Postgres so each author/work is fetched once. Heavy
-first-time author fanouts can still transiently hit 429; they resolve on
-retry as the cache warms.
+`no-batch.patch` makes `NewBatchedGraphQLClient` return the stock genqlient
+client (one bare-object query per request) **and** throttles it to
+Hardcover's 60/min via the codebase's existing `throttledTransport`. The
+throttle is essential, not cosmetic: without batching, a single search fans
+out ~20-40 concurrent work/edition fetches, instantly blows Hardcover's
+burst bucket, every sub-fetch `429`s, and the results all get dropped —
+searches return `[]` with a misleading `200`. Verified end-to-end against
+the live API: search returns real results with **zero 429s** across the
+fanout.
+
+**Trade-off:** throttling paces cold lookups at ~1/sec, so the first fetch
+of a large author can take tens of seconds. Everything caches in Postgres,
+so it's a one-time cost per work/author. Hardcover's per-minute limit is 60
+regardless of plan, so 1/sec is the safe sustained ceiling; a Supporter
+plan raises the daily limit (50k) and burst (15) but not the sustained
+rate.
 
 ## Maintenance
 
