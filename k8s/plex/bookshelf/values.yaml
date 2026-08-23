@@ -103,6 +103,16 @@ affinity:
               values:
                 - 'true'
 
+# Series reconciler: hourly CronJob that gives Bookshelf the series-level
+# monitoring it lacks natively. Tag an author with the kebab-case series
+# slug (e.g. dungeon-crawler-carl) to declare intent; new volumes in tagged
+# series (unmonitored, fileless, never grabbed per history) get monitored
+# and searched. Requires Secret bookshelf-reconciler with key apiKey
+# (Bookshelf's API key) — created out-of-band like other secrets.
+reconciler:
+  schedule: "15 * * * *"
+  image: docker.io/library/python:3.12-alpine
+
 startupProbe:
   httpGet:
     path: /
