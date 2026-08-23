@@ -1,16 +1,20 @@
 # Self-hosted Readarr-compatible metadata server (blampe/rreading-glasses)
-# backed by Hardcover's official API, so bookshelf uses our own Hardcover
-# quota instead of the shared hardcover.bookinfo.pro proxy (which
-# rate-limited bookshelf search to death on 2026-08-22).
+# giving bookshelf its metadata instead of the shared hardcover.bookinfo.pro
+# proxy (which rate-limited bookshelf search to death on 2026-08-22).
 #
-# We build our OWN image (docker/rreading-glasses) because upstream sends
-# Hasura-style array-batched GraphQL that Hardcover rejects with 400,
-# breaking all lookups — the patch un-batches it. Distroless, runs as 65532.
-# No ingress: only bookshelf talks to it, via the cluster service.
+# Runs in GOODREADS mode (--upstream=www.goodreads.com), NOT Hardcover mode.
+# Hardcover mode needs an API key and, because upstream's GraphQL client
+# batches in a way Hardcover rejects (array format + 5-top-level-query cap),
+# a custom patched+throttled image — which paced cold searches at ~100s
+# against Hardcover's 60/min limit. Goodreads mode uses a completely
+# different scrape path (internal/gr.go, HTTP GET), needs no key and no
+# throttle, and returns sub-second searches with the STOCK image. (Hardcover
+# mode is recoverable from git history — PRs #33-#35 — if Goodreads scraping
+# ever breaks.) Distroless, runs as 65532. No ingress: bookshelf-only.
 replicaCount: 1
 
 image:
-  repository: ghcr.io/drewburr-labs/rreading-glasses
+  repository: docker.io/blampe/rreading-glasses
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: 'latest'
@@ -38,7 +42,7 @@ securityContext:
   runAsGroup: 65532
 
 command: ["/main", "serve"]
-args: ["--verbose"]
+args: ["--upstream=www.goodreads.com", "--verbose"]
 
 # Ports to be exposed, grouped by services
 services:
@@ -56,14 +60,9 @@ resources:
   limits:
     memory: 512Mi
 
-# HARDCOVER_AUTH ("Bearer <token>", expires every Jan 1 — see README) comes
-# from the out-of-band Secret rreading-glasses (key: hardcoverAuth).
-env:
-  - name: HARDCOVER_AUTH
-    valueFrom:
-      secretKeyRef:
-        name: rreading-glasses
-        key: hardcoverAuth
+# Goodreads mode needs no auth (Hardcover mode used HARDCOVER_AUTH from an
+# out-of-band Secret; no longer required).
+env: []
 
 # Key: value environment variables to be appended to env
 envVars:
