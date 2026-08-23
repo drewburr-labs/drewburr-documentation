@@ -1,0 +1,23 @@
+diff --git a/internal/graphql.go b/internal/graphql.go
+index fa3a870..3d7e8c9 100644
+--- a/internal/graphql.go
++++ b/internal/graphql.go
+@@ -40,6 +40,18 @@ type batchedgqlclient struct {
+ // NewBatchedGraphQLClient creates a batching GraphQL client. Queries are
+ // accumulated and executed regularly accurding to the given rate.
+ func NewBatchedGraphQLClient(url string, client *http.Client, every time.Duration, batchSize int, reg *prometheus.Registry) (graphql.Client, error) {
++	// PATCH (drewburr-labs): Hardcover's GraphQL endpoint rejects the
++	// Hasura-style array-batched request this client sends ([{query...}])
++	// with 400 "Unexpected end of document", breaking all lookups. Use the
++	// stock genqlient client (one bare-object request per query). Hardcover's
++	// rate limit is ample for a home library; results cache in Postgres.
++	if true {
++		_ = every
++		_ = batchSize
++		_ = reg
++		return graphql.NewClient(url, client), nil
++	}
++
+ 	wrapped := graphql.NewClient(url, client)
+ 
+ 	c := &batchedgqlclient{
