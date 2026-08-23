@@ -1,0 +1,89 @@
+replicaCount: 1
+
+image:
+  repository: postgres
+  pullPolicy: IfNotPresent
+  tag: "18-alpine"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: "rreading-glasses-db"
+
+serviceAccount:
+  create: false
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+
+# Run as postgres user (UID/GID 999) so PostgreSQL can own its data dir
+podSecurityContext:
+  fsGroup: 999
+  fsGroupChangePolicy: "OnRootMismatch"
+
+securityContext:
+  runAsUser: 999
+  runAsGroup: 999
+
+services:
+  - name: db
+    type: ClusterIP
+    port: 5432
+    protocol: TCP
+
+resources: {}
+
+env: []
+
+# Cluster-internal cache DB; in-values creds follow the bazarr-postgres
+# precedent. The data is a rebuildable metadata cache, not a system of
+# record.
+envVars:
+  POSTGRES_DB: rreading-glasses
+  POSTGRES_USER: rreading-glasses
+  POSTGRES_PASSWORD: rg-cache-n4Dp7qXe2w
+  # Subdirectory avoids issues with non-empty mount points
+  PGDATA: /var/lib/postgresql/data/pgdata
+
+# PVC name must not collide with bazarr's postgres-data claim (library
+# chart PVC names are not release-prefixed).
+persistence:
+  - name: rreading-glasses-db-data
+    mountPath: var/lib/postgresql/data
+    accessModes:
+      - ReadWriteOnce
+    requests: 5Gi
+    storageClassName: zfs-nvmeof
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+startupProbe:
+  exec:
+    command:
+      - pg_isready
+      - -U
+      - rreading-glasses
+      - -d
+      - rreading-glasses
+  failureThreshold: 30
+  periodSeconds: 10
+livenessProbe:
+  exec:
+    command:
+      - pg_isready
+      - -U
+      - rreading-glasses
+      - -d
+      - rreading-glasses
+  timeoutSeconds: 5
+readinessProbe:
+  exec:
+    command:
+      - pg_isready
+      - -U
+      - rreading-glasses
+      - -d
+      - rreading-glasses
+  timeoutSeconds: 5

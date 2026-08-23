@@ -1,0 +1,105 @@
+# https://github.com/blampe/rreading-glasses
+# Self-hosted Readarr-compatible metadata server backed by Hardcover's
+# official API. Replaces the community proxy hardcover.bookinfo.pro that
+# bookshelf's hardcover build defaults to — that shared instance rate-limits
+# by IP (429s took bookshelf search down on 2026-08-22) while Drew's own
+# Hardcover quota sat idle. Image is distroless, runs as 65532 by design.
+# No ingress: only bookshelf talks to it, via the cluster service.
+replicaCount: 1
+
+image:
+  repository: docker.io/blampe/rreading-glasses
+  pullPolicy: Always
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ''
+
+imagePullSecrets: []
+nameOverride: ''
+fullnameOverride: ''
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ''
+
+podAnnotations: {}
+
+podSecurityContext: {}
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 65532
+  runAsGroup: 65532
+
+command: ["/main", "serve"]
+args: ["--verbose"]
+
+# Ports to be exposed, grouped by services
+services:
+  - name: http
+    type: ClusterIP
+    port: 8788
+    protocol: TCP
+
+# Upstream warns it will use all available memory for in-memory caching;
+# the limit is the cache ceiling, not a leak guard.
+resources:
+  requests:
+    cpu: 25m
+    memory: 128Mi
+  limits:
+    memory: 512Mi
+
+# HARDCOVER_AUTH ("Bearer <token>", expires every Jan 1 — see README) comes
+# from the out-of-band Secret rreading-glasses (key: hardcoverAuth).
+env:
+  - name: HARDCOVER_AUTH
+    valueFrom:
+      secretKeyRef:
+        name: rreading-glasses
+        key: hardcoverAuth
+
+# Key: value environment variables to be appended to env
+envVars:
+  TZ: America/New_York
+  POSTGRES_HOST: rreading-glasses-db-db
+  POSTGRES_DATABASE: rreading-glasses
+  POSTGRES_USER: rreading-glasses
+  POSTGRES_PASSWORD: rg-cache-n4Dp7qXe2w
+
+# Stateless; postgres holds the (rebuildable) cache.
+persistence: []
+
+nodeSelector: {}
+
+tolerations:
+  - key: compute
+    operator: Exists
+    effect: PreferNoSchedule
+
+affinity:
+  nodeAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        preference:
+          matchExpressions:
+            - key: compute
+              operator: In
+              values:
+                - 'true'
+
+startupProbe:
+  tcpSocket:
+    port: 8788
+  failureThreshold: 30
+  periodSeconds: 10
+livenessProbe:
+  tcpSocket:
+    port: 8788
+readinessProbe:
+  tcpSocket:
+    port: 8788
