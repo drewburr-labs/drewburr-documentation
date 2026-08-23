@@ -1,0 +1,10 @@
+apiVersion: v2
+name: rreading-glasses
+description: A Helm chart for deploying rreading-glasses (Readarr metadata server)
+type: application
+version: 0.1.0
+appVersion: "hardcover"
+dependencies:
+- name: library
+  version: 0.0.0
+  repository: file://../library
