@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bookshelf-series-reconciler
+  labels:
+    {{- include "bookshelf.labels" . | nindent 4 }}
+data:
+  series_reconciler.py: |
+{{ .Files.Get "files/series_reconciler.py" | indent 4 }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: bookshelf-series-reconciler
+  labels:
+    {{- include "bookshelf.labels" . | nindent 4 }}
+spec:
+  schedule: {{ .Values.reconciler.schedule | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        spec:
+          restartPolicy: Never
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1001
+            runAsGroup: 1001
+          containers:
+            - name: reconciler
+              image: {{ .Values.reconciler.image }}
+              command: ["python3", "/app/series_reconciler.py"]
+              env:
+                - name: BOOKSHELF_URL
+                  value: http://plex-bookshelf-http:8787
+                - name: BOOKSHELF_API_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: bookshelf-reconciler
+                      key: apiKey
+              resources:
+                requests:
+                  cpu: 10m
+                  memory: 32Mi
+                limits:
+                  memory: 128Mi
+              volumeMounts:
+                - name: script
+                  mountPath: /app
+          volumes:
+            - name: script
+              configMap:
+                name: bookshelf-series-reconciler
