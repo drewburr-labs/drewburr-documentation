@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: storage-move-replication-dashboard
+  labels:
+    grafana_dashboard: "1"
+data:
+  storage-move-replication.json: |
+    {{ .Files.Get "files/storage-move-replication.json" | nindent 4 }}
