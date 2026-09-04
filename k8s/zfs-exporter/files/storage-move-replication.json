@@ -253,7 +253,7 @@
   {
    "id": 5,
    "type": "stat",
-   "title": "Time remaining (1h avg rate)",
+   "title": "Time remaining",
    "gridPos": {
     "x": 15,
     "y": 0,
@@ -267,8 +267,15 @@
    "targets": [
     {
      "refId": "A",
+     "expr": "clamp_min($target_bytes - zpool_allocated_bytes{instance=\"$instance\",pool=\"movebak\"}, 0) / scalar(clamp_min(rate(node_disk_written_bytes_total{instance=\"$instance\",device=\"$dev\"}[5m]), 1))",
+     "instant": true,
+     "legendFormat": "5m rate"
+    },
+    {
+     "refId": "B",
      "expr": "clamp_min($target_bytes - zpool_allocated_bytes{instance=\"$instance\",pool=\"movebak\"}, 0) / scalar(clamp_min(rate(node_disk_written_bytes_total{instance=\"$instance\",device=\"$dev\"}[1h]), 1))",
-     "instant": true
+     "instant": true,
+     "legendFormat": "1h rate"
     }
    ],
    "options": {
@@ -278,7 +285,9 @@
      ]
     },
     "colorMode": "none",
-    "graphMode": "none"
+    "graphMode": "none",
+    "textMode": "value_and_name",
+    "orientation": "vertical"
    },
    "fieldConfig": {
     "defaults": {
@@ -570,8 +579,15 @@
    "targets": [
     {
      "refId": "A",
+     "expr": "1000 * (time() + clamp_min($target_bytes - zpool_allocated_bytes{instance=\"$instance\",pool=\"movebak\"}, 0) / scalar(clamp_min(rate(node_disk_written_bytes_total{instance=\"$instance\",device=\"$dev\"}[5m]), 1)))",
+     "instant": true,
+     "legendFormat": "5m rate"
+    },
+    {
+     "refId": "B",
      "expr": "1000 * (time() + clamp_min($target_bytes - zpool_allocated_bytes{instance=\"$instance\",pool=\"movebak\"}, 0) / scalar(clamp_min(rate(node_disk_written_bytes_total{instance=\"$instance\",device=\"$dev\"}[1h]), 1)))",
-     "instant": true
+     "instant": true,
+     "legendFormat": "1h rate"
     }
    ],
    "options": {
@@ -581,7 +597,9 @@
      ]
     },
     "colorMode": "none",
-    "graphMode": "none"
+    "graphMode": "none",
+    "textMode": "value_and_name",
+    "orientation": "vertical"
    },
    "fieldConfig": {
     "defaults": {
