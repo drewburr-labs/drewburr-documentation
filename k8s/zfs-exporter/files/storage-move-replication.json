@@ -20,7 +20,7 @@
     "type": "constant",
     "name": "target_bytes",
     "label": "Expected final size (bytes)",
-    "query": "3650000000000",
+    "query": "9850000000000",
     "hide": 2
    },
    {
@@ -135,7 +135,7 @@
   {
    "id": 3,
    "type": "gauge",
-   "title": "Progress vs expected ~3.3T",
+   "title": "Progress vs expected ~9.9T",
    "gridPos": {
     "x": 7,
     "y": 0,
@@ -356,7 +356,7 @@
   {
    "id": 7,
    "type": "timeseries",
-   "title": "Throughput: sas-pool reads vs movebak writes",
+   "title": "Throughput: source reads vs movebak writes",
    "gridPos": {
     "x": 12,
     "y": 4,
@@ -370,8 +370,8 @@
    "targets": [
     {
      "refId": "A",
-     "expr": "sum(rate(node_disk_read_bytes_total{instance=\"$instance\",device=~\"sd[b-u]\"}[2m]))",
-     "legendFormat": "sas-pool read"
+     "expr": "sum(rate(node_disk_read_bytes_total{instance=\"$instance\",device=~\"sd[b-u]|sd(v|w|x|y|z|aa)\"}[2m]))",
+     "legendFormat": "sas-pool + lake read"
     },
     {
      "refId": "B",
