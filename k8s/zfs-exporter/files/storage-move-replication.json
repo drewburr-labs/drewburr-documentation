@@ -187,7 +187,7 @@
   {
    "id": 4,
    "type": "stat",
-   "title": "Write rate (5m)",
+   "title": "Write rate (5m / 1h avg)",
    "gridPos": {
     "x": 11,
     "y": 0,
@@ -202,7 +202,14 @@
     {
      "refId": "A",
      "expr": "rate(node_disk_written_bytes_total{instance=\"$instance\",device=\"$dev\"}[5m])",
-     "instant": true
+     "instant": true,
+     "legendFormat": "5m"
+    },
+    {
+     "refId": "B",
+     "expr": "scalar(rate(node_disk_written_bytes_total{instance=\"$instance\",device=\"$dev\"}[1h]))",
+     "instant": true,
+     "legendFormat": "1h avg"
     }
    ],
    "options": {
@@ -212,7 +219,8 @@
      ]
     },
     "colorMode": "value",
-    "graphMode": "area"
+    "graphMode": "area",
+    "textMode": "value_and_name"
    },
    "fieldConfig": {
     "defaults": {
@@ -245,7 +253,7 @@
   {
    "id": 5,
    "type": "stat",
-   "title": "Time remaining",
+   "title": "Time remaining (1h avg rate)",
    "gridPos": {
     "x": 15,
     "y": 0,
@@ -259,7 +267,7 @@
    "targets": [
     {
      "refId": "A",
-     "expr": "clamp_min($target_bytes - zpool_allocated_bytes{instance=\"$instance\",pool=\"movebak\"}, 0) / clamp_min(deriv(zpool_allocated_bytes{instance=\"$instance\",pool=\"movebak\"}[30m]), 1)",
+     "expr": "clamp_min($target_bytes - zpool_allocated_bytes{instance=\"$instance\",pool=\"movebak\"}, 0) / clamp_min(scalar(rate(node_disk_written_bytes_total{instance=\"$instance\",device=\"$dev\"}[1h])), 1)",
      "instant": true
     }
    ],
@@ -562,7 +570,7 @@
    "targets": [
     {
      "refId": "A",
-     "expr": "1000 * (time() + clamp_min($target_bytes - zpool_allocated_bytes{instance=\"$instance\",pool=\"movebak\"}, 0) / clamp_min(deriv(zpool_allocated_bytes{instance=\"$instance\",pool=\"movebak\"}[30m]), 1))",
+     "expr": "1000 * (time() + clamp_min($target_bytes - zpool_allocated_bytes{instance=\"$instance\",pool=\"movebak\"}, 0) / clamp_min(scalar(rate(node_disk_written_bytes_total{instance=\"$instance\",device=\"$dev\"}[1h])), 1))",
      "instant": true
     }
    ],
