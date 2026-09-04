@@ -267,7 +267,7 @@
    "targets": [
     {
      "refId": "A",
-     "expr": "clamp_min($target_bytes - zpool_allocated_bytes{instance=\"$instance\",pool=\"movebak\"}, 0) / clamp_min(scalar(rate(node_disk_written_bytes_total{instance=\"$instance\",device=\"$dev\"}[1h])), 1)",
+     "expr": "clamp_min($target_bytes - zpool_allocated_bytes{instance=\"$instance\",pool=\"movebak\"}, 0) / scalar(clamp_min(rate(node_disk_written_bytes_total{instance=\"$instance\",device=\"$dev\"}[1h]), 1))",
      "instant": true
     }
    ],
@@ -570,7 +570,7 @@
    "targets": [
     {
      "refId": "A",
-     "expr": "1000 * (time() + clamp_min($target_bytes - zpool_allocated_bytes{instance=\"$instance\",pool=\"movebak\"}, 0) / clamp_min(scalar(rate(node_disk_written_bytes_total{instance=\"$instance\",device=\"$dev\"}[1h])), 1))",
+     "expr": "1000 * (time() + clamp_min($target_bytes - zpool_allocated_bytes{instance=\"$instance\",pool=\"movebak\"}, 0) / scalar(clamp_min(rate(node_disk_written_bytes_total{instance=\"$instance\",device=\"$dev\"}[1h]), 1)))",
      "instant": true
     }
    ],
