@@ -99,6 +99,14 @@ envVars:
   # compact dirs.json doesn't match, leaving the watcher on an empty path
   # (books sat in ingest forever). Setting the env skips that fragile parse.
   WATCH_FOLDER: /cwa-book-ingest
+  # The image built 2026-08-28 rewrites /app/calibre-web-automated/dirs.json
+  # on every boot from the cwa-auto-library oneshot. That file is owned by
+  # uid 911 in the image, so uid 1001 can't write it, the oneshot exits 1,
+  # and s6 never starts the web service (startup probe loop, site down).
+  # Declaring the library dir as authoritative makes the script skip the
+  # write ("CWA_CALIBRE_LIBRARY_DIR is authoritative; leaving dirs.json
+  # unchanged").
+  CWA_CALIBRE_LIBRARY_DIR: /calibre-library
 
 persistence:
   - name: calibre-web-config
