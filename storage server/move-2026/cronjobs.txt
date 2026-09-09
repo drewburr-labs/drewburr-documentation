@@ -1,0 +1,4 @@
+# CronJobs whose pods mount storage01 PVCs. Suspended on the way down, resumed on the way up.
+plex bookshelf-series-reconciler
+plex plex-maintainerr-seeding-guard
+plex plex-plex-missing-cleanup
