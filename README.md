@@ -1,6 +1,8 @@
 # drewburr documentation
 
-Documentation related the the drewburr.com environment
+Documentation related to the drewburr.com environment.
+
+> All hostnames in this repository are under the `drewburr.com` domain unless otherwise stated (e.g. `pve05` means `pve05.drewburr.com`).
 
 ## Index
 
@@ -19,7 +21,7 @@ The drewburr environment consists of a 5-node [Proxmox VE](https://pve.proxmox.c
 |pve02|HP ProDesk 400 G5|i9-9900T|64GB DDR4|2.5GbE|500GB NVMe, 256GB SATA SSD|VM running K3s|
 |pve03|HP ProDesk 400 G5|i9-9900T|64GB DDR4|2.5GbE|500GB NVMe, 256GB SATA SSD|VM running K3s|
 |pve04|HP ProDesk 400 G5|i9-9900T|64GB DDR4|2.5GbE|500GB NVMe, 256GB SATA SSD|VM running K3s|
-|pve05|Custom build|5700X|128GB DDR4|10GbE|12x 400GB SAS SSD, 4TB NVMe, 2TB SATA SSD, 500GB SATA SSD|VM hosting a raidz3 pool, provided over NVMe-oF and NFS. Secondary VM running K3s|
+|pve05|Custom build|5700X|128GB DDR4|10GbE|20x 400GB SAS SSD, 6x 12-14TB HDD, 4TB NVMe, 2TB SATA SSD, 500GB SATA SSD|VM `storage01` hosting a raidz3 SSD pool and a raidz2 HDD pool, provided over NVMe-oF and NFS. Secondary VM running K3s|
 
 Each Ubuntu VM is cloned from a common VM template, then is initialized by [Cloud-Init](https://cloudinit.readthedocs.io/en/latest/) on first startup. The process of cloning, starting, and configuring a new VM is handled by Ansible automation defined in [drewburr-labs/proxmox-automation](https://github.com/drewburr-labs/proxmox-automation). This same repository contains the automation used to install and configure the Kubernetes cluster.
 
@@ -52,7 +54,7 @@ Ingress-nginx provides proxying for web-based services. Its flexibility as a ser
 
 Originally I used Ceph for storage, but found the speeds I was able to get with the then 1GbE networking was far below what I considered a minimum. I have a lot of fast hardware and was pushing USB 2.0 speeds. Instead, I opted to centralize my storage, upgrade pve01-04 to 2.5GbE via a network card swap, and purchase a [MikroTik CRS310-8G+2S+IN](https://mikrotik.com/product/crs310_8g_2s_in) to support 2.5 and 10Gb networking without breaking the bank.
 
-pve05 hosts 12x 400GB enterprise SAS SSDs in a raidz3 pool (~4TB). The SAS controller is provided directly to the VM using PCI passthrough, and democratic-csi is responsible for creating volumes and exposing them over NVMe-oF or NFS, depending on context. The storage and client VMs are configured via Ansible automation as needed. With this setup, I'm able to reliably saturate the 10Gb line at the cost of 10-15% CPU usage. Far fewer moving parts, and significantly improved speeds.
+pve05 hosts 20x 400GB enterprise SAS SSDs in a raidz3 pool (`sas-pool`, ~7TB) and 6x 12-14TB HDDs in a raidz2 pool (`lake`, ~65TB raw) used for Plex media. The SAS controller and the motherboard SATA controller are provided directly to the `storage01` VM using PCI passthrough, and democratic-csi is responsible for creating volumes and exposing them over NVMe-oF or NFS, depending on context. The storage and client VMs are configured via Ansible automation as needed. With this setup, I'm able to reliably saturate the 10Gb line at the cost of 10-15% CPU usage. Far fewer moving parts, and significantly improved speeds.
 
 If I find a need for replicated distributed storage, I will likely opt to local-hostpath the unused SATA SSDs on each host and dedicate them to a replicated Minio cluster.
 
