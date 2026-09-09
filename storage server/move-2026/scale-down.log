@@ -1,0 +1,56 @@
+== disabling ArgoCD automated sync on prometheus
+application.argoproj.io/prometheus patched
+== suspending CronJobs
+cronjob.batch/bookshelf-series-reconciler patched
+cronjob.batch/plex-maintainerr-seeding-guard patched
+cronjob.batch/plex-plex-missing-cleanup patched
+== recording replicas and scaling to 0
+deployment.apps/prometheus-operator scaled
+statefulset.apps/prometheus-prometheus scaled
+deployment.apps/prometheus-grafana scaled
+statefulset.apps/loki-write scaled
+statefulset.apps/loki-backend scaled
+deployment.apps/loki-read scaled
+statefulset.apps/loki-minio scaled
+deployment.apps/harbor-core scaled
+deployment.apps/harbor-jobservice scaled
+deployment.apps/harbor-registry scaled
+statefulset.apps/harbor-trivy scaled
+statefulset.apps/harbor-redis scaled
+statefulset.apps/harbor-database scaled
+statefulset.apps/home-assistant scaled
+statefulset.apps/open-webui scaled
+statefulset.apps/craftycontroller scaled
+statefulset.apps/minecraft-crucible-craftycontroller scaled
+statefulset.apps/minecraft-derailed-craftycontroller scaled
+statefulset.apps/minecraft-jinkies-craftycontroller scaled
+statefulset.apps/minecraft-underground-craftycontroller scaled
+statefulset/minecraft-novacraft-craftycontroller in minecraft-novacraft already at 0
+statefulset/minecraft-poke-central-craftycontroller in minecraft-poke-central already at 0
+statefulset/minecraft-test-craftycontroller in minecraft-test already at 0
+deployment.apps/bluemap scaled
+deployment.apps/bluemap-config scaled
+statefulset.apps/minecraft-server scaled
+deployment.apps/example-rwx-deployment scaled
+statefulset.apps/plex-plex scaled
+statefulset/plex-plex-config in plex already at 0
+statefulset.apps/plex-tautulli scaled
+statefulset.apps/plex-overseerr scaled
+statefulset.apps/plex-maintainerr scaled
+statefulset.apps/plex-radarr scaled
+statefulset.apps/plex-sonarr scaled
+statefulset/plex-sonarr-alt in plex already at 0
+statefulset.apps/plex-bazarr scaled
+statefulset.apps/bazarr-postgres scaled
+statefulset.apps/plex-prowlarr scaled
+statefulset.apps/plex-jackett scaled
+Warning: spec.template.spec.containers[0].ports[1]: duplicate port definition with spec.template.spec.containers[0].ports[0]
+statefulset.apps/plex-jackettfeed scaled
+statefulset.apps/plex-qbittorrent scaled
+statefulset.apps/plex-qbittorrent-alt scaled
+statefulset.apps/plex-sabnzbd scaled
+statefulset.apps/plex-bookshelf scaled
+statefulset.apps/plex-calibre-web scaled
+statefulset.apps/plex-shelfmark scaled
+statefulset.apps/plex-rreading-glasses scaled
+statefulset.apps/rreading-glasses-db scaled

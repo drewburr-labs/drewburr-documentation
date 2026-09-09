@@ -1,18 +1,142 @@
 # Storage Server Documentation
 
-Now that I have 10GbE + 2.5GbE network capabilities, I've built a storage server and intend to use it for centralized storage for Kubernetes PVCs. This server will run as a VM in Proxmox, with PCI passthrough of a SAS card. THe hope is that a backup of the VM is a backup of the ZFS configuration, then I can handle PVC backups at the Kuberentes level.
+The storage server is `storage01` (Ubuntu 24.04), a VM on `pve05` that provides centralized storage for Kubernetes PVCs. Both the SAS HBA and the motherboard SATA controller are passed through to the VM with PCI passthrough, so the VM sees the raw disks. Storage is provided using ZFS and the democratic-csi operator over NVMe-oF (block, `zfs-nvmeof` storage class) and NFS (`zfs-nfs` and `nfs-lake` storage classes).
 
-Storage will be provided using ZFS, nvmeof, and the democratic-csi operator. I originally considered iSCSI but found several resources referencing performance improvements of nvmeof, so we're going with that.
+> Hostnames in this documentation are under the `drewburr.com` domain unless otherwise stated. Short names may not resolve from every machine; use the FQDN, e.g. `storage01.drewburr.com`.
+
+## Current layout (as of September 2026)
+
+### Controllers seen by the VM
+
+| PCI address | Device | Drives |
+|-|-|-|
+| `00:10.0` | Broadcom / LSI SAS3224 (Fusion-MPT SAS-3) | 20x SAS SSD, 4x spinners |
+| `00:11.0` | AMD FCH SATA (AHCI) | 2x spinners |
+
+### Pools
+
+| Pool | Layout | Raw | Notes |
+|-|-|-|-|
+| `sas-pool` | 20x NetApp X438 SAS SSD (373GB usable each), raidz3 | 7.3T | All Kubernetes PVCs except Plex media. `zfs-nvmeof` zvols and `zfs-nfs` datasets under `sas-pool/k8s/nvmeof/dataset`. |
+| `lake` | 6-wide raidz2 spinners: 4x HGST 12TB (2 SATA `HUH721212ALE601`, 2 SAS `HUH721212AL4205`) + 1x WD 14TB (`WUH721414AL`). Expanded from 5 to 6 wide with raidz expansion in January 2026. | 65.5T | Plex media over NFS (`nfs-lake`). Datasets under `lake/k8s/nvmeof/dataset`. Data written before the expansion keeps the older parity ratio, so `zpool list` allocation is higher than `zfs list` usage. |
+
+Both pools reference disks by `/dev/disk/by-id/` names. Identify a physical drive by serial number (see below).
+
+### Snapshots and backups
+
+- `sanoid` runs on a systemd timer and takes hourly snapshots of `sas-pool/k8s/nvmeof/dataset` (recursive, keep 1). See `/etc/sanoid/sanoid.conf`.
+- `lake` has no snapshot policy.
+- There is **no replication**. `zbackup` was the former backup target and is decommissioned; one of its drives was absorbed into `lake`.
+- The only copy of anything off the pools is the `movebak` USB pool described in [Move backup (movebak)](#move-backup-movebak).
+- Scrubs run monthly via the `zfsutils-linux` cron in `/etc/cron.d`. A `lake` scrub takes roughly 20 hours, `sas-pool` under 30 minutes.
+
+### Move backup (movebak)
+
+Created September 2026 for the physical move of the server (runbook and scripts in [`move-2026/`](move-2026/)). It is a **single-disk ZFS pool on a USB drive**, so it has no redundancy of its own; it exists so the data survives if the server or a pool does not survive the move. Nothing else backs up these pools.
+
+| | |
+|-|-|
+| Pool | `movebak`, 12.7T raw, single vdev |
+| Disk | WD `WUH721414ALE604` 14TB, serial `9RG0E9MC`, in an ASMedia ASM235CM (ASMT 2235) USB enclosure. ZFS sees it as `/dev/disk/by-id/usb-ASMT_2235_ACAAEBBB34DE-0:0`. |
+| Created with | `zpool create -o ashift=12 -O compression=lz4 -O atime=off -O mountpoint=/movebak movebak /dev/disk/by-id/usb-ASMT_2235_ACAAEBBB34DE-0:0` |
+| Attached to | The enclosure is plugged into **pve05** and USB-passed-through to VM 105 (`usb0`). It shows up in the VM as a `2235` USB disk. |
+
+#### What is on it
+
+| Dataset | Source | Method | Notes |
+|-|-|-|-|
+| `movebak/sas-pool/<pvc-uuid>` | every dataset and zvol under `sas-pool/k8s/nvmeof/dataset` (86 PVCs, ~1.5T on disk) | `syncoid` recursive replication | Full ZFS copies with a `syncoid_storage01_<date>` snapshot on both sides, so later runs are incremental. Includes all configs, databases, Minecraft servers and `crafty-backups`, Plex config, Prometheus. |
+| `movebak/plex/tv` | `lake/.../pvc-1a6ee17d-.../media/tv` (the `plex-data` PVC) | `rsync` of a curated show list | 109 of 278 shows, about 8.4T. The library is 16T so it does not fit; the list was chosen from Tautulli watch history. The list is saved in this repo as [`move-2026/tv_backup_list.txt`](move-2026/tv_backup_list.txt). |
+| `/movebak/etcd/etcd-move-2026.7z` | k3s etcd snapshot from kube02 plus the k3s server token | `k3s etcd-snapshot save`, 7-Zip AES with encrypted headers | Password-protected; see the runbook in `move-2026/` for the 7-Zip prompting quirk. |
+| `movebak/plex/books`, `movebak/plex/manual` | `books/` and `manual/` from the same PVC | `rsync` | Complete copies (~130G). |
+
+**Not backed up**, by decision, because it does not fit: `media/movies` (9.5T), the other 169 TV shows, `downloads/` (11T of seedbox/usenet intake), and the `plex-alt-data` PVC on lake (31G). A ranked list of movies by size from that analysis is at `/tmp/movies.txt` on storage01. If space is left after the final sas-pool pass, a Tautulli-ranked subset of movies is the next thing to add.
+
+#### Refreshing the backup
+
+Both steps are safe to re-run; syncoid is incremental and rsync only copies changed files. Run them on storage01 as `ubuntu` with sudo, or use [`move-2026/movebak-refresh.sh`](move-2026/movebak-refresh.sh), which does exactly this and logs to `/var/log/movebak-refresh-<date>.log` on storage01. The sas-pool step needs the previous `syncoid_storage01_*` snapshots to still exist on the source (they do as of 2026-09-09; sanoid does not prune them because they are not its snapshots).
+
+```sh
+# 1. sas-pool: all PVCs, incremental. Takes ~15 min for a small delta, longer if crafty-backups grew.
+sudo syncoid -r --compress=none --sendoptions=Lce \
+  sas-pool/k8s/nvmeof/dataset movebak/sas-pool > /var/log/syncoid-movebak-$(date +%F).log 2>&1
+
+# 2. Plex tv (curated list), books, manual
+SRC=/lake/k8s/nvmeof/dataset/pvc-1a6ee17d-54a9-47e3-808f-b266d21d1fd9
+sudo rsync -ar --info=progress2 --files-from=/tmp/move-2026/tv_backup_list.txt "$SRC/media/tv/" /movebak/plex/tv/
+sudo rsync -a  --info=progress2 "$SRC/books/"  /movebak/plex/books/
+sudo rsync -a  --info=progress2 "$SRC/manual/" /movebak/plex/manual/
+```
+
+Before the final pass, scale down the workloads that write to sas-pool (Minecraft, databases, Plex) so the snapshot is consistent. `zfs get written@<snapshot>` on a source dataset shows how much changed since the last copy.
+
+#### Validating
+
+```sh
+sudo zpool status movebak                  # expect ONLINE, 0 errors
+sudo zfs list -r movebak | grep -c pvc-    # expect same count as sas-pool/k8s/nvmeof/dataset
+sudo zfs list -t snapshot -r movebak -o name,creation -s creation | tail -3   # latest syncoid date
+```
+
+For the syncoid datasets, `zfs receive` verifies checksums on the way in, so a clean `zpool status` is sufficient. For the rsync data, compare file counts (`find ... -type f | wc -l`) per top-level directory and spot-check a few files with `md5sum` on both sides. A full `zpool scrub movebak` reads the whole 10T over USB and takes most of a day; it was not run before the move.
+
+#### Detaching for transport and re-attaching
+
+```sh
+# On storage01, before unplugging
+sudo zpool export movebak
+```
+
+Then on pve05 remove the `usb0` entry from VM 105 (Hardware tab, or `qm set 105 --delete usb0`) and unplug the enclosure. Because the pool is exported cleanly it can be imported on any machine with ZFS.
+
+To re-attach: plug the enclosure into pve05, then pass it through **by USB port, not by vendor/device ID**. There are several ASM235CM enclosures on this host with the identical ID `174c:55aa`, so the ID form is ambiguous. Find the port with:
+
+```sh
+# on pve05
+lsblk -d -o NAME,SIZE,MODEL,SERIAL,TRAN | grep usb          # movebak is the 12.7T WUH721414ALE604
+for d in /sys/block/sd*; do echo "$(basename $d) $(udevadm info -q path -p $d | grep -oE '[0-9]+-[0-9.]+' | tail -1)"; done
+qm set 105 --usb0 host=<port>,usb3=1                       # hot-plugs into the running VM
+```
+
+The enclosure has an internal hub, so the disk's bridge is one level deeper than the port the enclosure is plugged into (on 2026-09-09 it was `1-6.1.4.1`; the `1-6.1.4.5` sibling is the enclosure's USB Billboard device, not the disk). Then on storage01:
+
+```sh
+sudo zpool import movebak
+```
+
+The port path changes whenever the enclosure is plugged into a different USB socket, so expect to redo this after the move.
+
+**Check the link speed before starting a transfer.** On 2026-09-09 the enclosure was first plugged in behind a USB 2.0 hub (port `1-6.1.4.1`; bus 1 on pve05 is the 480 Mbps tree) and movebak wrote at ~37 MB/s. Moved to a USB 3 hub (`4-4.4.1`, bus 3/4 on pve05) it did ~180 MB/s. Inside the VM, `lsusb -t` must show the `uas` mass-storage device at `5000M`, not `480M`. The Proxmox "Speed" column in the USB device picker shows the same thing. If it is wrong, stop the transfer, `zpool export movebak`, re-plug, re-pass-through, re-import; syncoid resumes an interrupted send from the receive_resume_token.
+
+### Proxmox VM (pve05)
+
+`storage01` is VM **105** on `pve05` (8 cores, 24GB RAM, 100G boot disk on `local-lvm`, `onboot: 1`, startup order 1 so it comes up before `kube05`). The relevant `qm config 105` lines:
+
+```text
+hostpci0: 0000:0f:00,rombar=0   # LSI SAS3224 HBA
+hostpci1: 0000:09:00            # AMD FCH SATA controller (ports 5 and 6)
+scsi0: local-lvm:vm-105-disk-0,size=100G
+net0: virtio=BC:24:11:00:EE:9E,bridge=vmbr0,firewall=1,mtu=1,tag=4
+ipconfig0: gw=192.168.4.1,ip=192.168.4.31/23
+startup: order=1,up=30
+```
+
+> **The host-side PCI addresses have shifted before.** The VM description still says SAS at `0b:00` and SATA at `08:00`, but the live config uses `0f:00` and `09:00`. Any hardware change on pve05 (adding a card, moving the HBA to a different slot, a rebuild after transport) can renumber them again. If the VM fails to start after hardware work, check `lspci -nn | grep -iE "sas|sata"` on pve05 and update `hostpci0`/`hostpci1` with `qm set 105 --hostpci0 <addr>,rombar=0 --hostpci1 <addr>`. Because the pools use `/dev/disk/by-id/`, ZFS does not care which controller or port a drive lands on.
+
+`kube05` (VM 104) on the same host also has a passthrough device at `0000:0d:00`.
+
+There is no scheduled Proxmox backup of VM 105 as far as is documented here. The VM's boot disk holds only the OS, nvmet config (`/etc/nvmet/config.json`), and sanoid config; the data lives entirely on the passed-through pools, so a rebuilt VM with `zfsutils-linux` and democratic-csi prerequisites can `zpool import` both pools.
 
 ## ZFS setup
 
-Following the somedudesays [ZFS overview](https://somedudesays.com/2021/08/the-basic-guide-to-working-with-zfs/)
+Following the somedudesays [ZFS overview](https://somedudesays.com/2021/08/the-basic-guide-to-working-with-zfs/). Always create pools with `/dev/disk/by-id/` paths, never `/dev/sdX`.
 
 ```sh
 # Install ZFS
 sudo apt install zfsutils-linux
 
-sudo zpool create sas-pool raidz3 /dev/sdd /dev/sdb /dev/sde /dev/sdi /dev/sdc /dev/sdf /dev/sdm /dev/sdj /dev/sdh /dev/sdk /dev/sdg /dev/sdl
+# Example (the original 12-disk pool; it has since grown to 20)
+sudo zpool create sas-pool raidz3 /dev/disk/by-id/scsi-SNETAPP_X438_1625400MCSG_S182NEAG609573 ...
 ```
 
 ### Helpful commands
@@ -28,7 +152,7 @@ View block device metadata
 
 #### Adding a new PCI device to the storage VM
 
-Added a SATA device, need to identify what the device is named
+The motherboard SATA controller is also passed through. To identify which block devices sit on it:
 
 ```sh
 # Show PCI devices to identify SATA controller
@@ -62,11 +186,11 @@ Read Capacity (16) results:
 
 #### Removing and readding a disk to ZFS
 
-While disks attached to the SAS controller are physically ordered top-to-bottom, where device 0 is phsically located at the top and device 24 at the bottom, this is not actually honored when reviewing PCI addresses. The best way to identify a drive is by its serial number. I am passing the PCI device directly to my storage server, providing transparency required to get this information.
+While disks attached to the SAS controller are physically ordered top-to-bottom, where device 0 is physically located at the top and device 24 at the bottom, this is not actually honored when reviewing PCI addresses. The best way to identify a drive is by its serial number. I am passing the PCI device directly to my storage server, providing transparency required to get this information.
 
 Start by reviewing the label on the device intended to be removed. If using a JBOD, this may not be possible and the pool will need to be placed offline. It is reccommended to ensure all drives have safely visible serial numbers, or are labeled with the last 4 or 5 letters of the serial number to ensure it's identifiable. In this example, the last 5 of my serial is `10740`.
 
-In the case where your ZFS pool is created using `/dev/disk/by-id/*` instead of `/dev/*`, you will be able to identify the drive directly using `zpool status`. I am in the process of migrating to disk ids, and will need to translate the serial to a mount point:
+In the case where your ZFS pool is created using `/dev/disk/by-id/*` instead of `/dev/*`, you will be able to identify the drive directly using `zpool status`. Both pools now use disk ids, so `zpool status` shows the serial directly. If you ever need to translate a serial to a device name:
 
 ```sh
 $ lsblk -o NAME,SERIAL | grep 10740
