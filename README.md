@@ -8,6 +8,8 @@ Documentation related to the drewburr.com environment.
 
 - [Environment Overview](#environment-overview)
 - [Operational Essentials](#operational-essentials)
+- [Workstation: OpenRGB lighting](workstation/openrgb/README.md)
+- [qBittorrent over VPN: routing, port forward, UniFi gotchas](k8s/plex/qbittorrent/README.md)
 
 ## Environment Overview
 
