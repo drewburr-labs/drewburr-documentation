@@ -1,0 +1,10 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: secret-palpatine-grafana-dashboard
+  labels:
+    grafana_dashboard: "1"
+data:
+  secret-palpatine-grafana-dashboard.json: |
+    {{ .Files.Get "files/secret-palpatine-grafana-dashboard.json" | nindent 4 }}

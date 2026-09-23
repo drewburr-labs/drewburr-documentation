@@ -4,6 +4,8 @@ kind: Service
 metadata:
   name: secret-palpatine
   namespace: {{ .Release.Namespace }}
+  labels:
+    app: secret-palpatine
 spec:
   selector:
     app: secret-palpatine
@@ -11,3 +13,7 @@ spec:
     - name: http
       port: 80
       targetPort: http
+    # Scraped by Prometheus (ServiceMonitor); the ingress only routes "http".
+    - name: metrics
+      port: 9091
+      targetPort: metrics
