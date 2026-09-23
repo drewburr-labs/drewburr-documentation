@@ -1,0 +1,13 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: secret-palpatine
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    app: secret-palpatine
+  ports:
+    - name: http
+      port: 80
+      targetPort: http

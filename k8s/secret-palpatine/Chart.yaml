@@ -1,0 +1,5 @@
+apiVersion: v2
+name: secret-palpatine
+description: Secret Palpatine, a Star Wars hidden-role party game (https://github.com/drewburr-labs/secret-palpatine)
+type: application
+version: 0.1.0

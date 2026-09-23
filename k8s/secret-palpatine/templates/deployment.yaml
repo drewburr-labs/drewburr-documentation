@@ -1,0 +1,59 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: secret-palpatine
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: secret-palpatine
+spec:
+  # Game rooms live in memory: exactly one pod, and never two at once during a rollout.
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: secret-palpatine
+  template:
+    metadata:
+      labels:
+        app: secret-palpatine
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: secret-palpatine
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: PORT
+              value: "3000"
+            # Join links and QR codes point here.
+            - name: PUBLIC_URL
+              value: "https://{{ .Values.host }}"
+          ports:
+            - name: http
+              containerPort: 3000
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          readinessProbe:
+            httpGet:
+              path: /api/base
+              port: http
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/base
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 30

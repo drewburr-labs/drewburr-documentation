@@ -1,0 +1,14 @@
+image:
+  repository: ghcr.io/drewburr-labs/secret-palpatine
+  tag: latest
+  pullPolicy: Always
+
+host: palpatine.drewburr.com
+
+resources:
+  requests:
+    cpu: 20m
+    memory: 64Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi
