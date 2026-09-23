@@ -5,6 +5,11 @@ image:
 
 host: palpatine.drewburr.com
 
+# Game state is saved here so restarts don't end games in progress.
+state:
+  storageClassName: zfs-nvmeof
+  size: 1Gi
+
 resources:
   requests:
     cpu: 20m

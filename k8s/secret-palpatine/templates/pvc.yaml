@@ -1,0 +1,14 @@
+---
+# Holds state.json so games survive pod restarts (only kilobytes in practice).
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: secret-palpatine-state
+  namespace: {{ .Release.Namespace }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ .Values.state.storageClassName }}
+  resources:
+    requests:
+      storage: {{ .Values.state.size }}
