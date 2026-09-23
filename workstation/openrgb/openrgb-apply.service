@@ -1,0 +1,15 @@
+[Unit]
+Description=Apply OpenRGB dark purple profile
+
+[Service]
+Type=oneshot
+# Devices are selected by name where possible so USB hot-plug (e.g. the HyperX
+# mic being absent at boot) can't shift indices. The two DIMMs share the name
+# "ENE DRAM"; they're i2c devices so they are always enumerated first (0 and 1).
+# Each ExecStart is prefixed with "-" so one missing device doesn't block the rest.
+ExecStart=-/usr/bin/openrgb --noautoconnect -d 0 -m static -c 0A0010 -d 1 -m static -c 0A0010
+ExecStart=-/usr/bin/openrgb --noautoconnect -d "X570 Taichi" -m static -c 500080,500080,180080,180080,180080,180080,180080,180080,180080,180080,180080,180080,180080,005080,005080,005080,005080,005080,005080,005080,005080,005080,005080,500080
+ExecStart=-/usr/bin/openrgb --noautoconnect -d "MM711" -m static -c 500080
+
+[Install]
+WantedBy=default.target
