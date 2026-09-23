@@ -46,11 +46,12 @@ spec:
                 - ALL
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          # Check often so a restarted pod takes traffic within ~2s of listening.
           readinessProbe:
             httpGet:
               path: /api/base
               port: http
-            periodSeconds: 10
+            periodSeconds: 2
           livenessProbe:
             httpGet:
               path: /api/base
