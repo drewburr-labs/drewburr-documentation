@@ -27,7 +27,7 @@ craftycontroller:
         annotations:
           cert-manager.io/cluster-issuer: letsencrypt
           nginx.ingress.kubernetes.io/backend-protocol: 'HTTPS'
-          external-dns.alpha.kubernetes.io/target: ip.drewburr.com
+          external-dns.kubernetes.io/target: ip.drewburr.com
           nginx.ingress.kubernetes.io/proxy-body-size: '0' # Disable size check
           nginx.ingress.kubernetes.io/configuration-snippet: |
             sub_filter '<a class="nav-link" href="/panel/contribute">' '<a class="nav-link" href="/panel/contribute" hidden=true>';
@@ -47,7 +47,7 @@ craftycontroller:
       type: LoadBalancer
       annotations:
         metallb.universe.tf/loadBalancerIPs: '192.168.4.66'
-        external-dns.alpha.kubernetes.io/hostname: 'novacraft.mc.drewburr.com'
+        external-dns.kubernetes.io/hostname: 'novacraft.mc.drewburr.com'
       labels:
         cloudflare-dns: 'true'
       ports:

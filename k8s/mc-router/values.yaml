@@ -19,8 +19,8 @@ mc-router:
       port: 25565
       annotations:
         metallb.universe.tf/loadBalancerIPs: 192.168.4.53 # Ensure static IP
-        external-dns.alpha.kubernetes.io/hostname: '*.mc.drewburr.com'
-        external-dns.alpha.kubernetes.io/target: ip.drewburr.com
+        external-dns.kubernetes.io/hostname: '*.mc.drewburr.com'
+        external-dns.kubernetes.io/target: ip.drewburr.com
       labels:
         cloudflare-dns: 'true' # Not supported by chart. Do manually for now
     extraServiceSpec:

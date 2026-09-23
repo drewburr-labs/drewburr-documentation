@@ -44,7 +44,7 @@ services:
       className: nginx-external
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt
-        external-dns.alpha.kubernetes.io/target: ip.drewburr.com
+        external-dns.kubernetes.io/target: ip.drewburr.com
         # Injects a "Request a Book" sidebar entry linking to shelfmark at
         # /request — NextGen has no native outbound-link setting yet
         # (new-usemame/Calibre-Web-NextGen#1785). Two injections, one per UI:

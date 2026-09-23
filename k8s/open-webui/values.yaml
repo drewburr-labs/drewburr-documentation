@@ -20,7 +20,7 @@ open-webui:
     class: nginx-internal
     annotations:
       cert-manager.io/cluster-issuer: letsencrypt
-      external-dns.alpha.kubernetes.io/hostname: openwebui.drewburr.com
+      external-dns.kubernetes.io/hostname: openwebui.drewburr.com
       nginx.ingress.kubernetes.io/proxy-body-size: "0"
     host: openwebui.drewburr.com
     tls: true
