@@ -4,6 +4,8 @@ Custom Plex image published as `ghcr.io/drewburr-labs/plex:latest`. The image ad
 
 **Status (2026-04-19):** deployed; HW decode + HW encode confirmed working on an Intel Arc B570 (Battlemage, `8086:e20c`, xe kernel driver) on kernel 6.17.0-20-generic.
 
+**Base re-audit (2026-09-19):** re-checked `plexinc/pms-docker:latest` (digest `sha256:e0ab2739…`, PMS **1.43.4.10903**). Same 19 symbols still missing from `libgcompat.so.0`, including the whole `__isoc23_*` family. **Shim still required.** Image `ghcr.io/drewburr-labs/plex:latest` (`sha256:4f2a2dbb…`, built 2026-09-20 02:24Z by run 35483859610) already carries this base. See [Base-image audit log](#base-image-audit-log).
+
 **Base re-audit (2026-08-06):** re-checked `plexinc/pms-docker:latest` (digest `sha256:5bc1d13f…`, PMS **1.43.3.10861**). No change from the June audit — the `__isoc23_*` family is still missing from `libgcompat.so.0`. **Shim still required.** See [Base-image audit log](#base-image-audit-log). Rebuilt against this base; shim retained.
 
 **Base re-audit (2026-06-20):** re-checked `plexinc/pms-docker:latest` (digest `sha256:c37106c5…`, PMS binary dated 2026-05-02). The bundled `libgcompat.so.0` has **partially** caught up but the shim is **still required** — see [Base-image audit log](#base-image-audit-log) below. Rebuilt against this base; shim retained.
@@ -100,6 +102,10 @@ The image is based on `plexinc/pms-docker:latest`, not linuxserver, so env vars 
 - **Delete this shim when upstream fixes libgcompat.** Revisit after each Plex beta; monitor the forum thread linked above.
 
 ## Base-image audit log
+
+### 2026-09-19 — `plexinc/pms-docker:latest` (PMS 1.43.4.10903-e5521bd8c, image digest `sha256:e0ab2739…`)
+
+Extracted `libgcompat.so.0` from the rebuilt `ghcr.io/drewburr-labs/plex:latest` (`sha256:4f2a2dbb…`) and re-ran `nm -D --defined-only`. Result identical to 2026-08-06: all 19 symbols the shim still supplies remain unexported, including the C23 `__isoc23_*` family. **Shim still required.** Only `libgcompat` was audited; after the pod picks up the new image, run the `nm -D --undefined` diff against the live `iHD_drv_video.so` per Operational notes.
 
 ### 2026-08-06 — `plexinc/pms-docker:latest` (PMS 1.43.3.10861-07dfddaeb, image digest `sha256:5bc1d13f…`)
 
