@@ -7,7 +7,7 @@ craftycontroller:
   # Bump to restart pods onto the current :latest build (tag stays "latest",
   # so nothing else in the spec changes when a new image is published).
   podAnnotations:
-    drewburr.com/crafty-image: "4.11.0-eb94b08"
+    drewburr.com/crafty-image: "4.11.0-c18a0b0"
   persistence:
     crafty-app-config:
       requests: 10Gi
