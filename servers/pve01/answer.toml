@@ -1,0 +1,31 @@
+# Proxmox VE 8.4 automated-install answer for pve01.
+# build.sh fills in __ROOT_PASSWORD_HASH__ and __ROOT_SSH_KEY__; the
+# rendered copy never lands in git.
+
+[global]
+keyboard = "en-us"
+country = "us"
+fqdn = "pve01.drewburr.com"
+mailto = "drew@drewburr.com"
+timezone = "UTC"
+root-password-hashed = "__ROOT_PASSWORD_HASH__"
+root-ssh-keys = ["__ROOT_SSH_KEY__"]
+reboot-mode = "reboot"
+
+[network]
+# Install with whatever DHCP hands out. first-boot.sh switches vmbr0 to
+# DHCP so the host keeps working when it moves to another network.
+source = "from-dhcp"
+
+[disk-setup]
+filesystem = "ext4"
+# OS on the Kingston DC1000B only. The Micron 7450 (PLP) is left
+# untouched. If nothing matches, the installer stops without wiping.
+filter.ID_MODEL = "KINGSTON*SEDC1000BM8480G*"
+
+[first-boot]
+source = "from-iso"
+ordering = "before-network"
+
+[post-installation-webhook]
+url = "http://10.73.10.177:8090/report/pve01/installed"

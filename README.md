@@ -19,7 +19,7 @@ The drewburr environment consists of a 5-node [Proxmox VE](https://pve.proxmox.c
 
 |Node|Model|CPU|Memory|Networking|Storage|Usage|
 |-|-|-|-|-|-|-|
-|pve01|HP ProDesk 400 G5|i9-9900T|64GB DDR4|2.5GbE|500GB NVMe, 256GB SATA SSD|VM running K3s|
+|[pve01](servers/pve01/README.md)|Intel NUC (Hades Canyon)|i7-8809G|32GB DDR4|1GbE, DHCP|480GB NVMe (OS), 960GB PLP NVMe|Proxmox VE 8.4, unattended install. Replaces the retired HP ProDesk pve01.|
 |pve02|HP ProDesk 400 G5|i9-9900T|64GB DDR4|2.5GbE|500GB NVMe, 256GB SATA SSD|VM running K3s|
 |pve03|HP ProDesk 400 G5|i9-9900T|64GB DDR4|2.5GbE|500GB NVMe, 256GB SATA SSD|VM running K3s|
 |pve04|HP ProDesk 400 G5|i9-9900T|64GB DDR4|2.5GbE|500GB NVMe, 256GB SATA SSD|VM running K3s|
