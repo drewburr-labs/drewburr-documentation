@@ -49,21 +49,11 @@ no central namespace list.
        ghcr.drewburr.com/<repo>: "true"
    ```
 
-   **Pre-existing namespaces** (ones Argo didn't create, e.g. made by
-   `kubectl apply`) also need the `ServerSideApply=true` annotation *on the
-   namespace itself* before Argo will touch their metadata. Declaring it above
-   isn't enough on its own, because Argo won't apply metadata until the
-   annotation is already there. Set it once by hand, then re-sync the app:
+   This works for pre-existing namespaces too: Argo writes the declared
+   annotation and label onto the namespace when the app syncs. Never label or
+   annotate namespaces by hand; everything goes through Git and Argo.
 
-   ```sh
-   kubectl annotate ns <ns> argocd.argoproj.io/sync-options=ServerSideApply=true
-   ```
-
-   Without it the label never lands, ESO never creates the pull secret, and pods
-   fail with `ImagePullBackOff`.
-
-   (A namespace can carry several such labels for several repos.) Ad hoc:
-   `kubectl label ns <ns> ghcr.drewburr.com/<repo>=true`.
+   (A namespace can carry several such labels for several repos.)
 
 ESO then creates a `kubernetes.io/dockerconfigjson` secret named `ghcr-<repo>`
 in every labeled namespace. Reference it as an `imagePullSecrets` entry (name
