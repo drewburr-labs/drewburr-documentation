@@ -2,6 +2,10 @@ syncOptions:
   - CreateNamespace=true # required for managedNamespaceMetadata to be applied to the namespace
   - RespectIgnoreDifferences=true # don't try to unset the bound volumeName on sync
 managedNamespaceMetadata:
+  annotations:
+    # Argo only writes managedNamespaceMetadata to a namespace it didn't create
+    # when this is set. Pre-existing namespaces need it applied by hand once.
+    argocd.argoproj.io/sync-options: ServerSideApply=true
   labels:
     ghcr.drewburr.com/crafty-4: "true" # ESO pushes the ghcr-crafty-4 pull secret here
 ignoreDifferences:
