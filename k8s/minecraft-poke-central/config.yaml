@@ -1,5 +1,11 @@
 syncOptions:
   - CreateNamespace=true # required for managedNamespaceMetadata to be applied to the namespace
+  - RespectIgnoreDifferences=true # don't try to unset the bound volumeName on sync
 managedNamespaceMetadata:
   labels:
     ghcr.drewburr.com/crafty-4: "true" # ESO pushes the ghcr-crafty-4 pull secret here
+ignoreDifferences:
+# The PV binder fills in volumeName once the claim is bound; the chart never sets it.
+- kind: PersistentVolumeClaim
+  jsonPointers:
+    - /spec/volumeName
