@@ -8,3 +8,4 @@ __pycache__
 **/evalplus_results
 .env
 servers/ai-runner/poc/logs
+k8s/plex/iptv-poc/data

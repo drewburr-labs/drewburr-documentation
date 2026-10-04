@@ -1,0 +1,122 @@
+# https://github.com/Threadfin/Threadfin
+# Emulates an HDHomeRun tuner so Plex Live TV & DVR can use the IPTV M3U.
+# Plex adds it manually (no SSDP across pods):
+#   http://plex-threadfin-http.plex.svc.cluster.local:34400
+#
+# Settings (M3U URL, tuner count, buffer, filters, EPG mapping) live in
+# settings.json on the config PVC and are managed through the web UI; the
+# image has no env-var config for them. See README.md for required values.
+replicaCount: 1
+
+image:
+  repository: docker.io/fyb3roptik/threadfin
+  # Pinned: Threadfin self-updates by downloading a binary from GitHub at
+  # runtime. readOnlyRootFilesystem blocks that; upgrades go through this tag.
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+# Image runs as root by default but works unchanged as its baked-in
+# threadfin user (31337); verified with podman --read-only --cap-drop ALL.
+podSecurityContext:
+  fsGroup: 31337
+  fsGroupChangePolicy: "OnRootMismatch"
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 31337
+  runAsGroup: 31337
+  readOnlyRootFilesystem: true
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+
+# Ports to be exposed, grouped by services
+services:
+  - name: http
+    type: ClusterIP
+    port: 34400
+    protocol: TCP
+    # Web UI is internal-only: it displays the M3U URL, which embeds the
+    # provider credentials.
+    ingress:
+      className: nginx-internal
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt
+      hosts:
+        - host: threadfin.drewburr.com
+          paths:
+            - path: /
+              pathType: ImplementationSpecific
+      tls:
+      - secretName: threadfin-ingress
+        hosts:
+          - threadfin.drewburr.com
+
+resources: {}
+
+# Appended to env. Supports envFrom
+env: []
+
+# Key: value environment variables to be appended to env
+envVars:
+  TZ: America/New_York
+
+# All are mounted under fsroot `/`. Supports additions
+persistence:
+  - name: threadfin-config
+    mountPath: home/threadfin/conf
+    accessModes:
+      - ReadWriteOnce
+    requests: 2Gi
+    storageClassName: zfs-nvmeof
+
+# Stream buffer and playlist scratch space (THREADFIN_TEMP).
+additionalVolumes:
+  - name: tmp-threadfin
+    emptyDir: {}
+
+additionalVolumeMounts:
+  - name: tmp-threadfin
+    mountPath: /tmp/threadfin
+
+# Entrypoint is `sh -c threadfin ...`; sh as PID 1 doesn't forward SIGTERM,
+# so every stop waits out the full grace period. Keep it short.
+terminationGracePeriodSeconds: 5
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+startupProbe:
+  httpGet:
+    path: /discover.json
+    port: 34400
+  failureThreshold: 30
+  periodSeconds: 10
+livenessProbe:
+  httpGet:
+    path: /discover.json
+    port: 34400
+readinessProbe:
+  httpGet:
+    path: /discover.json
+    port: 34400
