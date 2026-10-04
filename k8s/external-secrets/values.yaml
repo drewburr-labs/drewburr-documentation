@@ -23,8 +23,13 @@ controllerNamespace: external-secrets
 #        syncOptions:
 #          - CreateNamespace=true
 #        managedNamespaceMetadata:
+#          annotations:
+#            argocd.argoproj.io/sync-options: ServerSideApply=true
 #          labels:
 #            ghcr.drewburr.com/<name>: "true"
+#      A pre-existing namespace (not created by Argo) must carry that
+#      annotation before Argo will write the label; apply it once by hand.
+#      See README.md.
 #
 # ESO then pushes a kubernetes.io/dockerconfigjson secret named `ghcr-<name>`
 # into every labeled namespace and keeps it in sync.

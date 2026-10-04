@@ -36,17 +36,31 @@ no central namespace list.
 3. Opt a namespace in by labeling it `ghcr.drewburr.com/<repo>: "true"`. For an
    Argo-managed app, set it in that app's `config.yaml` — the ApplicationSet
    passes `managedNamespaceMetadata` straight through to the Application.
-   `CreateNamespace=true` is **required**: Argo only applies
-   `managedNamespaceMetadata` as part of namespace auto-creation, so without it
-   the labels are declared but never written to the namespace.
+   `CreateNamespace=true` is **required**: without it Argo never writes
+   `managedNamespaceMetadata`, so the labels are declared but never applied.
 
    ```yaml
    syncOptions:
      - CreateNamespace=true
    managedNamespaceMetadata:
+     annotations:
+       argocd.argoproj.io/sync-options: ServerSideApply=true
      labels:
        ghcr.drewburr.com/<repo>: "true"
    ```
+
+   **Pre-existing namespaces** (ones Argo didn't create, e.g. made by
+   `kubectl apply`) also need the `ServerSideApply=true` annotation *on the
+   namespace itself* before Argo will touch their metadata. Declaring it above
+   isn't enough on its own, because Argo won't apply metadata until the
+   annotation is already there. Set it once by hand, then re-sync the app:
+
+   ```sh
+   kubectl annotate ns <ns> argocd.argoproj.io/sync-options=ServerSideApply=true
+   ```
+
+   Without it the label never lands, ESO never creates the pull secret, and pods
+   fail with `ImagePullBackOff`.
 
    (A namespace can carry several such labels for several repos.) Ad hoc:
    `kubectl label ns <ns> ghcr.drewburr.com/<repo>=true`.
