@@ -12,6 +12,10 @@ ingress-nginx:
       # https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations-risk/
       annotations-risk-level: Critical
       custom-http-errors: "503,502,504,500,404"
+      # Default "4 8k" drops any request line over 8KB (logged as `"-" 000`).
+      # Plex web saves Live TV channel mappings as one query string
+      # (~16KB at 389 channels, ~20KB at Plex's 480 cap).
+      large-client-header-buffers: "4 32k"
 
     extraArgs:
       default-backend-service: error-pages/error-pages
