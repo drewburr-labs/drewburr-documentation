@@ -18,7 +18,7 @@ The storage server is `storage01` (Ubuntu 24.04), a VM on `pve05` that provides 
 | Pool | Layout | Raw | Notes |
 |-|-|-|-|
 | `sas-pool` | 20x NetApp X438 SAS SSD (373GB usable each), raidz3 | 7.3T | All Kubernetes PVCs except Plex media. `zfs-nvmeof` zvols and `zfs-nfs` datasets under `sas-pool/k8s/nvmeof/dataset`. |
-| `lake` | 6-wide raidz2 spinners: 4x HGST 12TB (2 SATA `HUH721212ALE601`, 2 SAS `HUH721212AL4205`) + 1x WD 14TB (`WUH721414AL`). Expanded from 5 to 6 wide with raidz expansion in January 2026. | 65.5T | Plex media over NFS (`nfs-lake`). Datasets under `lake/k8s/nvmeof/dataset`. Data written before the expansion keeps the older parity ratio, so `zpool list` allocation is higher than `zfs list` usage. |
+| `lake` | 6-wide raidz2 spinners: 5x HGST 12TB (3 SATA `HUH721212ALE601`, 2 SAS `HUH721212AL4205`) + 1x WD 14TB (`WUH721414AL`). Expanded from 5 to 6 wide with raidz expansion in January 2026 (completed Jan 28 2026). | 65.5T | Plex media over NFS (`nfs-lake`). Datasets under `lake/k8s/nvmeof/dataset`. Data written before the expansion keeps the older parity ratio, so `zpool list` allocation is higher than `zfs list` usage. |
 
 Both pools reference disks by `/dev/disk/by-id/` names. Identify a physical drive by serial number (see below).
 
