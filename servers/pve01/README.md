@@ -14,6 +14,41 @@ ISO is presented through the NanoKVM's virtual CD-ROM.
 | Root login | password (hash supplied at build time) and `~/.ssh/id_ed25519.pub`                               |
 | Web UI     | `https://<dhcp address>:8006`, user `root`, realm PAM                                             |
 
+## Planned role: dedicated etcd host
+
+**Status: planned, not yet implemented.**
+
+`pve01` is intended to become the cluster's **sole etcd host**, specifically
+to take advantage of its second NVMe — the **Micron 7450 960 GB, which has
+power-loss protection (PLP)**. etcd is `fsync`-bound: every write must be
+durably committed before it is acknowledged, so write latency and the safety
+of in-flight writes on power loss dominate its behaviour. A PLP drive can
+acknowledge an `fsync` as soon as the data reaches its power-protected cache,
+which keeps etcd's `wal_fsync` latency low while remaining crash-safe — exactly
+the workload etcd wants, and the reason this NUC (otherwise the weakest node)
+is the right home for it.
+
+Intended shape:
+
+- etcd's data directory lives on the Micron 7450 PLP drive (the installer
+  leaves this disk unpartitioned; it will be formatted and mounted for etcd).
+- The rest of the cluster (the `kube0x` K3s VMs on pve02/pve03/pve05) points
+  at pve01 as the external/consolidated etcd datastore rather than running an
+  embedded, per-node etcd.
+- The OS and Proxmox itself stay on the Kingston DC1000B 480 GB boot drive, so
+  etcd I/O is isolated from OS I/O.
+
+Open considerations to resolve before implementing:
+
+- **Single point of failure.** A single etcd host removes quorum redundancy;
+  if pve01 is down, the datastore is down. Backups matter more here — the
+  existing `k3s etcd-snapshot` flow (see the storage server `move-2026`
+  runbook) should run on a timer and ship snapshots off pve01.
+- How etcd is run on pve01 (native service vs. container vs. a small VM) and
+  how the K3s servers are reconfigured to use it.
+- Network path: pve01 is 1GbE and DHCP; confirm the etcd client/peer traffic
+  from the K3s nodes has a stable address to reach it.
+
 ## Files
 
 | File            | Purpose                                                                                                                                                       |
