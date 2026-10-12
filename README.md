@@ -19,7 +19,7 @@ The drewburr environment consists of a 4-node [Proxmox VE](https://pve.proxmox.c
 
 |Node|Model|CPU|Memory|Networking|Storage|Usage|
 |-|-|-|-|-|-|-|
-|pve01|Intel NUC8i7HVK|i7-8809G (4C/8T)|32GB DDR4|1GbE|960GB NVMe, 480GB NVMe|Cluster member; no guest VMs currently|
+|[pve01](servers/pve01/README.md)|Intel NUC8i7HVK (Hades Canyon)|i7-8809G (4C/8T)|32GB DDR4|1GbE, DHCP|480GB NVMe (OS), 960GB PLP NVMe|Proxmox VE 8.4, unattended install; replaces the retired HP ProDesk pve01. No guest VMs currently.|
 |pve02|HP ProDesk 400 G5 Desktop Mini|i9-9900T (engineering sample; reports as `Genuine Intel 0000 @ 1.70GHz`, 8C/16T)|64GB DDR4|2.5GbE|500GB NVMe, 250GB SATA SSD|VM `kube02` running K3s|
 |pve03|HP ProDesk 400 G5 Desktop Mini|i9-9900T (engineering sample; reports as `Genuine Intel 0000 @ 1.70GHz`, 8C/16T)|64GB DDR4|2.5GbE|500GB NVMe, 250GB SATA SSD|VM `kube03` running K3s|
 |pve05|Custom build (Gigabyte X570 AORUS MASTER)|Ryzen 7 5800XT|128GB DDR4|10GbE|20x 400GB SAS SSD, 6x 12-14TB HDD, 4TB NVMe, 500GB SATA SSD|VM `storage01` hosting a raidz3 SSD pool and a raidz2 HDD pool, provided over NVMe-oF and NFS. Secondary VM `kube05` running K3s|
