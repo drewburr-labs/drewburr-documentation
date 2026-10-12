@@ -1,6 +1,16 @@
 # Metrics Setup
 
-Configuration and runbook for `spud` (192.168.1.177), a Fedora workstation running KDE Plasma / Wayland.
+Configuration and runbook for `spud`, a Fedora workstation running KDE Plasma / Wayland.
+
+> **Status (October 2026): exporters are down.** `spud` has moved to a
+> completely different network and no longer reachable at `192.168.1.177`
+> (its current LAN address is `10.73.10.177`). The Prometheus scrape targets
+> in the cluster still point at the old `192.168.1.177:9256` endpoint, so
+> `up{job="spud-process-exporter"}` is `0`. Restoring metrics is **pending a
+> site-to-site VPN** between spud's network and the cluster; once that link is
+> up, re-point the scrape targets at spud's reachable address and the queries
+> below (which still reference `192.168.1.177:9256`) will need the instance
+> updated to match.
 
 ## process-exporter
 
