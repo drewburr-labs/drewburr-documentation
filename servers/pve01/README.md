@@ -14,40 +14,40 @@ ISO is presented through the NanoKVM's virtual CD-ROM.
 | Root login | password (hash supplied at build time) and `~/.ssh/id_ed25519.pub`                               |
 | Web UI     | `https://<dhcp address>:8006`, user `root`, realm PAM                                             |
 
-## Planned role: dedicated etcd host
+## Planned role: host the etcd K3s node
 
 **Status: planned, not yet implemented.**
 
-`pve01` is intended to become the cluster's **sole etcd host**, specifically
-to take advantage of its second NVMe — the **Micron 7450 960 GB, which has
-power-loss protection (PLP)**. etcd is `fsync`-bound: every write must be
-durably committed before it is acknowledged, so write latency and the safety
+`pve01` will host a **K3s VM that serves as the cluster's etcd host** (the same
+pattern as the `kube0x` VMs on the other nodes, but this one carries etcd). The
+point of putting it here is pve01's second NVMe — the **Micron 7450 960 GB,
+which has power-loss protection (PLP)**. etcd is `fsync`-bound: every write must
+be durably committed before it is acknowledged, so write latency and the safety
 of in-flight writes on power loss dominate its behaviour. A PLP drive can
 acknowledge an `fsync` as soon as the data reaches its power-protected cache,
 which keeps etcd's `wal_fsync` latency low while remaining crash-safe — exactly
-the workload etcd wants, and the reason this NUC (otherwise the weakest node)
-is the right home for it.
+the workload etcd wants, and the reason this etcd VM belongs on pve01.
 
 Intended shape:
 
-- etcd's data directory lives on the Micron 7450 PLP drive (the installer
-  leaves this disk unpartitioned; it will be formatted and mounted for etcd).
-- The rest of the cluster (the `kube0x` K3s VMs on pve02/pve03/pve05) points
-  at pve01 as the external/consolidated etcd datastore rather than running an
-  embedded, per-node etcd.
+- A K3s VM runs on pve01 and is the etcd member for the cluster.
+- That VM's etcd data is backed by the Micron 7450 PLP drive (the installer
+  leaves this disk unpartitioned; it will be set up to back the VM's etcd
+  storage — e.g. the VM disk or a passthrough/mount on that NVMe).
 - The OS and Proxmox itself stay on the Kingston DC1000B 480 GB boot drive, so
   etcd I/O is isolated from OS I/O.
 
 Open considerations to resolve before implementing:
 
-- **Single point of failure.** A single etcd host removes quorum redundancy;
-  if pve01 is down, the datastore is down. Backups matter more here — the
-  existing `k3s etcd-snapshot` flow (see the storage server `move-2026`
-  runbook) should run on a timer and ship snapshots off pve01.
-- How etcd is run on pve01 (native service vs. container vs. a small VM) and
-  how the K3s servers are reconfigured to use it.
+- **Redundancy.** Decide whether this is the sole etcd member (no quorum
+  redundancy — if the VM/host is down, the datastore is down) or one of an
+  odd-numbered set. Either way the existing `k3s etcd-snapshot` flow (see the
+  storage server `move-2026` runbook) should run on a timer and ship snapshots
+  off pve01.
+- How the PLP NVMe is presented to the VM (dedicated VM disk on that drive vs.
+  passthrough) and how the K3s server is configured to put etcd there.
 - Network path: pve01 is 1GbE and DHCP; confirm the etcd client/peer traffic
-  from the K3s nodes has a stable address to reach it.
+  to/from the VM has a stable address the other K3s nodes can reach.
 
 ## Files
 
