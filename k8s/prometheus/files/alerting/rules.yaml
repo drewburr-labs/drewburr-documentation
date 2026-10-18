@@ -1,0 +1,413 @@
+# Grafana-managed alert rules, provisioned by the alerts sidecar (label
+# grafana_alert). Restored 2026-10-18 from grafana.db.corrupt-2026-09-03:
+# the 2026-09-03 grafana.db corruption wiped every UI-created rule, so none
+# of these fired between 2026-09-03 and this change.
+#
+# Provisioned rules are read-only in the UI; edit them here.
+# Annotations and query models are NOT env-interpolated by Grafana, so
+# {{ $labels.x }} / {{ $values.B.Value }} are safe as written.
+apiVersion: 1
+groups:
+- orgId: 1
+  name: storage
+  folder: Alerts
+  interval: 60s
+  rules:
+  - uid: afr0tya7psxz4c
+    title: PVC usage above 80%
+    condition: C
+    data:
+    - refId: A
+      relativeTimeRange:
+        from: 600
+        to: 0
+      datasourceUid: prometheus
+      model:
+        expr: max by (namespace, persistentvolumeclaim) (kubelet_volume_stats_used_bytes{job="kubelet"} / kubelet_volume_stats_capacity_bytes{job="kubelet"} * 100)
+        instant: true
+        intervalMs: 60000
+        maxDataPoints: 43200
+        refId: A
+    - refId: B
+      relativeTimeRange:
+        from: 0
+        to: 0
+      datasourceUid: __expr__
+      model:
+        expression: A
+        intervalMs: 1000
+        maxDataPoints: 43200
+        reducer: last
+        refId: B
+        type: reduce
+    - refId: C
+      relativeTimeRange:
+        from: 0
+        to: 0
+      datasourceUid: __expr__
+      model:
+        conditions:
+        - evaluator:
+            params:
+            - 80
+            type: gt
+        expression: B
+        intervalMs: 1000
+        maxDataPoints: 43200
+        refId: C
+        type: threshold
+    noDataState: NoData
+    execErrState: Error
+    for: 10m
+    annotations:
+      description: PersistentVolumeClaim {{ $labels.persistentvolumeclaim }} in namespace {{ $labels.namespace }} has exceeded 80% used capacity.
+      summary: PVC {{ $labels.namespace }}/{{ $labels.persistentvolumeclaim }} is {{ printf "%.1f" $values.B.Value }}% full
+    labels:
+      severity: warning
+    isPaused: false
+    notification_settings:
+      receiver: drewburr-labs Discord
+      group_by:
+      - alertname
+      - namespace
+      - persistentvolumeclaim
+- orgId: 1
+  name: spud.memory
+  folder: Spud
+  interval: 60s
+  rules:
+  - uid: dfixoigy70g00a
+    title: NodeAnonMemoryHigh
+    condition: C
+    data:
+    - refId: A
+      relativeTimeRange:
+        from: 600
+        to: 0
+      datasourceUid: prometheus
+      model:
+        expr: node_memory_AnonPages_bytes{instance="192.168.1.177:9100"} / node_memory_MemTotal_bytes{instance="192.168.1.177:9100"}
+        intervalMs: 1000
+        maxDataPoints: 43200
+        refId: A
+    - refId: B
+      relativeTimeRange:
+        from: 0
+        to: 0
+      datasourceUid: __expr__
+      model:
+        expression: A
+        intervalMs: 1000
+        maxDataPoints: 43200
+        reducer: last
+        refId: B
+        type: reduce
+    - refId: C
+      relativeTimeRange:
+        from: 0
+        to: 0
+      datasourceUid: __expr__
+      model:
+        conditions:
+        - evaluator:
+            params:
+            - 0.6
+            type: gt
+        expression: B
+        intervalMs: 1000
+        maxDataPoints: 43200
+        refId: C
+        type: threshold
+    noDataState: NoData
+    execErrState: Alerting
+    for: 30m
+    annotations:
+      description: 'Anonymous memory above 60% of total RAM for 30m (current: {{ humanizePercentage $values.B.Value }}). Check top consumers and restart Chrome or Discord if growing.'
+      summary: 'spud: anonymous memory high'
+    labels:
+      severity: warning
+    isPaused: false
+    notification_settings:
+      receiver: drewburr-labs Discord
+  - uid: ffixoja6295vka
+    title: NodeSwapSaturated
+    condition: C
+    data:
+    - refId: A
+      relativeTimeRange:
+        from: 600
+        to: 0
+      datasourceUid: prometheus
+      model:
+        expr: (node_memory_SwapTotal_bytes{instance="192.168.1.177:9100"} - node_memory_SwapFree_bytes{instance="192.168.1.177:9100"}) / node_memory_SwapTotal_bytes{instance="192.168.1.177:9100"}
+        intervalMs: 1000
+        maxDataPoints: 43200
+        refId: A
+    - refId: B
+      relativeTimeRange:
+        from: 0
+        to: 0
+      datasourceUid: __expr__
+      model:
+        expression: A
+        intervalMs: 1000
+        maxDataPoints: 43200
+        reducer: last
+        refId: B
+        type: reduce
+    - refId: C
+      relativeTimeRange:
+        from: 0
+        to: 0
+      datasourceUid: __expr__
+      model:
+        conditions:
+        - evaluator:
+            params:
+            - 0.8
+            type: gt
+        expression: B
+        intervalMs: 1000
+        maxDataPoints: 43200
+        refId: C
+        type: threshold
+    noDataState: NoData
+    execErrState: Alerting
+    for: 5m
+    annotations:
+      description: 'Swap usage above 80% for 5m (current: {{ humanizePercentage $values.B.Value }})'
+      summary: 'spud: swap nearly full'
+    labels:
+      severity: warning
+    isPaused: false
+    notification_settings:
+      receiver: drewburr-labs Discord
+- orgId: 1
+  name: storage.nodes
+  folder: Spud
+  interval: 60s
+  rules:
+  - uid: node-ext4-emergency-ro
+    title: NodeExt4EmergencyReadOnly
+    condition: C
+    data:
+    - refId: A
+      relativeTimeRange:
+        from: 600
+        to: 0
+      datasourceUid: prometheus
+      model:
+        expr: node_ext4_emergency_ro
+        intervalMs: 1000
+        maxDataPoints: 43200
+        refId: A
+    - refId: B
+      relativeTimeRange:
+        from: 0
+        to: 0
+      datasourceUid: __expr__
+      model:
+        expression: A
+        intervalMs: 1000
+        maxDataPoints: 43200
+        reducer: last
+        refId: B
+        type: reduce
+    - refId: C
+      relativeTimeRange:
+        from: 0
+        to: 0
+      datasourceUid: __expr__
+      model:
+        conditions:
+        - evaluator:
+            params:
+            - 0
+            - 0
+            type: gt
+        expression: B
+        intervalMs: 1000
+        maxDataPoints: 43200
+        refId: C
+        type: threshold
+    noDataState: NoData
+    execErrState: Alerting
+    for: 2m
+    annotations:
+      description: '{{ $labels.node }} has {{ $values.B.Value }} ext4 mount(s) in emergency read-only state — writes are failing on a PVC volume. Usual cause: sas-pool full or an NVMe-oF/nvmet error on storage01. Pods on this node may be silently failing writes while still showing Running/Ready. Fix storage, then restart affected pods (scale-to-0 for single-replica RWO). See incidents/storage01-saspool-capacity-exhaustion-readonly.md'
+      summary: '{{ $labels.node }}: ext4 volume(s) in emergency read-only'
+    labels:
+      severity: critical
+    isPaused: false
+    notification_settings:
+      receiver: drewburr-labs Discord
+- orgId: 1
+  name: storage.pvc
+  folder: Spud
+  interval: 60s
+  rules:
+  - uid: pvc-fs-resize-stuck
+    title: PvcFilesystemResizeStuck
+    condition: C
+    data:
+    - refId: A
+      relativeTimeRange:
+        from: 600
+        to: 0
+      datasourceUid: prometheus
+      model:
+        expr: kube_persistentvolumeclaim_status_condition{condition="FileSystemResizePending", status="true"}
+        intervalMs: 1000
+        maxDataPoints: 43200
+        refId: A
+    - refId: B
+      relativeTimeRange:
+        from: 0
+        to: 0
+      datasourceUid: __expr__
+      model:
+        expression: A
+        intervalMs: 1000
+        maxDataPoints: 43200
+        reducer: last
+        refId: B
+        type: reduce
+    - refId: C
+      relativeTimeRange:
+        from: 0
+        to: 0
+      datasourceUid: __expr__
+      model:
+        conditions:
+        - evaluator:
+            params:
+            - 0
+            type: gt
+        expression: B
+        intervalMs: 1000
+        maxDataPoints: 43200
+        refId: C
+        type: threshold
+    noDataState: OK
+    execErrState: OK
+    for: 15m
+    annotations:
+      description: 'PVC {{ $labels.namespace }}/{{ $labels.persistentvolumeclaim }} has had a filesystem resize pending for >15m — the volume was expanded but the node has not grown the filesystem. Common cause: ext4 online-resize failing during NodeStageVolume (''resize2fs: Permission denied to resize filesystem''). Fix: offline resize2fs on storage01 (scale app to 0 first), or migrate the volume to XFS. See incidents/minecraft-derailed-crafty4-eso-pvc-expand-cascade.md'
+      summary: PVC {{ $labels.namespace }}/{{ $labels.persistentvolumeclaim }} filesystem resize stuck
+    labels:
+      severity: warning
+    isPaused: false
+    notification_settings:
+      receiver: drewburr-labs Discord
+- orgId: 1
+  name: storage.zfs
+  folder: Spud
+  interval: 60s
+  rules:
+  - uid: zfs-pool-cap-high
+    title: ZfsPoolCapacityHigh
+    condition: C
+    data:
+    - refId: A
+      relativeTimeRange:
+        from: 600
+        to: 0
+      datasourceUid: prometheus
+      model:
+        expr: zpool_capacity_ratio
+        intervalMs: 1000
+        maxDataPoints: 43200
+        refId: A
+    - refId: B
+      relativeTimeRange:
+        from: 0
+        to: 0
+      datasourceUid: __expr__
+      model:
+        expression: A
+        intervalMs: 1000
+        maxDataPoints: 43200
+        reducer: last
+        refId: B
+        type: reduce
+    - refId: C
+      relativeTimeRange:
+        from: 0
+        to: 0
+      datasourceUid: __expr__
+      model:
+        conditions:
+        - evaluator:
+            params:
+            - 0.8
+            type: gt
+        expression: B
+        intervalMs: 1000
+        maxDataPoints: 43200
+        refId: C
+        type: threshold
+    noDataState: NoData
+    execErrState: Alerting
+    for: 15m
+    annotations:
+      description: ZFS pool {{ $labels.pool }} is {{ humanizePercentage $values.B.Value }} full (warning at 80%). RAIDZ amplification means real headroom is far less than it looks; at ~97% the NVMe-oF target returns Capacity Exceeded and ext4 volumes go read-only. See incidents/storage01-saspool-capacity-exhaustion-readonly.md
+      summary: ZFS pool {{ $labels.pool }} capacity high
+    labels:
+      severity: warning
+    isPaused: false
+    notification_settings:
+      receiver: drewburr-labs Discord
+  - uid: zfs-pool-not-online
+    title: ZfsPoolNotOnline
+    condition: C
+    data:
+    - refId: A
+      relativeTimeRange:
+        from: 600
+        to: 0
+      datasourceUid: prometheus
+      model:
+        expr: zpool_health
+        intervalMs: 1000
+        maxDataPoints: 43200
+        refId: A
+    - refId: B
+      relativeTimeRange:
+        from: 0
+        to: 0
+      datasourceUid: __expr__
+      model:
+        expression: A
+        intervalMs: 1000
+        maxDataPoints: 43200
+        reducer: last
+        refId: B
+        type: reduce
+    - refId: C
+      relativeTimeRange:
+        from: 0
+        to: 0
+      datasourceUid: __expr__
+      model:
+        conditions:
+        - evaluator:
+            params:
+            - 1
+            - 0
+            type: lt
+        expression: B
+        intervalMs: 1000
+        maxDataPoints: 43200
+        refId: C
+        type: threshold
+    noDataState: NoData
+    execErrState: Alerting
+    for: 5m
+    annotations:
+      description: ZFS pool {{ $labels.pool }} is {{ $labels.state }} (not ONLINE) — redundancy/health is compromised. Run `zpool status -x {{ $labels.pool }}` on storage01 and online or replace the affected device. A second failure during this state risks data loss.
+      summary: ZFS pool {{ $labels.pool }} is not ONLINE
+    labels:
+      severity: critical
+    isPaused: false
+    notification_settings:
+      receiver: drewburr-labs Discord

@@ -87,6 +87,39 @@ kube-prometheus-stack:
       # instead of the default http://<host>:3000
       GF_SERVER_ROOT_URL: https://grafana.drewburr.com
 
+    # Webhook for the "drewburr-labs Discord" contact point
+    # (files/alerting/contactpoints.yaml). Optional so a missing Secret can't
+    # block Grafana from starting; alerts just won't deliver until it exists.
+    envValueFrom:
+      DISCORD_WEBHOOK_URL:
+        secretKeyRef:
+          name: grafana-discord-webhook
+          key: url
+          optional: true
+
+    # Recreate, not RollingUpdate: grafana.db is SQLite on an RWO PVC, and a
+    # rolling update starts the new pod on the same node while the old one
+    # still has the DB open. Suspected cause of the 2026-09-03 corruption that
+    # wiped every UI-created dashboard, alert rule and datasource.
+    deploymentStrategy:
+      type: Recreate
+
+    # Alert rules + contact point from templates/grafana-alerting.yaml.
+    sidecar:
+      alerts:
+        enabled: true
+        label: grafana_alert
+        labelValue: "1"
+
+    # Restored with its original uid so existing dashboards (Container Log
+    # Quick Search, Loki2.0 Global Metrics) resolve it again.
+    additionalDataSources:
+      - name: loki
+        uid: cebvhq661zojkb
+        type: loki
+        access: proxy
+        url: http://loki-gateway.loki.svc.cluster.local:80
+
     ingress:
       enabled: true
       annotations:
