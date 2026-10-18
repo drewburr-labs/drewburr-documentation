@@ -15,6 +15,7 @@ Each group gets its own server. It does not share memory or files with other gro
 | Mod loaders | Vanilla, Fabric, Forge, NeoForge, or Paper. Modpacks from Modrinth or CurseForge are fine. |
 | Updates | The panel's Update Center makes a backup, then installs the newest server or mod loader version. |
 | Backups | Run from the panel, on a schedule or by hand. You can restore an older copy of the world. |
+| Storage | 100 GB for the server and world files, and 200 GB for backups. I can add more if you need it. |
 | File access | SFTP access to the server files, over a private VPN. |
 | Voice chat | Voice chat mods (for example, Simple Voice Chat) are supported. |
 | Live map | Optional web map of the world (BlueMap) at `<name>.map.drewburr.com`. |
@@ -38,6 +39,7 @@ Memory is what the game gets: the maximum memory setting for the Minecraft serve
 
 - **The price follows the size.** If you change modpacks or add players, we agree on a new size and price together. The new price starts on the next 1st of the month.
 - **Fixes are free.** If the server crashes because I set the memory too low, I add memory at no extra cost.
+- **Storage can change the price.** If the world or backups grow far beyond the storage limits, we may need to change the price.
 
 ## Billing and payment
 
@@ -64,6 +66,7 @@ You run the game. I run the hardware and keep the server healthy.
 | Players | Whitelist, operators, and bans. | Nothing. |
 | Server and loader versions | Start updates from the Update Center. | Help if an update fails. |
 | Backups | Take one before big changes. | Keep backup storage running. |
+| Storage | Keep the world and backups within the limits. | Watch disk use. If it makes sense, I may ask you to change the backup schedule or delete old backups. |
 | Memory and performance | Tell me when you change modpacks or player count. | Size and tune the server. Fix crashes caused by settings. |
 | Hardware, network, and storage | Nothing. | All of it. |
 | VPN access (when required) | Install the VPN app. | Set up your access. |
