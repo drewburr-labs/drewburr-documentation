@@ -1,0 +1,152 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "Container/Pod Log Quick Search(Loki as DataSource)",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": "cebvhq661zojkb",
+      "description": "",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 24,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "dedupStrategy": "numbers",
+        "enableInfiniteScrolling": false,
+        "enableLogDetails": true,
+        "prettifyLogMessage": false,
+        "showCommonLabels": false,
+        "showLabels": false,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true
+      },
+      "pluginVersion": "12.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "0": "c",
+            "1": "e",
+            "10": "o",
+            "11": "j",
+            "12": "k",
+            "13": "b",
+            "2": "b",
+            "3": "v",
+            "4": "h",
+            "5": "q",
+            "6": "6",
+            "7": "6",
+            "8": "1",
+            "9": "z"
+          },
+          "expr": "{namespace=\"$namespace\", pod=~\"$pod\"} |~ \"(?i)$searchable_pattern\" ",
+          "hide": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Search Result",
+      "transparent": true,
+      "type": "logs"
+    }
+  ],
+  "preload": false,
+  "refresh": "1m",
+  "schemaVersion": 41,
+  "tags": [
+    "Loki",
+    "logging"
+  ],
+  "templating": {
+    "list": [
+      {
+        "allValue": ".*",
+        "current": {
+          "text": "loki",
+          "value": "loki"
+        },
+        "datasource": "cebvhq661zojkb",
+        "definition": "",
+        "includeAll": false,
+        "label": "Namespace",
+        "name": "namespace",
+        "options": [],
+        "query": {
+          "label": "namespace",
+          "refId": "LokiVariableQueryEditor-VariableQuery",
+          "stream": "{namespace=~\".+\"}",
+          "type": 1
+        },
+        "refresh": 2,
+        "regex": "",
+        "type": "query"
+      },
+      {
+        "allValue": ".*",
+        "current": {},
+        "datasource": "cebvhq661zojkb",
+        "definition": "label_values({namespace=\"$namespace\"}, pod)",
+        "includeAll": true,
+        "label": "Pod",
+        "name": "pod",
+        "options": [],
+        "query": "label_values({namespace=\"$namespace\"}, pod)",
+        "refresh": 2,
+        "regex": "",
+        "type": "query"
+      },
+      {
+        "current": {
+          "text": "",
+          "value": ""
+        },
+        "label": "Search (case insensitive)",
+        "name": "searchable_pattern",
+        "options": [
+          {
+            "selected": true,
+            "text": "",
+            "value": ""
+          }
+        ],
+        "query": "",
+        "type": "textbox"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Container Log Quick Search",
+  "uid": "7ecZpUkRk",
+  "version": 3
+}
