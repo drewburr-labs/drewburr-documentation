@@ -1,0 +1,104 @@
+craftycontroller:
+  image:
+    repository: ghcr.io/drewburr-labs/crafty-4
+    tag: latest
+  imagePullSecrets:
+    - name: ghcr-crafty-4 # distributed by ESO via the ghcr.drewburr.com/crafty-4 namespace label
+  # Bump to restart pods onto the current :latest build (tag stays "latest",
+  # so nothing else in the spec changes when a new image is published).
+  podAnnotations:
+    drewburr.com/crafty-image: "4.11.0-c18a0b0"
+  persistence:
+    crafty-app-config:
+      requests: 1Gi
+      storageClassName: zfs-nvmeof
+    crafty-servers:
+      requests: 100Gi
+      storageClassName: zfs-nvmeof
+    crafty-backups:
+      enabled: true
+      requests: 200Gi
+      storageClassName: zfs-nvmeof
+    crafty-logs:
+      enabled: true
+      requests: 1Gi
+      storageClassName: zfs-nvmeof
+
+  services:
+    https:
+      type: ClusterIP
+      ingress:
+        className: nginx-external
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt
+          nginx.ingress.kubernetes.io/backend-protocol: 'HTTPS'
+          external-dns.kubernetes.io/target: ip.drewburr.com
+          nginx.ingress.kubernetes.io/proxy-body-size: '0' # Disable size check
+          nginx.ingress.kubernetes.io/configuration-snippet: |
+            sub_filter '<a class="nav-link" href="/panel/contribute">' '<a class="nav-link" href="/panel/contribute" hidden=true>';
+            sub_filter '<a class="nav-link" href="/panel/credits">' '<a class="nav-link" href="/panel/credits" hidden=true>';
+            sub_filter '<a class="nav-link" href="https://discord.gg/9VJPhCE" target="_blank">' '<a class="nav-link" hidden=true>';
+            sub_filter 'if (MFA_WARN) {' 'if (false) {';
+        hosts:
+          - host: jumanji.crafty.drewburr.com
+            paths:
+              - path: /
+                pathType: ImplementationSpecific
+        tls:
+          - secretName: craftycontroller-ingress
+            hosts:
+              - jumanji.crafty.drewburr.com
+    minecraft:
+      type: ClusterIP
+      annotations:
+        mc-router.itzg.me/externalServerName: jumanji.mc.drewburr.com
+    metrics:
+      type: ClusterIP
+      labels:
+        metrics: 'true'
+      ports:
+        - name: metrics
+          port: 19565
+          protocol: TCP
+
+  # Paper + HardcoreLife (shared lives pool): Light tier, 6G heap + 2Gi overhead.
+  resources:
+    limits:
+      # cpu: 2
+      memory: 8Gi
+    requests:
+      cpu: 1
+      memory: 8Gi
+
+  sftp:
+    enabled: false
+
+  serviceMonitors:
+    - name: metrics
+      endpoints:
+        - interval: 15s
+          path: /
+          port: metrics
+          scrapeTimeout: 10s
+      selector:
+        matchLabels:
+          metrics: 'true'
+      namespaceSelector:
+        matchNames:
+          - "{{ .Release.Namespace }}"
+
+  tolerations:
+    - key: compute
+      operator: Exists
+      effect: PreferNoSchedule
+
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          preference:
+            matchExpressions:
+              - key: compute
+                operator: In
+                values:
+                  - 'true'
