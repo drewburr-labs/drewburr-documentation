@@ -29,13 +29,15 @@ democratic-csi:
       # zfs send/received instead of zfs cloned
       # detachedVolumesFromVolumes: "false"
 
-    # soft + bounded timeo/retrans: a storage01 stall returns EIO after
-    # ~15s instead of blocking I/O uninterruptibly forever. Matches
-    # nfs-lake.
+    # hard, unlike nfs-lake's soft: these volumes hold write-heavy
+    # SQLite/app state (plex-config, authentik, qbittorrent, etcd-backup),
+    # where a soft-mount EIO mid-write can corrupt the DB. A storage01
+    # stall blocks the app either way; hard resumes cleanly on recovery.
+    # timeo/retrans only pace retries and "not responding" logs here.
     mountOptions:
       - nfsvers=4.1
       - proto=tcp
-      - soft
+      - hard
       - timeo=50
       - retrans=2
 
