@@ -126,7 +126,7 @@ groups:
       summary: 'spud: anonymous memory high'
     labels:
       severity: warning
-    isPaused: false
+    isPaused: true
     notification_settings:
       receiver: drewburr-labs Discord
   - uid: ffixoja6295vka
@@ -179,7 +179,7 @@ groups:
       summary: 'spud: swap nearly full'
     labels:
       severity: warning
-    isPaused: false
+    isPaused: true
     notification_settings:
       receiver: drewburr-labs Discord
 - orgId: 1
