@@ -6,8 +6,9 @@ image:
 
 # k3s-specific CNI paths. Override for other distributions.
 cni:
-  # Path to CNI binaries on the host (must match inside the container)
-  binDir: /var/lib/rancher/k3s/data/current/bin
+  # Path to CNI binaries on the host (must match inside the container).
+  # k3s's containerd looks for plugins in data/cni, not data/current/bin.
+  binDir: /var/lib/rancher/k3s/data/cni
   # Path to CNI net.d config directory on the host
   netdDir: /var/lib/rancher/k3s/agent/etc/cni/net.d
 
