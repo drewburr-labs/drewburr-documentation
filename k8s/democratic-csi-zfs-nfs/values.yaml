@@ -66,6 +66,13 @@ democratic-csi:
   #           name: server-connection-details
   #           key: private_key
 
+  node:
+    tolerations:
+    # kube01 is tainted CriticalAddonsOnly (dedicated etcd/control-plane);
+    # the etcd-backup CronJob mounts a zfs-nfs PVC there.
+    - key: CriticalAddonsOnly
+      operator: Exists
+
   driver:
     # It's not yet possible to inject env variables
     # https://github.com/democratic-csi/democratic-csi/issues/400
