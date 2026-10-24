@@ -29,8 +29,15 @@ democratic-csi:
       # zfs send/received instead of zfs cloned
       # detachedVolumesFromVolumes: "false"
 
+    # soft + bounded timeo/retrans: a storage01 stall returns EIO after
+    # ~15s instead of blocking I/O uninterruptibly forever. Matches
+    # nfs-lake.
     mountOptions:
-      - nfsvers=3
+      - nfsvers=4.1
+      - proto=tcp
+      - soft
+      - timeo=50
+      - retrans=2
 
     secrets:
       provisioner-secret:
