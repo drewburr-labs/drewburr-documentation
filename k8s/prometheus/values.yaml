@@ -159,9 +159,7 @@ kube-prometheus-stack:
     ## If your etcd is not deployed as a pod, specify IPs it can be found on
     ##
     endpoints:
-      - 192.168.4.41
-      - 192.168.4.42
-      - 192.168.4.43
+      - 192.168.4.41 # kube01, the only etcd member
 
   kube-state-metrics:
     selfMonitor:
