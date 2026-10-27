@@ -4,6 +4,8 @@ Custom Plex image published as `ghcr.io/drewburr-labs/plex:latest`. The image ad
 
 **Status (2026-04-19):** deployed; HW decode + HW encode confirmed working on an Intel Arc B570 (Battlemage, `8086:e20c`, xe kernel driver) on kernel 6.17.0-20-generic.
 
+**Base re-audit (2026-10-26):** re-checked `plexinc/pms-docker:latest` (digest `sha256:32dead43…`, PMS **1.43.5.11079**, pushed to Docker Hub 2026-10-26). Same 19 symbols still missing from `libgcompat.so.0`, including the whole `__isoc23_*` family. **Shim still required.** Rebuilt against this base; shim retained. See [Base-image audit log](#base-image-audit-log).
+
 **Base re-audit (2026-09-19):** re-checked `plexinc/pms-docker:latest` (digest `sha256:e0ab2739…`, PMS **1.43.4.10903**). Same 19 symbols still missing from `libgcompat.so.0`, including the whole `__isoc23_*` family. **Shim still required.** Image `ghcr.io/drewburr-labs/plex:latest` (`sha256:4f2a2dbb…`, built 2026-09-20 02:24Z by run 35483859610) already carries this base. See [Base-image audit log](#base-image-audit-log).
 
 **Base re-audit (2026-08-06):** re-checked `plexinc/pms-docker:latest` (digest `sha256:5bc1d13f…`, PMS **1.43.3.10861**). No change from the June audit — the `__isoc23_*` family is still missing from `libgcompat.so.0`. **Shim still required.** See [Base-image audit log](#base-image-audit-log). Rebuilt against this base; shim retained.
@@ -102,6 +104,12 @@ The image is based on `plexinc/pms-docker:latest`, not linuxserver, so env vars 
 - **Delete this shim when upstream fixes libgcompat.** Revisit after each Plex beta; monitor the forum thread linked above.
 
 ## Base-image audit log
+
+### 2026-10-26 — `plexinc/pms-docker:latest` (PMS 1.43.5.11079-b3b13e506, image digest `sha256:32dead43…`)
+
+Pulled the new base locally, extracted `libgcompat.so.0`, and diffed its `nm -D --defined-only` exports against the 34 symbols the locally built shim exports. Result identical to 2026-09-19: 15 exported by `libgcompat` (shim redundant for those), the same 19 still missing — `__isoc23_*` (6), wide/multibyte `__*_chk` (4), `__openat_2`/`__openat64_2`, `arc4random*`/`getentropy` (4), `strfromf128`/`strtof128`, `_dl_find_object`. **Shim still required.** Only `libgcompat` was audited; after the pod picks up the new image, confirm HW transcode still works and run the `nm -D --undefined` diff against the live `iHD_drv_video.so` per Operational notes.
+
+Upstream changelog for 1.43.5 is unrelated to the transcoder runtime (network/IPv6, security hardening for proxied requests, HLS playlist crash fix, eMudhra CA distrust).
 
 ### 2026-09-19 — `plexinc/pms-docker:latest` (PMS 1.43.4.10903-e5521bd8c, image digest `sha256:e0ab2739…`)
 
