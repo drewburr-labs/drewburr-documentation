@@ -4,7 +4,7 @@ Custom Plex image published as `ghcr.io/drewburr-labs/plex:latest`. The image ad
 
 **Status (2026-04-19):** deployed; HW decode + HW encode confirmed working on an Intel Arc B570 (Battlemage, `8086:e20c`, xe kernel driver) on kernel 6.17.0-20-generic.
 
-**Base re-audit (2026-10-26):** re-checked `plexinc/pms-docker:latest` (digest `sha256:32dead43…`, PMS **1.43.5.11079**, pushed to Docker Hub 2026-10-26). Same 19 symbols still missing from `libgcompat.so.0`, including the whole `__isoc23_*` family. **Shim still required.** Rebuilt against this base; shim retained. See [Base-image audit log](#base-image-audit-log).
+**Base re-audit (2026-10-26):** re-checked `plexinc/pms-docker:latest` (digest `sha256:32dead43…`, PMS **1.43.5.11079**, pushed to Docker Hub 2026-10-26). Same 19 symbols still missing from `libgcompat.so.0`, including the whole `__isoc23_*` family. **Shim still required.** Rebuilt against this base, deployed, HW transcode verified on the B570. See [Base-image audit log](#base-image-audit-log).
 
 **Base re-audit (2026-09-19):** re-checked `plexinc/pms-docker:latest` (digest `sha256:e0ab2739…`, PMS **1.43.4.10903**). Same 19 symbols still missing from `libgcompat.so.0`, including the whole `__isoc23_*` family. **Shim still required.** Image `ghcr.io/drewburr-labs/plex:latest` (`sha256:4f2a2dbb…`, built 2026-09-20 02:24Z by run 35483859610) already carries this base. See [Base-image audit log](#base-image-audit-log).
 
@@ -99,7 +99,7 @@ The image is based on `plexinc/pms-docker:latest`, not linuxserver, so env vars 
 
 - **Do not `rmmod` / unbind the xe driver to recover from a hung GPU.** On Battlemage with kernel 6.17.0-20, the driver's `.remove()` path deadlocks against a hung GT and takes the node offline — recovery requires a cold power cycle. See [`incidents/kube05-xe-unbind-lockup.md`](../../incidents/kube05-xe-unbind-lockup.md) for the full write-up. Use drain + reboot instead.
 
-- **When Plex ships a new Transcoder build**, re-audit the shim. Run `nm -D --undefined` against the live `iHD_drv_video.so` and `libstdc++.so.6` inside the running container, diff against what musl + libgcompat + the shim provide, and add any new unresolved symbols. The list above was enumerated iteratively — a silent new dependency would present as "libva init fails" after an image bump, not as a relocation error at load time.
+- **When Plex ships a new Transcoder build**, re-audit the shim. Run `nm -D --undefined` against the live `iHD_drv_video.so`, the system `libstdc++.so.6` and `libgcc_s.so.1` (as of 1.43.5 it is `libstdc++`, not the driver, that references the shim symbols) inside the running container, diff against what musl + libgcompat + the shim provide, and add any new unresolved symbols. The list above was enumerated iteratively — a silent new dependency would present as "libva init fails" after an image bump, not as a relocation error at load time.
 
 - **Delete this shim when upstream fixes libgcompat.** Revisit after each Plex beta; monitor the forum thread linked above.
 
@@ -107,7 +107,11 @@ The image is based on `plexinc/pms-docker:latest`, not linuxserver, so env vars 
 
 ### 2026-10-26 — `plexinc/pms-docker:latest` (PMS 1.43.5.11079-b3b13e506, image digest `sha256:32dead43…`)
 
-Pulled the new base locally, extracted `libgcompat.so.0`, and diffed its `nm -D --defined-only` exports against the 34 symbols the locally built shim exports. Result identical to 2026-09-19: 15 exported by `libgcompat` (shim redundant for those), the same 19 still missing — `__isoc23_*` (6), wide/multibyte `__*_chk` (4), `__openat_2`/`__openat64_2`, `arc4random*`/`getentropy` (4), `strfromf128`/`strtof128`, `_dl_find_object`. **Shim still required.** Only `libgcompat` was audited; after the pod picks up the new image, confirm HW transcode still works and run the `nm -D --undefined` diff against the live `iHD_drv_video.so` per Operational notes.
+Pulled the new base locally, extracted `libgcompat.so.0`, and diffed its `nm -D --defined-only` exports against the 34 symbols the locally built shim exports. Result identical to 2026-09-19: 15 exported by `libgcompat` (shim redundant for those), the same 19 still missing — `__isoc23_*` (6), wide/multibyte `__*_chk` (4), `__openat_2`/`__openat64_2`, `arc4random*`/`getentropy` (4), `strfromf128`/`strtof128`, `_dl_find_object`. **Shim still required.**
+
+**Post-deploy verification (2026-10-26, image `sha256:9d56083c…` built by run 40439122798):** pod restarted, `/identity` reports 1.43.5.11079. HW transcode confirmed on the B570: a forced HLS transcode of a 4K HEVC title ran with `-hwaccel:0 vaapi`, `-init_hw_device vaapi=vaapi:/dev/dri/renderD128,driver=iHD`, `scale_vaapi`, and `h264_vaapi` encode, and PMS logged `Format vaapi chosen by get_format()` / `requires hwaccel initialisation` during codec probing.
+
+Live-driver symbol diff: the driver is still `imd-bf5e5022114b0ec9fec237e2` (iHD 25.2.6, `sha256:7a215310…`, unchanged since the 1.43.4 bump; `NEEDED`: `libgcompat.so.0`, `libigdgmm.so.12`, `libc.so`). Of its 237 undefined refs, everything resolves against musl + libgcompat + libva + libdrm except 25 GmmLib symbols supplied by `libigdgmm.so.12`. **The driver itself no longer references any shim symbol.** What does is the system `/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33` (GCC 14) that the driver pulls in transitively — it references 18 shim exports, including the load-fatal `__isoc23_strtoul`, plus `strfromf128`, `strtof128`, `arc4random`, `getentropy`, `_dl_find_object`, `__openat_2`, and the wide/multibyte `__*_chk` family. So the shim is still load-bearing, via `libstdc++` rather than `iHD_drv_video.so`. Future audits should diff `libstdc++.so.6` and `libgcc_s.so.1` as well as the driver.
 
 Upstream changelog for 1.43.5 is unrelated to the transcoder runtime (network/IPv6, security hardening for proxied requests, HLS playlist crash fix, eMudhra CA distrust).
 
