@@ -10,6 +10,7 @@ Documentation related to the drewburr.com environment.
 - [Operational Essentials](#operational-essentials)
 - [Minecraft server hosting: service offering](minecraft-hosting/README.md)
 - [Workstation: OpenRGB lighting](workstation/openrgb/README.md)
+- [spud: CPU boost and cooling (CoolerControl)](spud/cooling/README.md)
 - [qBittorrent over VPN: routing, port forward, UniFi gotchas](k8s/plex/qbittorrent/README.md)
 
 ## Environment Overview
