@@ -1,0 +1,103 @@
+# https://jamcalli.github.io/Pulsarr/
+# Syncs the server owner's and Plex friends' watchlists into Sonarr/Radarr using
+# only the owner's Plex token, so friends never have to sign into Seerr.
+# Friends' watchlists must not be set to Private in their Plex privacy settings.
+replicaCount: 1
+
+image:
+  repository: lakker/pulsarr
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+# The image starts as root, chowns /app/data, then drops to PUID/PGID.
+podSecurityContext:
+  fsGroup: 1000
+  fsGroupChangePolicy: "OnRootMismatch"
+
+securityContext: {}
+
+# Ports to be exposed, grouped by services
+services:
+  - name: http
+    type: ClusterIP
+    port: 3003
+    protocol: TCP
+    ingress:
+      className: nginx-internal
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt
+      hosts:
+        - host: pulsarr.drewburr.com
+          paths:
+            - path: /
+              pathType: ImplementationSpecific
+      tls:
+      - secretName: pulsarr-ingress
+        hosts:
+          - pulsarr.drewburr.com
+
+resources: {}
+
+# Appended to env. Supports envFrom
+env: []
+
+# Key: value environment variables to be appended to env
+# Env vars override the in-app saved value on every start.
+envVars:
+  PUID: 1000
+  PGID: 1000
+  TZ: America/New_York
+  # Address Sonarr/Radarr use to send import webhooks back to Pulsarr.
+  baseUrl: http://plex-pulsarr-http.plex.svc.cluster.local
+  port: 3003
+  # UI is only served over HTTPS via the ingress.
+  cookieSecured: true
+
+# All are mounted under fsroot `/`. Supports additions
+# SQLite DB and logs live in /app/data.
+persistence:
+  - name: pulsarr-data
+    mountPath: app/data
+    accessModes:
+      - ReadWriteOnce
+    requests: 5Gi
+    storageClassName: zfs-nvmeof
+  - name: backups
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+# /health needs no sign-in; 200 when the DB answers, 503 otherwise.
+startupProbe:
+  httpGet:
+    path: /health
+    port: 3003
+  failureThreshold: 30
+  periodSeconds: 10
+livenessProbe:
+  httpGet:
+    path: /health
+    port: 3003
+readinessProbe:
+  httpGet:
+    path: /health
+    port: 3003
