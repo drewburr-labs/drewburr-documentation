@@ -1,0 +1,15 @@
+# Contact point every rule in rules.yaml routes to (via notification_settings).
+# The webhook URL comes from the grafana-discord-webhook Secret (ExternalSecret
+# from shared-secrets), injected into Grafana as DISCORD_WEBHOOK_URL; Grafana
+# expands $VARS in contact point settings at provisioning time.
+apiVersion: 1
+contactPoints:
+  - orgId: 1
+    name: drewburr-labs Discord
+    receivers:
+      - uid: bfixofw2of9xca
+        type: discord
+        disableResolveMessage: false
+        settings:
+          url: $DISCORD_WEBHOOK_URL
+          use_discord_username: false

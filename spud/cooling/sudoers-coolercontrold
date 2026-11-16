@@ -1,0 +1,1 @@
+drewburr ALL=(root) NOPASSWD: /usr/bin/systemctl stop coolercontrold, /usr/bin/systemctl start coolercontrold, /usr/bin/systemctl restart coolercontrold

@@ -1,0 +1,9 @@
+# CoolerControl display-name overrides.
+# Managed by coolercontrold: comments are not preserved on rewrite.
+# Hand edits are applied at the next daemon startup.
+
+[devices.00a4da18625f56275c89e2fcd25a83c08c5ad3326452fa7e252fcc8a89c92493]
+device_name = "nct6798"
+
+[devices.00a4da18625f56275c89e2fcd25a83c08c5ad3326452fa7e252fcc8a89c92493.channels]
+fan3 = { label = "Pump (Fan3)" }

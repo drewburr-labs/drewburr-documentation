@@ -1,0 +1,16 @@
+# Alert rules + contact point for Grafana, loaded by the alerts sidecar
+# (grafana.sidecar.alerts, label grafana_alert=1) which writes them to
+# /etc/grafana/provisioning/alerting and calls the provisioning reload API.
+# Files are read with .Files.Get (not tpl) so the Go-template expressions in
+# Grafana rule annotations ($labels / $values) pass through untouched.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-alerting
+  labels:
+    grafana_alert: "1"
+data:
+  rules.yaml: |
+    {{- .Files.Get "files/alerting/rules.yaml" | nindent 4 }}
+  contactpoints.yaml: |
+    {{- .Files.Get "files/alerting/contactpoints.yaml" | nindent 4 }}

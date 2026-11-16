@@ -1,0 +1,57 @@
+{{- /*
+Separate Ingress for the sidecar-subtitle endpoint only.
+
+Plex answers any `Range:` request on /library/streams/<id> (and other
+non-file endpoints) with a 206 carrying two identical Content-Length
+headers. nginx >= 1.23 treats that as a malformed upstream response
+("upstream sent duplicate header line"), returns 502, and our
+custom-http-errors config then serves the error page body instead.
+libmpv (Plex Desktop / HTPC) always sends `Range: bytes=0-` when it
+loads an external subtitle, so it received HTML and silently played
+without subtitles. Browsers never send Range here, so Plex Web was fine.
+
+Stripping Range on this path makes Plex return a plain 200 with a single
+Content-Length. Subtitle files are tiny, so losing range support is
+harmless. The main ingress (templated by the library chart) is untouched.
+*/ -}}
+{{- $fullName := include "library.fullname" . -}}
+{{- range $service := .Values.services }}
+{{- if ($service).ingress }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ $fullName }}-{{ $service.name }}-streams
+  labels:
+    {{- include "library.labels" $ | nindent 4 }}
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: 'HTTPS'
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      proxy_set_header Range "";
+spec:
+  ingressClassName: {{ $service.ingress.className }}
+  {{- with $service.ingress.tls }}
+  tls:
+    {{- range $tls := . }}
+    - hosts:
+        {{- range $tls.hosts }}
+        - {{ . | quote }}
+        {{- end }}
+      secretName: {{ $tls.secretName }}
+    {{- end }}
+  {{- end }}
+  rules:
+    {{- range $host := $service.ingress.hosts }}
+    - host: {{ $host.host | quote }}
+      http:
+        paths:
+          - path: /library/streams
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $fullName }}-{{ $service.name }}
+                port:
+                  number: {{ $service.port }}
+    {{- end }}
+{{- end }}
+{{- end }}

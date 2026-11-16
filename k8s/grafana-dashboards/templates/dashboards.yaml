@@ -1,0 +1,20 @@
+{{- /*
+One ConfigMap per files/*.json, picked up by the Grafana sidecar
+(label grafana_dashboard=1, searches all namespaces).
+
+These were UI-only dashboards lost when grafana.db was corrupted during
+the 2026-09-03 Grafana 13.2.0 -> 13.2.1 rollout, recovered from the
+grafana.db.corrupt-2026-09-03 file Grafana left on its PVC.
+*/ -}}
+{{- range $path, $_ := .Files.Glob "files/*.json" }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-{{ base $path | trimSuffix ".json" }}
+  labels:
+    grafana_dashboard: "1"
+data:
+  {{ base $path }}: |
+    {{- $.Files.Get $path | nindent 4 }}
+{{- end }}

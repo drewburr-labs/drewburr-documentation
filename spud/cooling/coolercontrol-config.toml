@@ -1,0 +1,306 @@
+# This is the CoolerControl configuration file.
+# Comments and most formatting is preserved.
+# Most of this file you can edit by hand, but it is recommended to stop the daemon when doing so.
+# -------------------------------
+
+
+# Unique ID Device List
+# -------------------------------
+# This is a simple UID and device name key-value pair, that is automatically generated at startup
+#  to help humans distinguish which UID belongs to which device in this config file.
+#  Only the device name is given here, complete Device information can be requested from the API.
+#  UIDs are generated sha256 hashes based on specific criteria to help determine device uniqueness.
+# ANY CHANGES WILL BE OVERWRITTEN.
+# Example:
+# 21091c4fb341ceab6236e8c9e905ccc263a4ac08134b036ed415925ba4c1645d = "Nvidia GPU"
+[devices]
+982252c157e179edc7d2a83a70fa864f0fdd0f69677160175f511a81cdc0d381 = "nvme1"
+00a4da18625f56275c89e2fcd25a83c08c5ad3326452fa7e252fcc8a89c92493 = "nct6798"
+fd6c44ffde31f3b1c5519a98504565d261e8e9c43d6baa1d3ad2afd122825cff = "nvme0"
+27ff1b4fdce39e98fce480d733211af635b9c22c23f0aa73b9cd9fa8e29b0713 = "jc42"
+5cff54c50da059179a8856baffb28a471e11ca6a42016fd8f1f2ac151904c3bf = "jc42"
+19e098e312e1b1b39163a343ea22b6ea17f18ec1a803ffe0ce44f5bacd6076ee = "Custom Sensors"
+f42333b13a2853dfb8e516c576470622e74a4659bfffe7ca229f68733beae979 = "iwlwifi_1"
+032ba4c4fd05911097a88cd7d1441f076c9480222aa651774a369c71efe502b9 = "jc42"
+96ace05aa0b971d55bbf6fcf9f7f4b99c8d6ef11fee639b5e79211e41536c093 = "amdgpu"
+3a0f9b26a77b4f3b29a6d6f1cb98751d4899bab82d5c70a9de3cd99667733154 = "jc42"
+4d5e7310aff29774aff03cb9fc7f9d87ebee8941a723ea491bd4a2da654d95d1 = "AMD Ryzen 7 5800X3D 8-Core Processor"
+14b9719bb6b955ec8ec5ca6f919e8f20d666e5aa108a23d8d2cee0f265473ce5 = "nvme2"
+
+
+# Legacy690 Option for devices
+# -------------------------------
+# There are 2 Asetek 690LC liquid coolers that have the same device ID.
+#  To tell them apart we need user input to know which cooler we're actually dealing with.
+#  This is an assignment of liquidctl AseTek690LC device UIDs to true/false:
+#   true = Legacy690 Cooler aka NZXT Kraken X40, X60, X31, X41, X51 and X61
+#   false = Modern690 Cooler aka EVGA CLC 120 (CLC12), 240, 280 and 360
+# Example:
+# 21091c4fb341ceab6236e8c9e905ccc263a4ac08134b036ed415925ba4c1645d = true
+[legacy690]
+
+
+# Device Settings
+# -------------------------------
+# This is where CoolerControl will save device settings for the cooresponding device.
+# Settings can be set here also specifically by hand. (restart required for applying)
+# These settings are applied on startup and each is overwritten once a new setting
+# has been applied.
+# Example:
+# [device-settings.4b9cd1bc5fb2921253e6b7dd5b1b011086ea529d915a86b3560c236084452807]
+# pump = { speed_fixed = 30 }
+# logo = { lighting = { mode = "fixed", colors = [[0, 255, 255]] } }
+# ring = { lighting = { mode = "spectrum-wave", backward = true, colors = [] } }
+[device-settings]
+
+[device-settings.00a4da18625f56275c89e2fcd25a83c08c5ad3326452fa7e252fcc8a89c92493]
+fan2 = { profile_uid = "case-radiator" }
+fan3 = { profile_uid = "pump-curve" }
+
+
+# A list of profiles to be used with each device's settings
+# -------------------------------
+[[profiles]]
+uid = "0"
+name = "Unmanaged"
+p_type = "Default"
+function = "0"
+
+[[profiles]]
+uid = "cpu-curve"
+name = "CPU curve"
+p_type = "Graph"
+function_uid = "smooth"
+speed_profile = [[30.0, 20], [65.0, 25], [75.0, 60], [85.0, 100]]
+temp_source = { temp_name = "sensor1", device_uid = "19e098e312e1b1b39163a343ea22b6ea17f18ec1a803ffe0ce44f5bacd6076ee" }
+temp_min = 0.0
+temp_max = 100.0
+
+[[profiles]]
+uid = "gpu-curve"
+name = "GPU curve"
+p_type = "Graph"
+function_uid = "smooth"
+speed_profile = [[40.0, 20], [70.0, 25], [80.0, 60], [90.0, 100]]
+temp_source = { temp_name = "sensor2", device_uid = "19e098e312e1b1b39163a343ea22b6ea17f18ec1a803ffe0ce44f5bacd6076ee" }
+temp_min = 0.0
+temp_max = 110.0
+
+[[profiles]]
+uid = "case-radiator"
+name = "Case + radiator"
+p_type = "Mix"
+function_uid = "0"
+member_profile_uids = ["cpu-curve", "gpu-curve"]
+mix_function_type = "Max"
+
+[[profiles]]
+uid = "pump-curve"
+name = "Pump curve"
+p_type = "Graph"
+function_uid = "smooth"
+speed_profile = [[30.0, 20], [60.0, 20], [80.0, 100]]
+temp_source = { temp_name = "sensor1", device_uid = "19e098e312e1b1b39163a343ea22b6ea17f18ec1a803ffe0ce44f5bacd6076ee" }
+temp_min = 0.0
+temp_max = 100.0
+
+# A list of functions to be applied to the various profiles
+# -------------------------------
+[[functions]]
+uid = "0"
+name = "Default Function"
+f_type = "Identity"
+
+[[functions]]
+uid = "smooth"
+name = "Smooth (averaged input)"
+f_type = "Standard"
+duty_minimum = 2
+duty_maximum = 100
+step_size_min_decreasing = 0
+step_size_max_decreasing = 0
+threshold_hopping = true
+deviance = 1.0
+only_downward = false
+response_delay = 1
+
+
+[[custom_sensors]]
+id = "sensor1"
+cs_type = "TimeAverage"
+time_window_seconds = 20
+
+[[custom_sensors.sources]]
+temp_source = { temp_name = "temp1", device_uid = "4d5e7310aff29774aff03cb9fc7f9d87ebee8941a723ea491bd4a2da654d95d1" }
+weight = 1
+
+[[custom_sensors]]
+id = "sensor2"
+cs_type = "TimeAverage"
+time_window_seconds = 20
+
+[[custom_sensors.sources]]
+temp_source = { temp_name = "temp2", device_uid = "96ace05aa0b971d55bbf6fcf9f7f4b99c8d6ef11fee639b5e79211e41536c093" }
+weight = 1
+
+
+# Cooler Control Settings
+# -------------------------------
+# This is where CoolerControl specifc general and specifc device settings are set. These device
+# settings differ from the above Device Settings, in that they are applied to CoolerControl,
+# and not on the devices themselves. For ex. settings such as disabling/enabling a particular device.
+[settings]
+
+# whether to apply the saved device settings on daemon startup
+apply_on_boot = true
+
+# Whether to enable the integration with liquidctl.
+# Disabling this will prevent any communication with liquidctl,
+# and all HWMon supported devices will be shown.
+liquidctl_integration = true
+
+# There are some devices that are supported both by liquidctl and hwmon drivers. Normally the
+# preference is to use liquidctl as it supports more features such as RGB control. There are
+# some cases where the hwmon driver is preferred though. Note: Care should be taken to blacklist
+# one of the devices to avoid needlessly loading the device IO and avoid concurrency issues.
+# Use at your own risk.
+hide_duplicate_devices = true
+
+# Will skip initialization calls for liquidctl devices. ONLY USE if you are doing initialiation manually.
+no_init = false
+
+# Startup Delay (seconds) is an integer value between 0 and 120
+startup_delay = 2
+
+# For ThinkPads, wheather to use the 'full-speed' option when settings the fan to 100%
+# This option drives the fan as fast as it can go, which might exceed hardware limits,
+# so use this level with caution.
+thinkpad_full_speed = false
+
+# API Address and Port:
+# The daemon by default uses port 11987 and the standard loopback IPv4 and IPv6 addresses.
+# You can set an IPv4, IPv6 or both addresses to listen on. An empty string will disable the address.
+# It is highly recommended to use the default settings unless you have a specific reason to change them
+# and understand the implications.
+# If you expose the API to a public network, it is recommended to use TLS/HTTPS (see below).
+# For more information see the project wiki.
+# Example:
+# port = 11987
+# ipv4_address = "127.0.0.1"
+# ipv6_address = "::1"
+
+# Whether to compress the response payload from the API. This will reduce the size of the response
+# but will increase CPU usage a tiny bit. This is useful if you are running the API over a network.
+# 'compress' is deprecated, use compress_payload instead.
+compress_payload = true
+
+# The polling rate for sensor data collection. The default is 1.0 second. Limited to values
+# between 0.5 and 5.0 seconds in half-second increments.
+# Note: Caution should be used when using values less than 1.0.
+# poll_rate = 1.0
+
+# Whether to check if drivetemp supported drives are in a suspended state/spun down, and if so,
+# return 0C as their reporting temperature.
+drivetemp_suspend = false
+
+# TLS/HTTPS Configuration:
+# TLS to secure the REST API with HTTPS. (enabled by default)
+# When enabled, a self-signed certificate will be automatically generated on first startup if no
+# certificate paths are specified. The certificate and key are stored in /etc/coolercontrol/ by
+# default.
+# Note: Self-signed certificates will cause browser warnings. You can provide your own
+# certificate by specifying the paths below, or use a reverse proxy (nginx, caddy, traefik)
+# to handle TLS termination as an alternative approach.
+# tls_enabled = true
+# tls_cert_path = "/etc/coolercontrol/coolercontrol.crt"
+# tls_key_path = "/etc/coolercontrol/coolercontrol.key"
+
+# Reverse Proxy / CORS Configuration:
+# Custom origins to allow in CORS requests. This is useful when accessing CoolerControl through
+# a reverse proxy with a custom domain, or via port forwarding with a public IP. Add the full
+# origin URL (scheme + host + port if non-standard). Only read from this file, at startup.
+# origins = ["https://coolercontrol.mydomain.com", "http://192.168.1.1:8080"]
+
+# Embedding the UI in another page:
+# The origins of pages that may show the CoolerControl UI inside an iframe, such as a server
+# dashboard. By default no page may. Only list pages you trust: a page that frames the UI can
+# trick a logged-in user into clicking things in it.
+# - Write each origin exactly as the browser shows the embedding page's address: scheme, host
+#   and port, without a path. The host must be written the same way too. A page opened by IP
+#   address needs that IP address here, and a page opened by name needs that name.
+# - An IPv6 address such as "https://[2001:db8::1]:9090" cannot be listed. It is a valid
+#   address for a browser to open, but the security header that carries this list has no way
+#   to write one. Open the embedding page by hostname or IPv4 address and list that instead.
+# - An entry that is not an exact origin is ignored, with a warning in the log at startup.
+# - At most 16 entries are read. Any after the first 16 are ignored, with a warning as well.
+# - Only read from this file, at startup. Restart the daemon after changing it.
+# - The login only holds inside the frame when the embedding page and CoolerControl are opened
+#   with the same scheme, normally HTTPS, and at the same host or domain.
+# - Prefer "https" origins. A page served over plain "http" can be replaced by anyone on the
+#   network path between the browser and that page, who could then frame the UI in its place.
+# frame_ancestors = ["https://dashboard.mydomain.com:9090", "https://192.168.1.10:9090"]
+
+# Header to check for the client's original protocol when behind a reverse proxy. Common values
+# are "X-Forwarded-Proto" (nginx, Apache) or "X-Scheme". When this header indicates "https",
+# the HTTP-to-HTTPS redirect is skipped (the proxy handles TLS termination).
+# protocol_header = "X-Forwarded-Proto"
+
+# Reverse proxies whose X-Forwarded-For header names the real client, as addresses or CIDR
+# ranges. Login throttling then counts each client separately instead of lumping everyone
+# behind the proxy together. Only list proxies you run: any listed address can claim to be any
+# client. Listing 127.0.0.1 or ::1 extends that to every local user of this machine.
+# A proxy on this machine connects from loopback, so its clients share the local app's
+# connection budget.
+# trusted_proxies = ["127.0.0.1", "::1"]
+
+# Allow unencrypted HTTP connections from non-localhost addresses. By default, non-localhost
+# HTTP requests are redirected to HTTPS when TLS is enabled. Set this to true to allow HTTP.
+# Note: This should only be used as a last resort and is not recommended.
+# allow_unencrypted = false
+
+# Whether a remote device-service plugin must present a TLS certificate whose fingerprint
+# you pinned in advance. When disabled (the default), the daemon trusts a remote the first
+# time it connects, records that certificate's fingerprint in a "tls_pin" file inside the
+# plugin's directory, and refuses the connection if it ever changes. Enable this to refuse
+# unknown remotes outright; you then have to write the expected fingerprint into that
+# "tls_pin" file yourself. A TLS connection to localhost is trusted without a pin while this
+# is disabled, but needs one like any other once it is enabled.
+# This only applies to connections that use TLS at all: a plugin reached over a Unix socket
+# or plain TCP has no certificate to pin. Placing a "token" file in a plugin's directory is
+# what switches its connection to TLS, unless its manifest sets "tls" explicitly.
+# tls_strict = false
+
+# Whether to auto-detect Super-I/O hardware sensors and load the appropriate kernel
+# modules at startup. This helps ensure all hwmon chips are available. (x86_64 only)
+# sensors_auto_detect = true
+
+# Whether to apply the "label" and "ignore" statements from the lm-sensors configuration files
+# (/etc/sensors3.conf, /etc/sensors.conf and /etc/sensors.d/). Labels set there replace the ones
+# the kernel driver reports, and ignored sensors are hidden. Names set in CoolerControl itself
+# always win. The files are read once at startup and are never written to.
+# sensors_conf_enabled = true
+
+# Whether to listen for kernel device add/remove events (e.g. USB hotplug) at startup.
+# When enabled, the daemon watches for hardware changes and notifies connected clients.
+# Requires netlink socket access, which containers may not have.
+# device_listener_enabled = false
+
+# Whether to log at DEBUG level. Debug output is large and is kept out of the in-app log view,
+# so turn it off once the logs are collected. Read at startup; a change applies after a restart.
+# The CC_LOG environment variable or the --debug flag can also raise the level.
+# debug_logging = false
+
+# Power profile to Mode mapping:
+# When the system power profile changes, CoolerControl activates the Mode mapped to the new
+# profile. The profile is read over D-Bus from power-profiles-daemon or the tuned-ppd shim;
+# TLP does not expose one. Profiles left unmapped are ignored, and the mapping is also editable
+# from the Modes page in the UI. Every change is published on the SSE "system" event whether or
+# not a Mode is mapped.
+# [power_profile_modes]
+# power-saver = "<mode uid>"
+# balanced = "<mode uid>"
+# performance = "<mode uid>"
+
+# CoolerControl Device settings Example:
+# [settings.4b9cd1bc5fb2921253e6b7dd5b1b011086ea529d915a86b3560c236084452807]
+# disabled = true

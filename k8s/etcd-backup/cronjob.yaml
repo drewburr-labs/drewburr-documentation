@@ -1,0 +1,54 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: etcd-snapshot-copy
+spec:
+  # k3s takes etcd snapshots at 00:00 and 12:00; copy after the midnight one.
+  schedule: "30 0 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        spec:
+          restartPolicy: OnFailure
+          nodeSelector:
+            kubernetes.io/hostname: kube01
+          tolerations:
+            - key: CriticalAddonsOnly
+              operator: Exists
+          containers:
+            - name: copy
+              image: docker.io/library/busybox:1.37.0
+              command:
+                - /bin/sh
+                - -euc
+                - |
+                  # -n: never overwrite a copy that's already on NFS.
+                  cp -n /snapshots/* /backup/
+                  find /backup -type f -mtime +30 -delete
+                  ls -la /backup
+              # k3s writes snapshots as root, mode 0600, so reading them needs
+              # root. Everything else is locked down.
+              securityContext:
+                runAsUser: 0
+                readOnlyRootFilesystem: true
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop: ["ALL"]
+              volumeMounts:
+                - name: snapshots
+                  mountPath: /snapshots
+                  readOnly: true
+                - name: backup
+                  mountPath: /backup
+          volumes:
+            - name: snapshots
+              hostPath:
+                path: /var/lib/rancher/k3s/server/db/snapshots
+                type: Directory
+            - name: backup
+              persistentVolumeClaim:
+                claimName: etcd-snapshots

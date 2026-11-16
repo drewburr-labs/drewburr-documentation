@@ -1,0 +1,12 @@
+[Unit]
+Description=Set CPU governor to performance (amd_pstate passive mode, unlocks full boost on 5800X3D)
+After=multi-user.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+# amd_pstate=passive (set via kernel cmdline) + performance governor = full boost to ~4.45 GHz under load
+ExecStart=/usr/bin/bash -c 'for f in /sys/devices/system/cpu/cpufreq/policy*/scaling_governor; do echo performance > "$f"; done'
+
+[Install]
+WantedBy=multi-user.target

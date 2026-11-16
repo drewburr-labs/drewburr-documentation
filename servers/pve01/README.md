@@ -8,11 +8,127 @@ ISO is presented through the NanoKVM's virtual CD-ROM.
 | ---------- | ------------------------------------------------------------------------------------------------ |
 | OS         | Proxmox VE 8.4 (`proxmox-ve_8.4-1.iso`), no-subscription repo                                    |
 | Hostname   | `pve01.drewburr.com`                                                                             |
-| Network    | DHCP on `vmbr0`. Nothing about the current network is baked in, so the host can move networks. |
+| Network    | Static `192.168.4.21/23` on `vmbr0.4`; VLAN-aware `vmbr0` (VLANs 4 and 6), MTU 9000. See [Networking](#networking). |
 | OS disk    | Kingston DC1000B 480 GB, ext4 + LVM-thin (Proxmox default layout)                                |
-| Other disk | Micron 7450 960 GB (PLP). The installer leaves it alone.                                          |
+| Other disk | Micron 7450 960 GB (PLP), LVM storage `nvme`. Holds kube01's etcd disk.                          |
 | Root login | password (hash supplied at build time) and `~/.ssh/id_ed25519.pub`                               |
-| Web UI     | `https://<dhcp address>:8006`, user `root`, realm PAM                                             |
+| Web UI     | `https://pve01.drewburr.com:8006`, user `root`, realm PAM                                         |
+
+## Networking
+
+The install set up DHCP on a plain `vmbr0` (see `first-boot.sh`). On
+2026-10-24 that was replaced to match pve02, so the `kube01` VM's
+VLAN-tagged NICs work:
+
+```text
+iface enp5s0 inet manual
+	mtu 9000
+
+auto vmbr0
+iface vmbr0 inet manual
+	bridge-ports enp5s0
+	bridge-stp off
+	bridge-fd 0
+	bridge-vlan-aware yes
+	bridge-vids 4 6
+	bridge-pvid 4
+	mtu 9000
+
+auto vmbr0.4
+iface vmbr0.4 inet static
+	address 192.168.4.21/23
+	gateway 192.168.4.1
+	mtu 9000
+```
+
+- The switch port sends VLAN 4 untagged and VLAN 6 tagged. `bridge-pvid 4`
+  maps untagged traffic to VLAN 4 inside the bridge.
+- The host address must be on `vmbr0.4`, not `vmbr0`. With the address on
+  `vmbr0`, host traffic goes out on VLAN 1, which the port isn't a member
+  of, and the host drops off the network. That happened on the first
+  attempt; a 3-minute auto-revert brought it back.
+- MTU 9000 matches pve02. A 9000-byte ping with don't-fragment set gets
+  from pve01 and kube01 to kube02. The `igb` NIC allows up to 9216.
+- Backups on the host: `/etc/network/interfaces.bak-2026-10-23` (the
+  original DHCP config) and `/etc/network/interfaces.bak-pre-mtu` (before
+  MTU 9000).
+
+This undoes the portability `first-boot.sh` set up. The host no longer
+moves networks without editing `/etc/network/interfaces`. The dhclient
+hook that keeps `/etc/hosts` in step with the lease doesn't run any more,
+so `/etc/hosts` keeps whatever address it last wrote. Update it by hand if
+`192.168.4.21` ever changes, because `pve-cluster` needs the hostname to
+resolve to an address on the host.
+
+## etcd K3s node: kube01
+
+**Status: running since 2026-10-24.**
+
+`pve01` hosts **kube01** (VM 100), a K3s server whose etcd data lives on
+the **Micron 7450 PLP drive**. etcd is `fsync`-bound: every write must be
+durably committed before it's acknowledged. A power-loss-protected drive
+can acknowledge an `fsync` once data reaches its protected cache, so
+latency stays low and in-flight writes stay safe. The host reports the
+drive as `write through` (no volatile cache to flush).
+
+| Item       | Value                                                                                     |
+| ---------- | ----------------------------------------------------------------------------------------- |
+| VM         | 100 `kube01`, 6 cores, 16 GiB                                                              |
+| OS         | Ubuntu 26.04 cloud image (`resolute-server-cloudimg-amd64.img`) imported as `scsi0`        |
+| OS disk    | `scsi0` on `local-lvm` (Kingston), 100G                                                    |
+| etcd disk  | `scsi1` on `nvme` (Micron PLP), 32G, ext4 `noatime`, label `k3s-etcd`, mounted at `/var/lib/rancher/k3s/server/db` |
+| Cloud-init | `ide0` drive: user `ubuntu`, kube02's SSH key, `ipconfig0` static, `ipconfig1` DHCP        |
+| `net0`     | VLAN 4, `eth0`, `192.168.4.41/23`, gateway `192.168.4.1`                                   |
+| `net1`     | VLAN 6, `eth1`, DHCP (`192.168.6.x`)                                                        |
+| K3s        | `v1.35.2+k3s1`, server (etcd + control plane)                                              |
+
+The etcd disk is a dedicated VM disk on the `nvme` storage, not a
+passthrough. Its fstab entry mounts it by UUID, with
+`x-systemd.before=k3s.service` so it's mounted before k3s starts.
+1,000 synced 2.3 KB writes took 0.31 s on it, against 0.65 s on the OS
+disk.
+
+`/etc/rancher/k3s/config.yaml` on kube01:
+
+```yaml
+server: https://k3s.drewburr.com:6443
+token-file: /etc/rancher/k3s/cluster-token
+disable:
+- servicelb
+- traefik
+- helm-controller
+- metrics-server
+etcd-expose-metrics: true
+node-taint:
+- "CriticalAddonsOnly=true:NoExecute"
+kubelet-arg:
+- "system-reserved=memory=2Gi"
+- "kube-reserved=memory=2Gi"
+```
+
+- **Role.** kube01 is a full server, not etcd-only. kube02, kube03 and
+  kube05 all use `--server https://kube01.drewburr.com:6443`, so kube01
+  has to serve the API. The `CriticalAddonsOnly=true:NoExecute` taint
+  keeps workloads off it. DaemonSets that tolerate every taint still run
+  there (multus, `kubelet-summary-exporter`, `emergency-ro-exporter`).
+- **Server URL.** The API certificate doesn't list `kube02.drewburr.com`
+  or `kube03.drewburr.com`, so joining through those names fails CA
+  validation. `k3s.drewburr.com` is in the certificate. It resolves only
+  to kube02.
+- **Redundancy.** etcd has three voting members: kube01, kube02 and kube03.
+  The cluster keeps quorum with any one of them down. Before kube01
+  joined, etcd had two members and couldn't lose either.
+- **Snapshots.** A snapshot was taken on kube02 before the join
+  (`pre-kube01-join-kube02-1792818301`). The scheduled `k3s etcd-snapshot`
+  runs on every server, so kube01's snapshots land on its local etcd disk.
+
+Open items:
+
+- Ship etcd snapshots off pve01 (see the storage server `move-2026`
+  runbook).
+- `k3s.drewburr.com` points only at kube02, so anything using that name
+  loses the API when kube02 is down.
+- kube01's original empty 100G disk is still attached as `unused0`.
 
 ## Files
 
@@ -26,7 +142,8 @@ The Proxmox installer copies the install-time DHCP lease into a
 **static** `vmbr0` config. `first-boot.sh` undoes that. Without it, the
 host would lose its network after moving to another subnet. The
 `/etc/hosts` hook is needed because `pve-cluster` requires the hostname
-to resolve to an address on the host.
+to resolve to an address on the host. The running host no longer uses
+this config; see [Networking](#networking).
 
 ## Build
 

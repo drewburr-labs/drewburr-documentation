@@ -22,7 +22,7 @@ Of the 24 SSDs, 20 are `sas-pool`. The other 4 (`S182NEAG610807`, `610064`, `610
 | Pool | Layout | Raw | Notes |
 |-|-|-|-|
 | `sas-pool` | 20x NetApp X438 SAS SSD (373GB usable each), raidz3 | 7.3T | All Kubernetes PVCs except Plex media. `zfs-nvmeof` zvols and `zfs-nfs` datasets under `sas-pool/k8s/nvmeof/dataset`. |
-| `lake` | 7-wide raidz2 spinners: 5x HGST 12TB (3 SATA `HUH721212ALE601`, 2 SAS `HUH721212AL4205`) + 2x WD 14TB (`WUH721414AL` and a shucked `WD140EDGZ`). Expanded with raidz expansion from 5 to 6 wide in January 2026 and from 6 to 7 wide in November 2026 (attached 2026-11-01, finished 2026-11-04). | 76.4T | Plex media over NFS (`nfs-lake`). Datasets under `lake/k8s/nvmeof/dataset`. Data written before each expansion keeps the older parity ratio, so `zpool list` allocation is higher than `zfs list` usage. The 14TB drives only contribute 12TB each until every member is at least 14TB. |
+| `lake` | 7-wide raidz2 spinners: 5x HGST 12TB (3 SATA `HUH721212ALE601`, 2 SAS `HUH721212AL4205`) + 2x WD 14TB (`WUH721414AL` and a shucked `WD140EDGZ`). Expanded with raidz expansion from 5 to 6 wide in January 2026 (completed Jan 28 2026) and from 6 to 7 wide in November 2026 (attached 2026-11-01, finished 2026-11-04). **Expanding to 8 wide:** a third 14TB (`WUH721414AL` `9RGGE14C`) was attached on 2026-11-16 00:02; the copy of 62.6T was expected to take about 2.5-3.5 days. Check with `zpool status lake`. | 76.4T (about 87T once the 8-wide expansion finishes) | Plex media over NFS (`nfs-lake`). Datasets under `lake/k8s/nvmeof/dataset`. Data written before each expansion keeps the older parity ratio, so `zpool list` allocation is higher than `zfs list` usage. The 14TB drives only contribute 12TB each until every member is at least 14TB. |
 
 Both pools reference disks by `/dev/disk/by-id/` names. Identify a physical drive by serial number (see below).
 
@@ -37,8 +37,8 @@ Both pools reference disks by `/dev/disk/by-id/` names. Identify a physical driv
 | `5QJN3BUB` | HGST `HUH721212AL4205` 12TB | `lake` | HBA | `scsi-SHGST_HUH721212AL4205_5QJN3BUB` |
 | `8DJK4ZMY` | HGST `HUH721212ALE601` 12TB | `lake` | FCH SATA `ata6` | `scsi-SATA_HUH721212ALE601_8DJK4ZMY` |
 | `8HKXR98H` | HGST `HUH721212ALE601` 12TB | `lake` | FCH SATA `ata5` | `scsi-SATA_HUH721212ALE601_8HKXR98H` |
-| `9RGGE14C` | WD `WUH721414AL` 14TB | none | HBA | Installed 2026-11-15, no ZFS label |
-| `Y5KTG63C` | WD `WD140EDGZ` 14TB (shucked) | none | HBA | Installed 2026-11-15, no ZFS label |
+| `9RGGE14C` | WD `WUH721414AL` 14TB | `lake` (expanding since 2026-11-16) | HBA | `scsi-SATA_WDC_WUH721414AL_9RGGE14C` |
+| `Y5KTG63C` | WD `WD140EDGZ` 14TB (shucked) | none (spare for the next expansion) | HBA | Installed 2026-11-15, blank, SMART clean |
 
 When a member's recorded path no longer exists (for example after moving off USB), `zpool import -d /dev/disk/by-id` records whichever by-id link it finds first. That was `wwn-0x5000cca28ef58b59` for `Y5KTTH5C`, which hides the serial in `zpool status`. To keep serial-bearing names, give the import only the `scsi-*` partition links; ZFS 2.4 accepts devices for `-d`:
 

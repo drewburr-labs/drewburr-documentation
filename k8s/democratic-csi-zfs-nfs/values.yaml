@@ -29,8 +29,17 @@ democratic-csi:
       # zfs send/received instead of zfs cloned
       # detachedVolumesFromVolumes: "false"
 
+    # hard, unlike nfs-lake's soft: these volumes hold write-heavy
+    # SQLite/app state (plex-config, authentik, qbittorrent, etcd-backup),
+    # where a soft-mount EIO mid-write can corrupt the DB. A storage01
+    # stall blocks the app either way; hard resumes cleanly on recovery.
+    # timeo/retrans only pace retries and "not responding" logs here.
     mountOptions:
-      - nfsvers=3
+      - nfsvers=4.1
+      - proto=tcp
+      - hard
+      - timeo=50
+      - retrans=2
 
     secrets:
       provisioner-secret:
@@ -65,6 +74,13 @@ democratic-csi:
   #         secretKeyRef:
   #           name: server-connection-details
   #           key: private_key
+
+  node:
+    tolerations:
+    # kube01 is tainted CriticalAddonsOnly (dedicated etcd/control-plane);
+    # the etcd-backup CronJob mounts a zfs-nfs PVC there.
+    - key: CriticalAddonsOnly
+      operator: Exists
 
   driver:
     # It's not yet possible to inject env variables
