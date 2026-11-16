@@ -27,7 +27,7 @@ spec:
       containers:
         - name: relay
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           args:
             - --port={{ .Values.port }}
           ports:
