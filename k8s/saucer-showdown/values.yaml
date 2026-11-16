@@ -1,0 +1,21 @@
+---
+# https://github.com/drewburr-labs/saucer-showdown#relay-server
+image:
+  repository: ghcr.io/drewburr-labs/saucer-showdown-relay
+  # Pin a sha-<commit> tag. Only needs bumping when VERSION in
+  # scripts/net/relay_protocol.gd changes (the relay doesn't read game messages).
+  tag: sha-ebebe4c
+
+port: 24680
+
+service:
+  # Static so the UDM port forward (WAN udp/24680 -> this IP) stays valid.
+  loadBalancerIP: 192.168.4.68
+  hostname: saucer.drewburr.com
+
+resources:
+  requests:
+    cpu: 10m
+    memory: 64Mi
+  limits:
+    memory: 256Mi

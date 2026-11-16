@@ -1,0 +1,52 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: relay
+  labels:
+    app.kubernetes.io/name: saucer-showdown-relay
+spec:
+  # Rooms live in memory: exactly one replica, and never two at once.
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: saucer-showdown-relay
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: saucer-showdown-relay
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: relay
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          args:
+            - --port={{ .Values.port }}
+          ports:
+            - name: relay
+              containerPort: {{ .Values.port }}
+              protocol: UDP
+          # UDP only, no health endpoint: no probes. Check end to end with
+          # tools/relay_probe.gd from the saucer-showdown repo.
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          volumeMounts:
+            - name: tmp # HOME=/tmp; Godot writes user data there
+              mountPath: /tmp
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 64Mi
