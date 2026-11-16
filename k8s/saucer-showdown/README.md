@@ -14,7 +14,7 @@ online play. Stateless, one replica, UDP only.
 per-address limit (20 wrong room codes per minute) depends on.
 
 To pick up a new image, restart the pod (ArgoCD: Restart on the Deployment).
-That only matters when `VERSION` in `scripts/net/relay_protocol.gd` changes;
+That only matters when `VERSION` in `relay/relay_protocol.gd` changes;
 the relay never reads game messages.
 
 ## Check it
@@ -22,7 +22,7 @@ the relay never reads game messages.
 From a saucer-showdown checkout:
 
 ```sh
-godot --headless --path . --script tools/relay_probe.gd -- saucer.drewburr.com
+godot --headless --path . --script res://relay/relay_probe.gd -- saucer.drewburr.com
 ```
 
 Opens a room, joins it, and passes a packet each way. There are no k8s probes
