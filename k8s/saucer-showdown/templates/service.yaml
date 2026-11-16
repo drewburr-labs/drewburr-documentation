@@ -1,0 +1,23 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: relay
+  labels:
+    app.kubernetes.io/name: saucer-showdown-relay
+    cloudflare-dns: 'true'
+  annotations:
+    metallb.universe.tf/loadBalancerIPs: {{ .Values.service.loadBalancerIP | quote }}
+    external-dns.kubernetes.io/hostname: {{ .Values.service.hostname | quote }}
+    external-dns.kubernetes.io/target: ip.drewburr.com
+spec:
+  type: LoadBalancer
+  # Keep real client addresses: the relay rate-limits wrong room codes per address.
+  externalTrafficPolicy: Local
+  selector:
+    app.kubernetes.io/name: saucer-showdown-relay
+  ports:
+    - name: relay
+      port: {{ .Values.port }}
+      targetPort: relay
+      protocol: UDP
