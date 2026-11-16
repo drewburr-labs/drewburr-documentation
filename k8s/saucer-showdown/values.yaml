@@ -2,9 +2,10 @@
 # https://github.com/drewburr-labs/saucer-showdown#relay-server
 image:
   repository: ghcr.io/drewburr-labs/saucer-showdown-relay
-  # Pin a sha-<commit> tag. Only needs bumping when VERSION in
-  # scripts/net/relay_protocol.gd changes (the relay doesn't read game messages).
-  tag: sha-ebebe4c
+  # Tracks main. A new image is only picked up when the pod restarts
+  # (pullPolicy Always); ArgoCD won't notice a new push on its own.
+  tag: latest
+  pullPolicy: Always
 
 port: 24680
 
