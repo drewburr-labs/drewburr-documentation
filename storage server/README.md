@@ -4,23 +4,51 @@ The storage server is `storage01` (Ubuntu 24.04), a VM on `pve05` that provides 
 
 > Hostnames in this documentation are under the `drewburr.com` domain unless otherwise stated. Short names may not resolve from every machine; use the FQDN, e.g. `storage01.drewburr.com`.
 
-## Current layout (as of September 2026)
+## Current layout (as of November 2026)
 
 ### Controllers seen by the VM
 
 | PCI address | Device | Drives |
 |-|-|-|
-| `00:10.0` | Broadcom / LSI SAS3224 (Fusion-MPT SAS-3) | 20x SAS SSD, 4x spinners |
-| `00:11.0` | AMD FCH SATA (AHCI) | 2x spinners |
+| `00:10.0` | Broadcom / LSI SAS3224 (Fusion-MPT SAS-3) | Behind the expander (HBA phys 8-11, the 24-bay 2.5" shelf): 24x NetApp X438 SAS SSD. Direct-attached 3.5" hot-swap bays (HBA phys 17-23): 7x spinners. |
+| `00:11.0` | AMD FCH SATA (AHCI) | 2x spinners on `ata5`/`ata6`. `ata3`/`ata4` are free. |
+
+No pool member is on USB any more. On 2026-11-15 the last USB member of `lake` was shucked and moved into a hot-swap bay; see [`usb-to-sas/`](usb-to-sas/).
+
+Of the 24 SSDs, 20 are `sas-pool`. The other 4 (`S182NEAG610807`, `610064`, `610784`, `610040`) still have NetApp's 520-byte sectors, so they show up as 0B disks; they need an `sg_format --format --size=512` before ZFS can use them.
 
 ### Pools
 
 | Pool | Layout | Raw | Notes |
 |-|-|-|-|
 | `sas-pool` | 20x NetApp X438 SAS SSD (373GB usable each), raidz3 | 7.3T | All Kubernetes PVCs except Plex media. `zfs-nvmeof` zvols and `zfs-nfs` datasets under `sas-pool/k8s/nvmeof/dataset`. |
-| `lake` | 6-wide raidz2 spinners: 5x HGST 12TB (3 SATA `HUH721212ALE601`, 2 SAS `HUH721212AL4205`) + 1x WD 14TB (`WUH721414AL`). Expanded from 5 to 6 wide with raidz expansion in January 2026 (completed Jan 28 2026). | 65.5T | Plex media over NFS (`nfs-lake`). Datasets under `lake/k8s/nvmeof/dataset`. Data written before the expansion keeps the older parity ratio, so `zpool list` allocation is higher than `zfs list` usage. |
+| `lake` | 7-wide raidz2 spinners: 5x HGST 12TB (3 SATA `HUH721212ALE601`, 2 SAS `HUH721212AL4205`) + 2x WD 14TB (`WUH721414AL` and a shucked `WD140EDGZ`). Expanded with raidz expansion from 5 to 6 wide in January 2026 (completed Jan 28 2026) and from 6 to 7 wide in November 2026 (attached 2026-11-01, finished 2026-11-04). **Expanding to 8 wide:** a third 14TB (`WUH721414AL` `9RGGE14C`) was attached on 2026-11-16 00:02; the copy of 62.6T was expected to take about 2.5-3.5 days. Check with `zpool status lake`. | 76.4T (about 87T once the 8-wide expansion finishes) | Plex media over NFS (`nfs-lake`). Datasets under `lake/k8s/nvmeof/dataset`. Data written before each expansion keeps the older parity ratio, so `zpool list` allocation is higher than `zfs list` usage. The 14TB drives only contribute 12TB each until every member is at least 14TB. |
 
 Both pools reference disks by `/dev/disk/by-id/` names. Identify a physical drive by serial number (see below).
+
+#### Spinners (2026-11-15)
+
+| Serial | Model | Pool | Attached via | Pool device name |
+|-|-|-|-|-|
+| `9RG9UZEC` | WD `WUH721414AL` 14TB | `lake` | HBA | `scsi-SATA_WDC_WUH721414AL_9RG9UZEC` |
+| `Y5KTTH5C` | WD `WD140EDGZ` 14TB (shucked, 3.3V pins taped) | `lake` | HBA | `scsi-SATA_WDC_WD140EDGZ-11_Y5KTTH5C` |
+| `8DJPRNEY` | HGST `HUH721212ALE601` 12TB | `lake` | HBA | `scsi-SATA_HUH721212ALE601_8DJPRNEY` |
+| `5QJPHE0B` | HGST `HUH721212AL4205` 12TB | `lake` | HBA | `scsi-SHGST_HUH721212AL4205_5QJPHE0B` |
+| `5QJN3BUB` | HGST `HUH721212AL4205` 12TB | `lake` | HBA | `scsi-SHGST_HUH721212AL4205_5QJN3BUB` |
+| `8DJK4ZMY` | HGST `HUH721212ALE601` 12TB | `lake` | FCH SATA `ata6` | `scsi-SATA_HUH721212ALE601_8DJK4ZMY` |
+| `8HKXR98H` | HGST `HUH721212ALE601` 12TB | `lake` | FCH SATA `ata5` | `scsi-SATA_HUH721212ALE601_8HKXR98H` |
+| `9RGGE14C` | WD `WUH721414AL` 14TB | `lake` (expanding since 2026-11-16) | HBA | `scsi-SATA_WDC_WUH721414AL_9RGGE14C` |
+| `Y5KTG63C` | WD `WD140EDGZ` 14TB (shucked) | none (spare for the next expansion) | HBA | Installed 2026-11-15, blank, SMART clean |
+
+When a member's recorded path no longer exists (for example after moving off USB), `zpool import -d /dev/disk/by-id` records whichever by-id link it finds first. That was `wwn-0x5000cca28ef58b59` for `Y5KTTH5C`, which hides the serial in `zpool status`. To keep serial-bearing names, give the import only the `scsi-*` partition links; ZFS 2.4 accepts devices for `-d`:
+
+```sh
+args=""; for l in /dev/disk/by-id/scsi-S*-part1; do args="$args -d $l"; done
+sudo zpool import $args          # preview the names, then:
+sudo zpool import $args lake
+```
+
+Members whose recorded path still exists keep it; only the ones that moved get renamed. [`usb-to-sas/lake-hotswap.sh up`](usb-to-sas/lake-hotswap.sh) imports this way.
 
 ### Snapshots and backups
 
@@ -40,6 +68,7 @@ Created September 2026 for the physical move of the server (runbook and scripts 
 | Disk | WD `WUH721414ALE604` 14TB, serial `9RG0E9MC`, in an ASMedia ASM235CM (ASMT 2235) USB enclosure. ZFS sees it as `/dev/disk/by-id/usb-ASMT_2235_ACAAEBBB34DE-0:0`. |
 | Created with | `zpool create -o ashift=12 -O compression=lz4 -O atime=off -O mountpoint=/movebak movebak /dev/disk/by-id/usb-ASMT_2235_ACAAEBBB34DE-0:0` |
 | Attached to | The enclosure is plugged into **pve05** and USB-passed-through to VM 105 (`usb0`). It shows up in the VM as a `2235` USB disk. |
+| Status (2026-11-15) | **Not attached to storage01.** `movebak` is not imported, and `9RG0E9MC` is not among the drives on the HBA or SATA controller. If it comes back, import it with `zpool import -d /dev/disk/by-id movebak`. |
 
 #### What is on it
 
