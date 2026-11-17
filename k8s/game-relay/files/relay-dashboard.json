@@ -475,7 +475,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "sum(increase(relay_rooms_opened_total{job=\"relay-metrics\", namespace=\"game-relay\", game=~\"$game\"}[$__range])) or vector(0)",
+          "expr": "sum (sum_over_time((relay_rooms_opened_total{job=\"relay-metrics\", namespace=\"game-relay\", game=~\"$game\"} - (relay_rooms_opened_total{job=\"relay-metrics\", namespace=\"game-relay\", game=~\"$game\"} offset 30s or relay_rooms_opened_total{job=\"relay-metrics\", namespace=\"game-relay\", game=~\"$game\"} * 0))[$__range:30s])) or vector(0)",
           "legendFormat": "__auto",
           "refId": "A",
           "range": true,
@@ -662,8 +662,8 @@
     },
     {
       "type": "timeseries",
-      "title": "Players by game",
-      "description": "Machines in open rooms, hosts included.",
+      "title": "Players by game (peak)",
+      "description": "Most machines in open rooms at any scrape in each interval, hosts included. Rooms shorter than a scrape (30 s) can be missed; the counts on the right are exact.",
       "id": 11,
       "datasource": {
         "type": "prometheus",
@@ -681,7 +681,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "sum by (game) (relay_room_peers{job=\"relay-metrics\", namespace=\"game-relay\", game=~\"$game\"})",
+          "expr": "sum by (game) (max_over_time(relay_room_peers{job=\"relay-metrics\", namespace=\"game-relay\", game=~\"$game\"}[$__interval]))",
           "legendFormat": "{{game}}",
           "refId": "A",
           "range": true,
@@ -694,10 +694,10 @@
           "custom": {
             "drawStyle": "line",
             "lineWidth": 1,
-            "fillOpacity": 10,
+            "fillOpacity": 30,
             "showPoints": "never",
             "spanNulls": false,
-            "lineInterpolation": "linear",
+            "lineInterpolation": "stepAfter",
             "gradientMode": "none",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
@@ -720,7 +720,8 @@
                 "value": null
               }
             ]
-          }
+          },
+          "decimals": 0
         },
         "overrides": []
       },
@@ -729,18 +730,21 @@
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true,
-          "calcs": []
+          "calcs": [
+            "max"
+          ]
         },
         "tooltip": {
           "mode": "multi",
           "sort": "desc"
         }
-      }
+      },
+      "interval": "1m"
     },
     {
       "type": "timeseries",
-      "title": "Rooms by game",
-      "description": "",
+      "title": "Rooms by game (peak)",
+      "description": "Most rooms open at any scrape in each interval.",
       "id": 12,
       "datasource": {
         "type": "prometheus",
@@ -758,7 +762,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "sum by (game) (relay_rooms{job=\"relay-metrics\", namespace=\"game-relay\", game=~\"$game\"})",
+          "expr": "sum by (game) (max_over_time(relay_rooms{job=\"relay-metrics\", namespace=\"game-relay\", game=~\"$game\"}[$__interval]))",
           "legendFormat": "{{game}}",
           "refId": "A",
           "range": true,
@@ -771,10 +775,10 @@
           "custom": {
             "drawStyle": "line",
             "lineWidth": 1,
-            "fillOpacity": 10,
+            "fillOpacity": 30,
             "showPoints": "never",
             "spanNulls": false,
-            "lineInterpolation": "linear",
+            "lineInterpolation": "stepAfter",
             "gradientMode": "none",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
@@ -797,7 +801,8 @@
                 "value": null
               }
             ]
-          }
+          },
+          "decimals": 0
         },
         "overrides": []
       },
@@ -806,18 +811,21 @@
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true,
-          "calcs": []
+          "calcs": [
+            "max"
+          ]
         },
         "tooltip": {
           "mode": "multi",
           "sort": "desc"
         }
-      }
+      },
+      "interval": "1m"
     },
     {
       "type": "timeseries",
-      "title": "Rooms opened / joins (per hour)",
-      "description": "",
+      "title": "Rooms opened, closed & joins",
+      "description": "Exact count in each bar's interval (zoom out and bars widen). Legend = total for the time range.",
       "id": 13,
       "datasource": {
         "type": "prometheus",
@@ -835,7 +843,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "sum(rate(relay_rooms_opened_total{job=\"relay-metrics\", namespace=\"game-relay\", game=~\"$game\"}[$__rate_interval])) * 3600",
+          "expr": "sum (sum_over_time((relay_rooms_opened_total{job=\"relay-metrics\", namespace=\"game-relay\", game=~\"$game\"} - (relay_rooms_opened_total{job=\"relay-metrics\", namespace=\"game-relay\", game=~\"$game\"} offset 30s or relay_rooms_opened_total{job=\"relay-metrics\", namespace=\"game-relay\", game=~\"$game\"} * 0))[$__interval:30s]))",
           "legendFormat": "rooms opened",
           "refId": "A",
           "range": true,
@@ -846,7 +854,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "sum(rate(relay_rooms_closed_total{job=\"relay-metrics\", namespace=\"game-relay\", game=~\"$game\"}[$__rate_interval])) * 3600",
+          "expr": "sum (sum_over_time((relay_rooms_closed_total{job=\"relay-metrics\", namespace=\"game-relay\", game=~\"$game\"} - (relay_rooms_closed_total{job=\"relay-metrics\", namespace=\"game-relay\", game=~\"$game\"} offset 30s or relay_rooms_closed_total{job=\"relay-metrics\", namespace=\"game-relay\", game=~\"$game\"} * 0))[$__interval:30s]))",
           "legendFormat": "rooms closed",
           "refId": "B",
           "range": true,
@@ -857,7 +865,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "sum(rate(relay_room_joins_total{job=\"relay-metrics\", namespace=\"game-relay\", game=~\"$game\"}[$__rate_interval])) * 3600",
+          "expr": "sum (sum_over_time((relay_room_joins_total{job=\"relay-metrics\", namespace=\"game-relay\", game=~\"$game\"} - (relay_room_joins_total{job=\"relay-metrics\", namespace=\"game-relay\", game=~\"$game\"} offset 30s or relay_room_joins_total{job=\"relay-metrics\", namespace=\"game-relay\", game=~\"$game\"} * 0))[$__interval:30s]))",
           "legendFormat": "joins",
           "refId": "C",
           "range": true,
@@ -868,9 +876,9 @@
         "defaults": {
           "unit": "short",
           "custom": {
-            "drawStyle": "line",
+            "drawStyle": "bars",
             "lineWidth": 1,
-            "fillOpacity": 10,
+            "fillOpacity": 80,
             "showPoints": "never",
             "spanNulls": false,
             "lineInterpolation": "linear",
@@ -883,7 +891,8 @@
             },
             "thresholdsStyle": {
               "mode": "off"
-            }
+            },
+            "barAlignment": -1
           },
           "color": {
             "mode": "palette-classic"
@@ -896,7 +905,8 @@
                 "value": null
               }
             ]
-          }
+          },
+          "decimals": 0
         },
         "overrides": []
       },
@@ -905,13 +915,16 @@
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true,
-          "calcs": []
+          "calcs": [
+            "sum"
+          ]
         },
         "tooltip": {
           "mode": "multi",
           "sort": "desc"
         }
-      }
+      },
+      "interval": "1m"
     },
     {
       "type": "timeseries",
@@ -1004,8 +1017,8 @@
     },
     {
       "type": "timeseries",
-      "title": "Refusals by reason (per min)",
-      "description": "no_such_room = wrong code, outdated = old game build, too_many_tries = rate limited (20 wrong codes / address / min), room_full, relay_full, bad_request.",
+      "title": "Refusals by reason",
+      "description": "Exact count per bar interval; legend = total for the range. no_such_room = wrong code, outdated = old game build, too_many_tries = rate limited (20 wrong codes / address / min), room_full, relay_full, bad_request.",
       "id": 15,
       "datasource": {
         "type": "prometheus",
@@ -1023,7 +1036,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "sum by (reason) (rate(relay_refusals_total{job=\"relay-metrics\", namespace=\"game-relay\"}[$__rate_interval])) * 60",
+          "expr": "sum by (reason) (sum_over_time((relay_refusals_total{job=\"relay-metrics\", namespace=\"game-relay\"} - (relay_refusals_total{job=\"relay-metrics\", namespace=\"game-relay\"} offset 30s or relay_refusals_total{job=\"relay-metrics\", namespace=\"game-relay\"} * 0))[$__interval:30s]))",
           "legendFormat": "{{reason}}",
           "refId": "A",
           "range": true,
@@ -1034,9 +1047,9 @@
         "defaults": {
           "unit": "short",
           "custom": {
-            "drawStyle": "line",
+            "drawStyle": "bars",
             "lineWidth": 1,
-            "fillOpacity": 10,
+            "fillOpacity": 80,
             "showPoints": "never",
             "spanNulls": false,
             "lineInterpolation": "linear",
@@ -1049,7 +1062,8 @@
             },
             "thresholdsStyle": {
               "mode": "off"
-            }
+            },
+            "barAlignment": -1
           },
           "color": {
             "mode": "palette-classic"
@@ -1062,7 +1076,8 @@
                 "value": null
               }
             ]
-          }
+          },
+          "decimals": 0
         },
         "overrides": []
       },
@@ -1071,18 +1086,21 @@
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true,
-          "calcs": []
+          "calcs": [
+            "sum"
+          ]
         },
         "tooltip": {
           "mode": "multi",
           "sort": "desc"
         }
-      }
+      },
+      "interval": "1m"
     },
     {
       "type": "timeseries",
-      "title": "Connections",
-      "description": "",
+      "title": "Connections opened & closed",
+      "description": "Exact count per bar interval; legend = total for the range. Open connections now are in the stat row.",
       "id": 16,
       "datasource": {
         "type": "prometheus",
@@ -1100,8 +1118,8 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "relay_connections{job=\"relay-metrics\", namespace=\"game-relay\"}",
-          "legendFormat": "open",
+          "expr": "sum (sum_over_time((relay_connections_opened_total{job=\"relay-metrics\", namespace=\"game-relay\"} - (relay_connections_opened_total{job=\"relay-metrics\", namespace=\"game-relay\"} offset 30s or relay_connections_opened_total{job=\"relay-metrics\", namespace=\"game-relay\"} * 0))[$__interval:30s]))",
+          "legendFormat": "opened",
           "refId": "A",
           "range": true,
           "instant": false
@@ -1111,20 +1129,9 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "rate(relay_connections_opened_total{job=\"relay-metrics\", namespace=\"game-relay\"}[$__rate_interval]) * 60",
-          "legendFormat": "opened / min",
+          "expr": "sum (sum_over_time((relay_connections_closed_total{job=\"relay-metrics\", namespace=\"game-relay\"} - (relay_connections_closed_total{job=\"relay-metrics\", namespace=\"game-relay\"} offset 30s or relay_connections_closed_total{job=\"relay-metrics\", namespace=\"game-relay\"} * 0))[$__interval:30s]))",
+          "legendFormat": "closed",
           "refId": "B",
-          "range": true,
-          "instant": false
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "expr": "rate(relay_connections_closed_total{job=\"relay-metrics\", namespace=\"game-relay\"}[$__rate_interval]) * 60",
-          "legendFormat": "closed / min",
-          "refId": "C",
           "range": true,
           "instant": false
         }
@@ -1133,9 +1140,9 @@
         "defaults": {
           "unit": "short",
           "custom": {
-            "drawStyle": "line",
+            "drawStyle": "bars",
             "lineWidth": 1,
-            "fillOpacity": 10,
+            "fillOpacity": 80,
             "showPoints": "never",
             "spanNulls": false,
             "lineInterpolation": "linear",
@@ -1148,7 +1155,8 @@
             },
             "thresholdsStyle": {
               "mode": "off"
-            }
+            },
+            "barAlignment": -1
           },
           "color": {
             "mode": "palette-classic"
@@ -1161,7 +1169,8 @@
                 "value": null
               }
             ]
-          }
+          },
+          "decimals": 0
         },
         "overrides": []
       },
@@ -1170,13 +1179,16 @@
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true,
-          "calcs": []
+          "calcs": [
+            "sum"
+          ]
         },
         "tooltip": {
           "mode": "multi",
           "sort": "desc"
         }
-      }
+      },
+      "interval": "1m"
     },
     {
       "type": "row",
@@ -1481,8 +1493,8 @@
     },
     {
       "type": "timeseries",
-      "title": "Room length (closed rooms)",
-      "description": "How long rooms stayed open, over the trailing hour of closed rooms.",
+      "title": "Room length (closed rooms, trailing hour)",
+      "description": "How long rooms stayed open, over rooms that closed in the hour before each point.",
       "id": 22,
       "datasource": {
         "type": "prometheus",
@@ -1500,7 +1512,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "histogram_quantile(0.5, sum by (le) (rate(relay_room_duration_seconds_bucket{job=\"relay-metrics\", namespace=\"game-relay\", game=~\"$game\"}[1h])))",
+          "expr": "histogram_quantile(0.5, sum by (le) (sum_over_time((relay_room_duration_seconds_bucket{job=\"relay-metrics\", namespace=\"game-relay\", game=~\"$game\"} - (relay_room_duration_seconds_bucket{job=\"relay-metrics\", namespace=\"game-relay\", game=~\"$game\"} offset 30s or relay_room_duration_seconds_bucket{job=\"relay-metrics\", namespace=\"game-relay\", game=~\"$game\"} * 0))[1h:30s])))",
           "legendFormat": "p50",
           "refId": "A",
           "range": true,
@@ -1511,7 +1523,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "histogram_quantile(0.9, sum by (le) (rate(relay_room_duration_seconds_bucket{job=\"relay-metrics\", namespace=\"game-relay\", game=~\"$game\"}[1h])))",
+          "expr": "histogram_quantile(0.9, sum by (le) (sum_over_time((relay_room_duration_seconds_bucket{job=\"relay-metrics\", namespace=\"game-relay\", game=~\"$game\"} - (relay_room_duration_seconds_bucket{job=\"relay-metrics\", namespace=\"game-relay\", game=~\"$game\"} offset 30s or relay_room_duration_seconds_bucket{job=\"relay-metrics\", namespace=\"game-relay\", game=~\"$game\"} * 0))[1h:30s])))",
           "legendFormat": "p90",
           "refId": "B",
           "range": true,
@@ -1522,7 +1534,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "sum(increase(relay_room_duration_seconds_sum{job=\"relay-metrics\", namespace=\"game-relay\", game=~\"$game\"}[1h])) / sum(increase(relay_room_duration_seconds_count{job=\"relay-metrics\", namespace=\"game-relay\", game=~\"$game\"}[1h]))",
+          "expr": "sum (sum_over_time((relay_room_duration_seconds_sum{job=\"relay-metrics\", namespace=\"game-relay\", game=~\"$game\"} - (relay_room_duration_seconds_sum{job=\"relay-metrics\", namespace=\"game-relay\", game=~\"$game\"} offset 30s or relay_room_duration_seconds_sum{job=\"relay-metrics\", namespace=\"game-relay\", game=~\"$game\"} * 0))[1h:30s])) / sum (sum_over_time((relay_room_duration_seconds_count{job=\"relay-metrics\", namespace=\"game-relay\", game=~\"$game\"} - (relay_room_duration_seconds_count{job=\"relay-metrics\", namespace=\"game-relay\", game=~\"$game\"} offset 30s or relay_room_duration_seconds_count{job=\"relay-metrics\", namespace=\"game-relay\", game=~\"$game\"} * 0))[1h:30s]))",
           "legendFormat": "mean",
           "refId": "C",
           "range": true,
@@ -1576,12 +1588,13 @@
           "mode": "multi",
           "sort": "desc"
         }
-      }
+      },
+      "interval": "1m"
     },
     {
       "type": "timeseries",
-      "title": "Room size at peak (closed rooms)",
-      "description": "Most machines each closed room had at once, host included, over the trailing hour.",
+      "title": "Room size at peak (closed rooms, trailing hour)",
+      "description": "Most machines each closed room had at once, host included, over rooms that closed in the hour before each point.",
       "id": 23,
       "datasource": {
         "type": "prometheus",
@@ -1599,7 +1612,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "sum(increase(relay_room_peak_peers_sum{job=\"relay-metrics\", namespace=\"game-relay\", game=~\"$game\"}[1h])) / sum(increase(relay_room_peak_peers_count{job=\"relay-metrics\", namespace=\"game-relay\", game=~\"$game\"}[1h]))",
+          "expr": "sum (sum_over_time((relay_room_peak_peers_sum{job=\"relay-metrics\", namespace=\"game-relay\", game=~\"$game\"} - (relay_room_peak_peers_sum{job=\"relay-metrics\", namespace=\"game-relay\", game=~\"$game\"} offset 30s or relay_room_peak_peers_sum{job=\"relay-metrics\", namespace=\"game-relay\", game=~\"$game\"} * 0))[1h:30s])) / sum (sum_over_time((relay_room_peak_peers_count{job=\"relay-metrics\", namespace=\"game-relay\", game=~\"$game\"} - (relay_room_peak_peers_count{job=\"relay-metrics\", namespace=\"game-relay\", game=~\"$game\"} offset 30s or relay_room_peak_peers_count{job=\"relay-metrics\", namespace=\"game-relay\", game=~\"$game\"} * 0))[1h:30s]))",
           "legendFormat": "mean",
           "refId": "A",
           "range": true,
@@ -1610,7 +1623,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "histogram_quantile(0.9, sum by (le) (rate(relay_room_peak_peers_bucket{job=\"relay-metrics\", namespace=\"game-relay\", game=~\"$game\"}[1h])))",
+          "expr": "histogram_quantile(0.9, sum by (le) (sum_over_time((relay_room_peak_peers_bucket{job=\"relay-metrics\", namespace=\"game-relay\", game=~\"$game\"} - (relay_room_peak_peers_bucket{job=\"relay-metrics\", namespace=\"game-relay\", game=~\"$game\"} offset 30s or relay_room_peak_peers_bucket{job=\"relay-metrics\", namespace=\"game-relay\", game=~\"$game\"} * 0))[1h:30s])))",
           "legendFormat": "p90",
           "refId": "B",
           "range": true,
@@ -1664,7 +1677,8 @@
           "mode": "multi",
           "sort": "desc"
         }
-      }
+      },
+      "interval": "1m"
     },
     {
       "type": "row",
