@@ -1,0 +1,12 @@
+---
+# Picked up by the Grafana sidecar (label grafana_dashboard=1, all namespaces).
+# Source of truth is files/relay-dashboard.json; UI edits are lost on resync.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: saucer-relay-grafana-dashboard
+  labels:
+    grafana_dashboard: "1"
+data:
+  saucer-relay.json: |
+    {{- .Files.Get "files/relay-dashboard.json" | nindent 4 }}
