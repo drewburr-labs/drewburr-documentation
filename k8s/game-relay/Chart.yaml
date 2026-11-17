@@ -1,0 +1,6 @@
+---
+apiVersion: v2
+name: game-relay
+description: Room-code relay for online games (UDP 24680), drewburr-labs/game-relay
+type: application
+version: 0.2.0

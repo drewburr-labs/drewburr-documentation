@@ -1,7 +1,7 @@
 ---
-# https://github.com/drewburr-labs/saucer-showdown#relay-server
+# https://github.com/drewburr-labs/game-relay
 image:
-  repository: ghcr.io/drewburr-labs/saucer-showdown-relay
+  repository: ghcr.io/drewburr-labs/game-relay
   # Tracks main. A new image is only picked up when the pod restarts
   # (pullPolicy Always); ArgoCD won't notice a new push on its own.
   tag: latest
@@ -19,7 +19,12 @@ serviceMonitor:
 service:
   # Static so the UDM port forward (WAN udp/24680 -> this IP) stays valid.
   loadBalancerIP: 192.168.4.68
-  hostname: saucer.drewburr.com
+  hostnames:
+    - relay.drewburr.com
+    # HOST_NAME in relay_protocol.gd (game-relay and Saucer Showdown's copy) is
+    # still saucer.drewburr.com; shipped game builds use it. Drop only once
+    # games have moved to relay.drewburr.com.
+    - saucer.drewburr.com
 
 resources:
   requests:

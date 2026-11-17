@@ -4,7 +4,7 @@ kind: Deployment
 metadata:
   name: relay
   labels:
-    app.kubernetes.io/name: saucer-showdown-relay
+    app.kubernetes.io/name: game-relay
 spec:
   # Rooms live in memory: exactly one replica, and never two at once.
   replicas: 1
@@ -12,11 +12,11 @@ spec:
     type: Recreate
   selector:
     matchLabels:
-      app.kubernetes.io/name: saucer-showdown-relay
+      app.kubernetes.io/name: game-relay
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: saucer-showdown-relay
+        app.kubernetes.io/name: game-relay
     spec:
       securityContext:
         runAsNonRoot: true
@@ -39,8 +39,8 @@ spec:
             - name: metrics
               containerPort: {{ .Values.metricsPort }}
               protocol: TCP
-          # /healthz only shows the process is serving; relay/relay_probe.gd
-          # from the saucer-showdown repo checks the UDP relay end to end.
+          # /healthz only shows the process is serving; relay_probe.gd
+          # from the game-relay repo checks the UDP relay end to end.
           livenessProbe:
             httpGet:
               path: /healthz
