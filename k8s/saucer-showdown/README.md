@@ -9,6 +9,7 @@ online play. Stateless, one replica, UDP only.
 | Service | `LoadBalancer`, MetalLB `192.168.4.68`, `udp/24680`, `externalTrafficPolicy: Local` |
 | DNS | `saucer.drewburr.com` CNAME `ip.drewburr.com`, created by external-dns (cloudflare-service) |
 | Metrics | `tcp/24681` (`/metrics`, `/healthz`) on ClusterIP `relay-metrics` only; scraped by ServiceMonitor `relay` |
+| Dashboard | Grafana "Saucer Showdown relay" (uid `saucer-relay`), from `files/relay-dashboard.json` |
 | Router | UDM port forward **WAN udp/24680 -> 192.168.4.68:24680** (not in git; set by hand) |
 
 `externalTrafficPolicy: Local` keeps real client addresses, which the relay's
