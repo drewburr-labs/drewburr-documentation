@@ -54,9 +54,10 @@ def stat(title, exprs, x, w, unit="none", desc="", decimals=None, thresholds=Non
 
 
 def ts(title, exprs, x, w, unit="none", desc="", h=8, stack=False, min0=True, overrides=None,
-       draw="line", fill=10, max_=None):
+       draw="line", fill=10, max_=None, interp="linear", interval=None, calcs=None,
+       decimals=None):
     custom = {"drawStyle": draw, "lineWidth": 1, "fillOpacity": fill, "showPoints": "never",
-              "spanNulls": False, "lineInterpolation": "linear", "gradientMode": "none",
+              "spanNulls": False, "lineInterpolation": interp, "gradientMode": "none",
               "axisPlacement": "auto", "axisSoftMin": 0 if min0 else None,
               "stacking": {"mode": "normal" if stack else "none", "group": "A"},
               "thresholdsStyle": {"mode": "off"}}
@@ -65,19 +66,47 @@ def ts(title, exprs, x, w, unit="none", desc="", h=8, stack=False, min0=True, ov
                 "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": None}]}}
     if max_ is not None:
         defaults["max"] = max_
-    panels.append({
+    if decimals is not None:
+        defaults["decimals"] = decimals
+    if draw == "bars":
+        custom["barAlignment"] = -1  # a bar covers the interval that ends at its timestamp
+    panel = {
         "type": "timeseries", "title": title, "description": desc, "id": nid(), "datasource": DS,
         "gridPos": {"h": h, "w": w, "x": x, "y": _y[0]},
         "targets": [target(e, l, chr(65 + i)) for i, (e, l) in enumerate(exprs)],
         "fieldConfig": {"defaults": defaults, "overrides": overrides or []},
         "options": {"legend": {"displayMode": "list", "placement": "bottom", "showLegend": True,
-                               "calcs": []},
+                               "calcs": calcs or []},
                     "tooltip": {"mode": "multi", "sort": "desc"}},
-    })
+    }
+    if interval:
+        panel["interval"] = interval
+    panels.append(panel)
 
 
 def nl(h):
     _y[0] += h
+
+
+# Scrape interval of the ServiceMonitor (values.yaml serviceMonitor.interval).
+SCRAPE = "30s"
+
+
+def events(metric, sel, by="", window="$__interval"):
+    """Exact number of counter increments in `window`.
+
+    rate()/increase() are wrong for this relay's rare events: they extrapolate one
+    event into "40 per hour", and they never count a series' first value. A game's
+    series is created by its first room, already at 1, so that room was dropped.
+    Instead, subtract the value one scrape earlier at every scrape and add those
+    up; a series that didn't exist a scrape earlier counts from 0. The steps
+    telescope, so the total is exact. A relay restart is a new pod, so new series:
+    counters never reset within one.
+    """
+    x = f"{metric}{{{sel}}}"
+    step = f"({x} - ({x} offset {SCRAPE} or {x} * 0))"
+    agg = f"sum by ({by})" if by else "sum"
+    return f"{agg} (sum_over_time({step}[{window}:{SCRAPE}]))"
 
 
 def q(quant, metric, by="le", sel=G, window="$__rate_interval"):
@@ -102,7 +131,7 @@ panels[-1]["fieldConfig"]["defaults"]["noValue"] = "no rooms"
 stat("Connections", [(f"relay_connections{{{SEL}}}", "")], 12, 3,
      desc="Open connections, in a room or not.")
 stat("Rooms hosted (range)",
-     [(f"sum(increase(relay_rooms_opened_total{{{G}}}[$__range])) or vector(0)", "")], 15, 3,
+     [(events("relay_rooms_opened_total", G, window="$__range") + " or vector(0)", "")], 15, 3,
      decimals=0, desc="Rooms opened over the dashboard's time range. Includes relay-probe checks "
      "unless filtered out with the game variable.")
 stat("Uptime", [(f"time() - process_start_time_seconds{{{SEL}}}", "")], 18, 3, unit="s",
@@ -115,30 +144,39 @@ nl(4)
 
 # ---------------------------------------------------------------- Activity
 row("Activity")
-ts("Players by game", [(f"sum by (game) (relay_room_peers{{{G}}})", "{{game}}")], 0, 8,
-   desc="Machines in open rooms, hosts included.", stack=True)
-ts("Rooms by game", [(f"sum by (game) (relay_rooms{{{G}}})", "{{game}}")], 8, 8, stack=True)
-ts("Rooms opened / joins (per hour)",
-   [(f"sum(rate(relay_rooms_opened_total{{{G}}}[$__rate_interval])) * 3600", "rooms opened"),
-    (f"sum(rate(relay_rooms_closed_total{{{G}}}[$__rate_interval])) * 3600", "rooms closed"),
-    (f"sum(rate(relay_room_joins_total{{{G}}}[$__rate_interval])) * 3600", "joins")],
-   16, 8, unit="short")
+PEAK = dict(stack=True, interp="stepAfter", fill=30, interval="1m", decimals=0,
+            calcs=["max"])
+ts("Players by game (peak)",
+   [(f"sum by (game) (max_over_time(relay_room_peers{{{G}}}[$__interval]))", "{{game}}")],
+   0, 8, desc="Most machines in open rooms at any scrape in each interval, hosts included. "
+   "Rooms shorter than a scrape (30 s) can be missed; the counts on the right are exact.",
+   **PEAK)
+ts("Rooms by game (peak)",
+   [(f"sum by (game) (max_over_time(relay_rooms{{{G}}}[$__interval]))", "{{game}}")],
+   8, 8, desc="Most rooms open at any scrape in each interval.", **PEAK)
+COUNT = dict(draw="bars", fill=80, interval="1m", decimals=0, calcs=["sum"], unit="short")
+ts("Rooms opened, closed & joins",
+   [(events("relay_rooms_opened_total", G), "rooms opened"),
+    (events("relay_rooms_closed_total", G), "rooms closed"),
+    (events("relay_room_joins_total", G), "joins")],
+   16, 8, desc="Exact count in each bar's interval (zoom out and bars widen). Legend = total "
+   "for the time range.", **COUNT)
 nl(8)
 ts("Capacity used",
    [(f"sum(relay_rooms{{{SEL}}}) / max(relay_rooms_limit{{{SEL}}})", "rooms / limit"),
     (f"relay_connections{{{SEL}}} / relay_connections_limit{{{SEL}}}", "connections / limit")],
    0, 8, unit="percentunit", max_=1,
    desc="Against the relay's limits (400 rooms, 1024 connections). Across every game.")
-ts("Refusals by reason (per min)",
-   [(f"sum by (reason) (rate(relay_refusals_total{{{SEL}}}[$__rate_interval])) * 60",
-     "{{reason}}")], 8, 8, unit="short", stack=True,
-   desc="no_such_room = wrong code, outdated = old game build, too_many_tries = rate limited "
+ts("Refusals by reason",
+   [(events("relay_refusals_total", SEL, by="reason"), "{{reason}}")], 8, 8, stack=True,
+   **COUNT,
+   desc="Exact count per bar interval; legend = total for the range. no_such_room = wrong code, outdated = old game build, too_many_tries = rate limited "
    "(20 wrong codes / address / min), room_full, relay_full, bad_request.")
-ts("Connections",
-   [(f"relay_connections{{{SEL}}}", "open"),
-    (f"rate(relay_connections_opened_total{{{SEL}}}[$__rate_interval]) * 60", "opened / min"),
-    (f"rate(relay_connections_closed_total{{{SEL}}}[$__rate_interval]) * 60", "closed / min")],
-   16, 8, unit="short")
+ts("Connections opened & closed",
+   [(events("relay_connections_opened_total", SEL), "opened"),
+    (events("relay_connections_closed_total", SEL), "closed")],
+   16, 8, desc="Exact count per bar interval; legend = total for the range. Open connections "
+   "now are in the stat row.", **COUNT)
 nl(8)
 
 # ---------------------------------------------------------------- Connection quality
@@ -162,18 +200,31 @@ nl(8)
 
 # ---------------------------------------------------------------- Sessions
 row("Sessions")
-ts("Room length (closed rooms)",
-   [(q(0.5, "relay_room_duration_seconds", window="1h"), "p50"),
-    (q(0.9, "relay_room_duration_seconds", window="1h"), "p90"),
-    (f"sum(increase(relay_room_duration_seconds_sum{{{G}}}[1h])) / "
-     f"sum(increase(relay_room_duration_seconds_count{{{G}}}[1h]))", "mean")],
-   0, 12, unit="s", desc="How long rooms stayed open, over the trailing hour of closed rooms.")
-ts("Room size at peak (closed rooms)",
-   [(f"sum(increase(relay_room_peak_peers_sum{{{G}}}[1h])) / "
-     f"sum(increase(relay_room_peak_peers_count{{{G}}}[1h]))", "mean"),
-    (q(0.9, "relay_room_peak_peers", window="1h"), "p90")],
-   12, 12, unit="short",
-   desc="Most machines each closed room had at once, host included, over the trailing hour.")
+
+
+def hq(quant, metric, window="1h"):
+    """Quantile over closed rooms in the trailing window, counting every room exactly
+    (the histogram's series appear at a game's first close, already at 1)."""
+    return f"histogram_quantile({quant}, {events(metric + '_bucket', G, by='le', window=window)})"
+
+
+def hmean(metric, window="1h"):
+    return (f"{events(metric + '_sum', G, window=window)} / "
+            f"{events(metric + '_count', G, window=window)}")
+
+
+ts("Room length (closed rooms, trailing hour)",
+   [(hq(0.5, "relay_room_duration_seconds"), "p50"),
+    (hq(0.9, "relay_room_duration_seconds"), "p90"),
+    (hmean("relay_room_duration_seconds"), "mean")],
+   0, 12, unit="s", interval="1m",
+   desc="How long rooms stayed open, over rooms that closed in the hour before each point.")
+ts("Room size at peak (closed rooms, trailing hour)",
+   [(hmean("relay_room_peak_peers"), "mean"),
+    (hq(0.9, "relay_room_peak_peers"), "p90")],
+   12, 12, unit="short", interval="1m",
+   desc="Most machines each closed room had at once, host included, over rooms that closed "
+   "in the hour before each point.")
 nl(8)
 
 # ---------------------------------------------------------------- Traffic
