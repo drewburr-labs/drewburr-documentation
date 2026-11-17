@@ -8,6 +8,7 @@ online play. Stateless, one replica, UDP only.
 | Image | `ghcr.io/drewburr-labs/saucer-showdown-relay` (public), `latest` with `imagePullPolicy: Always` |
 | Service | `LoadBalancer`, MetalLB `192.168.4.68`, `udp/24680`, `externalTrafficPolicy: Local` |
 | DNS | `saucer.drewburr.com` CNAME `ip.drewburr.com`, created by external-dns (cloudflare-service) |
+| Metrics | `tcp/24681` (`/metrics`, `/healthz`) on ClusterIP `relay-metrics` only; scraped by ServiceMonitor `relay` |
 | Router | UDM port forward **WAN udp/24680 -> 192.168.4.68:24680** (not in git; set by hand) |
 
 `externalTrafficPolicy: Local` keeps real client addresses, which the relay's
@@ -25,5 +26,6 @@ From a saucer-showdown checkout:
 godot --headless --path . --script res://relay/relay_probe.gd -- saucer.drewburr.com
 ```
 
-Opens a room, joins it, and passes a packet each way. There are no k8s probes
-(no TCP/HTTP endpoint), so this is the real health check.
+Opens a room, joins it, and passes a packet each way. The k8s probes hit
+`/healthz` on the metrics port, which only shows the process is up; this
+probe is the real end-to-end check.

@@ -1,0 +1,19 @@
+---
+# Separate ClusterIP Service so the metrics port never lands on the public
+# LoadBalancer (192.168.4.68) alongside udp/24680.
+apiVersion: v1
+kind: Service
+metadata:
+  name: relay-metrics
+  labels:
+    app.kubernetes.io/name: saucer-showdown-relay
+    app.kubernetes.io/component: metrics
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: saucer-showdown-relay
+  ports:
+    - name: metrics
+      port: {{ .Values.metricsPort }}
+      targetPort: metrics
+      protocol: TCP

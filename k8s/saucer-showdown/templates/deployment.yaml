@@ -29,13 +29,29 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           args:
+            # args replace the image's CMD, so metrics must be asked for here too.
             - --port={{ .Values.port }}
+            - --metrics-port={{ .Values.metricsPort }}
           ports:
             - name: relay
               containerPort: {{ .Values.port }}
               protocol: UDP
-          # UDP only, no health endpoint: no probes. Check end to end with
-          # tools/relay_probe.gd from the saucer-showdown repo.
+            - name: metrics
+              containerPort: {{ .Values.metricsPort }}
+              protocol: TCP
+          # /healthz only shows the process is serving; relay/relay_probe.gd
+          # from the saucer-showdown repo checks the UDP relay end to end.
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: metrics
+            periodSeconds: 20
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: metrics
+            periodSeconds: 10
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
