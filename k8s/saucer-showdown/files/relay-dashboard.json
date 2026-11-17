@@ -188,7 +188,7 @@
           "values": false
         },
         "colorMode": "background",
-        "graphMode": "area",
+        "graphMode": "none",
         "textMode": "auto",
         "justifyMode": "auto",
         "orientation": "auto",
@@ -252,7 +252,7 @@
           "values": false
         },
         "colorMode": "value",
-        "graphMode": "area",
+        "graphMode": "none",
         "textMode": "auto",
         "justifyMode": "auto",
         "orientation": "auto",
@@ -316,7 +316,7 @@
           "values": false
         },
         "colorMode": "value",
-        "graphMode": "area",
+        "graphMode": "none",
         "textMode": "auto",
         "justifyMode": "auto",
         "orientation": "auto",
@@ -327,7 +327,7 @@
     {
       "type": "stat",
       "title": "Seats filled",
-      "description": "Machines in rooms / machines the open rooms have room for.",
+      "description": "Machines in rooms / machines the open rooms have room for. Shows 'no rooms' when none are open.",
       "id": 5,
       "datasource": {
         "type": "prometheus",
@@ -368,7 +368,8 @@
           "color": {
             "mode": "thresholds"
           },
-          "decimals": 0
+          "decimals": 0,
+          "noValue": "no rooms"
         },
         "overrides": []
       },
@@ -381,7 +382,7 @@
           "values": false
         },
         "colorMode": "value",
-        "graphMode": "area",
+        "graphMode": "none",
         "textMode": "auto",
         "justifyMode": "auto",
         "orientation": "auto",
@@ -445,7 +446,7 @@
           "values": false
         },
         "colorMode": "value",
-        "graphMode": "area",
+        "graphMode": "none",
         "textMode": "auto",
         "justifyMode": "auto",
         "orientation": "auto",
@@ -510,7 +511,7 @@
           "values": false
         },
         "colorMode": "value",
-        "graphMode": "area",
+        "graphMode": "none",
         "textMode": "auto",
         "justifyMode": "auto",
         "orientation": "auto",
@@ -574,7 +575,7 @@
           "values": false
         },
         "colorMode": "value",
-        "graphMode": "area",
+        "graphMode": "none",
         "textMode": "auto",
         "justifyMode": "auto",
         "orientation": "auto",
@@ -638,7 +639,7 @@
           "values": false
         },
         "colorMode": "value",
-        "graphMode": "area",
+        "graphMode": "none",
         "textMode": "name",
         "justifyMode": "auto",
         "orientation": "auto",
