@@ -8,6 +8,13 @@ image:
   pullPolicy: Always
 
 port: 24680
+# TCP, Prometheus text at /metrics and liveness at /healthz. Private: only on the
+# ClusterIP relay-metrics Service, never the LoadBalancer or the port forward.
+metricsPort: 24681
+
+serviceMonitor:
+  interval: 30s
+  scrapeTimeout: 10s
 
 service:
   # Static so the UDM port forward (WAN udp/24680 -> this IP) stays valid.
