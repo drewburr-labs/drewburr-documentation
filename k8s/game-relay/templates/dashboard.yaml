@@ -4,9 +4,9 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: saucer-relay-grafana-dashboard
+  name: game-relay-grafana-dashboard
   labels:
     grafana_dashboard: "1"
 data:
-  saucer-relay.json: |
+  game-relay.json: |
     {{- .Files.Get "files/relay-dashboard.json" | nindent 4 }}

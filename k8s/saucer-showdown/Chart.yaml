@@ -1,6 +1,0 @@
----
-apiVersion: v2
-name: saucer-showdown
-description: Saucer Showdown relay server (UDP 24680) for online play
-type: application
-version: 0.1.0

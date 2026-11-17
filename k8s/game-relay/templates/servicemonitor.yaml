@@ -5,7 +5,7 @@ metadata:
   name: relay
   labels:
     release: prometheus
-    app.kubernetes.io/name: saucer-showdown-relay
+    app.kubernetes.io/name: game-relay
 spec:
   endpoints:
     - port: metrics
@@ -17,5 +17,5 @@ spec:
       - {{ .Release.Namespace }}
   selector:
     matchLabels:
-      app.kubernetes.io/name: saucer-showdown-relay
+      app.kubernetes.io/name: game-relay
       app.kubernetes.io/component: metrics

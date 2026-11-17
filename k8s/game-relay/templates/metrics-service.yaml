@@ -6,12 +6,12 @@ kind: Service
 metadata:
   name: relay-metrics
   labels:
-    app.kubernetes.io/name: saucer-showdown-relay
+    app.kubernetes.io/name: game-relay
     app.kubernetes.io/component: metrics
 spec:
   type: ClusterIP
   selector:
-    app.kubernetes.io/name: saucer-showdown-relay
+    app.kubernetes.io/name: game-relay
   ports:
     - name: metrics
       port: {{ .Values.metricsPort }}
