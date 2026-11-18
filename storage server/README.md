@@ -22,7 +22,7 @@ Of the 24 SSDs, 20 are `sas-pool`. The other 4 (`S182NEAG610807`, `610064`, `610
 | Pool | Layout | Raw | Notes |
 |-|-|-|-|
 | `sas-pool` | 20x NetApp X438 SAS SSD (373GB usable each), raidz3 | 7.3T | All Kubernetes PVCs except Plex media. `zfs-nvmeof` zvols and `zfs-nfs` datasets under `sas-pool/k8s/nvmeof/dataset`. |
-| `lake` | 7-wide raidz2 spinners: 5x HGST 12TB (3 SATA `HUH721212ALE601`, 2 SAS `HUH721212AL4205`) + 2x WD 14TB (`WUH721414AL` and a shucked `WD140EDGZ`). Expanded with raidz expansion from 5 to 6 wide in January 2026 (completed Jan 28 2026) and from 6 to 7 wide in November 2026 (attached 2026-11-01, finished 2026-11-04). **Expanding to 8 wide:** a third 14TB (`WUH721414AL` `9RGGE14C`) was attached on 2026-11-16 00:02; the copy of 62.6T was expected to take about 2.5-3.5 days. Check with `zpool status lake`. | 76.4T (about 87T once the 8-wide expansion finishes) | Plex media over NFS (`nfs-lake`). Datasets under `lake/k8s/nvmeof/dataset`. Data written before each expansion keeps the older parity ratio, so `zpool list` allocation is higher than `zfs list` usage. The 14TB drives only contribute 12TB each until every member is at least 14TB. |
+| `lake` | 8-wide raidz2 spinners: 5x HGST 12TB (3 SATA `HUH721212ALE601`, 2 SAS `HUH721212AL4205`) + 3x WD 14TB (2x `WUH721414AL` and a shucked `WD140EDGZ`). Expanded with raidz expansion from 5 to 6 wide in January 2026 (completed Jan 28 2026), from 6 to 7 wide in November 2026 (attached 2026-11-01, finished 2026-11-04), and from 7 to 8 wide (`9RGGE14C` attached 2026-11-16 00:02, copied 62.7T in 2 days 4h 40m, finished 2026-11-18 04:42). See [Expanding to 9 wide and rewriting](#planned-expanding-to-9-wide-and-rewriting-lake). | 87.3T | Plex media over NFS (`nfs-lake`). Datasets under `lake/k8s/nvmeof/dataset`. Data written before each expansion keeps the older parity ratio, so `zpool list` allocation is higher than `zfs list` usage. The 14TB drives only contribute 12TB each until every member is at least 14TB. |
 
 Both pools reference disks by `/dev/disk/by-id/` names. Identify a physical drive by serial number (see below).
 
@@ -37,8 +37,8 @@ Both pools reference disks by `/dev/disk/by-id/` names. Identify a physical driv
 | `5QJN3BUB` | HGST `HUH721212AL4205` 12TB | `lake` | HBA | `scsi-SHGST_HUH721212AL4205_5QJN3BUB` |
 | `8DJK4ZMY` | HGST `HUH721212ALE601` 12TB | `lake` | FCH SATA `ata6` | `scsi-SATA_HUH721212ALE601_8DJK4ZMY` |
 | `8HKXR98H` | HGST `HUH721212ALE601` 12TB | `lake` | FCH SATA `ata5` | `scsi-SATA_HUH721212ALE601_8HKXR98H` |
-| `9RGGE14C` | WD `WUH721414AL` 14TB | `lake` (expanding since 2026-11-16) | HBA | `scsi-SATA_WDC_WUH721414AL_9RGGE14C` |
-| `Y5KTG63C` | WD `WD140EDGZ` 14TB (shucked) | none (spare for the next expansion) | HBA | Installed 2026-11-15, blank, SMART clean |
+| `9RGGE14C` | WD `WUH721414AL` 14TB | `lake` (since 2026-11-18) | HBA | `scsi-SATA_WDC_WUH721414AL_9RGGE14C` |
+| `Y5KTG63C` | WD `WD140EDGZ` 14TB (shucked) | none (planned 9th `lake` member, see below) | HBA | Installed 2026-11-15, blank, SMART clean, 32.6k power-on hours (used drive) |
 
 When a member's recorded path no longer exists (for example after moving off USB), `zpool import -d /dev/disk/by-id` records whichever by-id link it finds first. That was `wwn-0x5000cca28ef58b59` for `Y5KTTH5C`, which hides the serial in `zpool status`. To keep serial-bearing names, give the import only the `scsi-*` partition links; ZFS 2.4 accepts devices for `-d`:
 
@@ -49,6 +49,46 @@ sudo zpool import $args lake
 ```
 
 Members whose recorded path still exists keep it; only the ones that moved get renamed. [`usb-to-sas/lake-hotswap.sh up`](usb-to-sas/lake-hotswap.sh) imports this way.
+
+#### Planned: expanding to 9 wide and rewriting lake
+
+**Why:** raidz expansion does not re-stripe existing blocks. Only new writes use the wider layout. As of 2026-11-18, `lake` holds 36.5T of data (`logicalused`, compression ratio 1.00x) in 62.7T raw. That is about 58% efficiency, roughly what 5-wide raidz2 gives with 128K records, so nearly everything is still at the original parity ratio. ZFS 2.4's `zfs rewrite` writes files back in place, and the new blocks use the current width.
+
+**Why expand first:** every expansion copies all allocated data, and rewrite is the expensive pass, so do the rewrite only once, at the final width. Rewriting at 8 wide and then adding the 9th drive would leave data at the 8-wide ratio and need a second rewrite. With 128K records and 4K sectors (ashift 12), a block uses about 71% of its raw space at 8 wide and about 76% at 9 wide, because of raidz padding.
+
+Estimates (not measured): after the 9-wide expansion, raw size is about 98T. Rewriting 36.5T at 9 wide should take about 48T raw, down from 62.7T, which frees roughly 15T raw.
+
+`lake` has no snapshots, so rewritten blocks free the old ones right away. With snapshots, the old blocks stay referenced and pool usage goes **up**. Check with `zfs list -t snapshot -r lake` before rewriting.
+
+Steps, on storage01:
+
+1. Let the post-expansion scrub from 2026-11-18 finish, and confirm 0 errors in `zpool status lake`. Attaching a device can cancel a running scrub, and this scrub is the first check of the 8-wide copy.
+2. Attach the 9th drive. This starts the expansion; Plex stays up but is slower. The last expansion took about 2.2 days for 62.7T, and a pool-wide scrub (about 20+ hours) runs automatically afterwards.
+
+   ```sh
+   sudo zpool attach lake raidz2-0 /dev/disk/by-id/scsi-SATA_WDC_WD140EDGZ-11_Y5KTG63C
+   ```
+
+3. After the expansion and its scrub finish, enable the new pool features. **This cannot be undone**: a ZFS older than 2.4 can no longer import `lake`. This enables `physical_rewrite` and `block_cloning_endian`. `dynamic_gang_header` is not enabled by `upgrade`, and this pool does not need it.
+
+   ```sh
+   sudo zpool upgrade lake
+   ```
+
+4. Rewrite the Plex media dataset in the background. `-P` keeps logical birth times so the blocks do not look modified to incremental sends. `-x` stays inside this dataset. Run it in `tmux` so it survives an SSH disconnect. Progress shows as `ALLOC` falling in `zpool list lake`.
+
+   ```sh
+   tmux new -s rewrite
+   sudo zfs rewrite -P -r -x /lake/k8s/nvmeof/dataset/pvc-1a6ee17d-54a9-47e3-808f-b266d21d1fd9
+   ```
+
+   The small `pvc-05ac5179-...` dataset (about 43G) can be rewritten the same way afterwards.
+
+Notes:
+
+- `zfs list` keeps under-reporting `AVAIL` and `USED` after the rewrite. The vdev's space accounting stays at the original 5-wide ratio, so `zpool list` is the number to trust.
+- Rewrite keeps each file's existing record size. Changing `recordsize` (for example to 1M for media) only takes effect by copying files into a new dataset. That is not worth doing for about 4% more efficiency.
+- The 14TB members still only contribute 12TB each until every member is at least 14TB.
 
 ### Snapshots and backups
 
