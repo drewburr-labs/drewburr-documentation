@@ -22,7 +22,7 @@ Of the 24 SSDs, 20 are `sas-pool`. The other 4 (`S182NEAG610807`, `610064`, `610
 | Pool | Layout | Raw | Notes |
 |-|-|-|-|
 | `sas-pool` | 20x NetApp X438 SAS SSD (373GB usable each), raidz3 | 7.3T | All Kubernetes PVCs except Plex media. `zfs-nvmeof` zvols and `zfs-nfs` datasets under `sas-pool/k8s/nvmeof/dataset`. |
-| `lake` | 8-wide raidz2 spinners: 5x HGST 12TB (3 SATA `HUH721212ALE601`, 2 SAS `HUH721212AL4205`) + 3x WD 14TB (2x `WUH721414AL` and a shucked `WD140EDGZ`). Expanded with raidz expansion from 5 to 6 wide in January 2026 (completed Jan 28 2026), from 6 to 7 wide in November 2026 (attached 2026-11-01, finished 2026-11-04), and from 7 to 8 wide (`9RGGE14C` attached 2026-11-16 00:02, copied 62.7T in 2 days 4h 40m, finished 2026-11-18 04:42). See [Expanding to 9 wide and rewriting](#planned-expanding-to-9-wide-and-rewriting-lake). | 87.3T | Plex media over NFS (`nfs-lake`). Datasets under `lake/k8s/nvmeof/dataset`. Data written before each expansion keeps the older parity ratio, so `zpool list` allocation is higher than `zfs list` usage. The 14TB drives only contribute 12TB each until every member is at least 14TB. |
+| `lake` | 8-wide raidz2 spinners: 5x HGST 12TB (3 SATA `HUH721212ALE601`, 2 SAS `HUH721212AL4205`) + 3x WD 14TB (2x `WUH721414AL` and a shucked `WD140EDGZ`). Expanded with raidz expansion from 5 to 6 wide in January 2026 (completed Jan 28 2026), from 6 to 7 wide in November 2026 (attached 2026-11-01, finished 2026-11-04), and from 7 to 8 wide (`9RGGE14C` attached 2026-11-16 00:02, copied 62.7T in 2 days 4h 40m, finished 2026-11-18 04:42). **Expanding to 9 wide:** `Y5KTG63C` was attached 2026-11-19 13:23 UTC; the 62.9T copy should take about 2-2.5 days, followed by an automatic scrub. Check with `zpool status lake`. See [Expanding to 9 wide and rewriting](#planned-expanding-to-9-wide-and-rewriting-lake). | 87.3T (about 98T once the 9-wide expansion finishes) | Plex media over NFS (`nfs-lake`). Datasets under `lake/k8s/nvmeof/dataset`. Data written before each expansion keeps the older parity ratio, so `zpool list` allocation is higher than `zfs list` usage. The 14TB drives only contribute 12TB each until every member is at least 14TB. |
 
 Both pools reference disks by `/dev/disk/by-id/` names. Identify a physical drive by serial number (see below).
 
@@ -38,7 +38,7 @@ Both pools reference disks by `/dev/disk/by-id/` names. Identify a physical driv
 | `8DJK4ZMY` | HGST `HUH721212ALE601` 12TB | `lake` | FCH SATA `ata6` | `scsi-SATA_HUH721212ALE601_8DJK4ZMY` |
 | `8HKXR98H` | HGST `HUH721212ALE601` 12TB | `lake` | FCH SATA `ata5` | `scsi-SATA_HUH721212ALE601_8HKXR98H` |
 | `9RGGE14C` | WD `WUH721414AL` 14TB | `lake` (since 2026-11-18) | HBA | `scsi-SATA_WDC_WUH721414AL_9RGGE14C` |
-| `Y5KTG63C` | WD `WD140EDGZ` 14TB (shucked) | none (planned 9th `lake` member, see below) | HBA | Installed 2026-11-15, blank, SMART clean, 32.6k power-on hours (used drive) |
+| `Y5KTG63C` | WD `WD140EDGZ` 14TB (shucked) | `lake` (expanding since 2026-11-19) | HBA | `scsi-SATA_WDC_WD140EDGZ-11_Y5KTG63C`. Installed 2026-11-15, SMART clean, 32.6k power-on hours (used drive) |
 
 When a member's recorded path no longer exists (for example after moving off USB), `zpool import -d /dev/disk/by-id` records whichever by-id link it finds first. That was `wwn-0x5000cca28ef58b59` for `Y5KTTH5C`, which hides the serial in `zpool status`. To keep serial-bearing names, give the import only the `scsi-*` partition links; ZFS 2.4 accepts devices for `-d`:
 
@@ -62,8 +62,8 @@ Estimates (not measured): after the 9-wide expansion, raw size is about 98T. Rew
 
 Steps, on storage01:
 
-1. Let the post-expansion scrub from 2026-11-18 finish, and confirm 0 errors in `zpool status lake`. Attaching a device can cancel a running scrub, and this scrub is the first check of the 8-wide copy.
-2. Attach the 9th drive. This starts the expansion; Plex stays up but is slower. The last expansion took about 2.2 days for 62.7T, and a pool-wide scrub (about 20+ hours) runs automatically afterwards.
+1. **Done 2026-11-19:** scrub finished 09:01 UTC, 0B repaired, 0 errors. Let the post-expansion scrub from 2026-11-18 finish, and confirm 0 errors in `zpool status lake`. Attaching a device can cancel a running scrub, and this scrub is the first check of the 8-wide copy.
+2. **Done 2026-11-19 13:23 UTC.** Attach the 9th drive. This starts the expansion; Plex stays up but is slower. The last expansion took about 2.2 days for 62.7T, and a pool-wide scrub (about 20+ hours) runs automatically afterwards.
 
    ```sh
    sudo zpool attach lake raidz2-0 /dev/disk/by-id/scsi-SATA_WDC_WD140EDGZ-11_Y5KTG63C
