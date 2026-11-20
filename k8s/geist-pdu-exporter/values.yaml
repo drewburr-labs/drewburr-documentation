@@ -43,8 +43,11 @@ service:
 
 serviceMonitor:
   endpoint:
-    scrapeTimeout: 5s
-    interval: 5s
+    # PDUs are queried at scrape time; pdu01 (v3, 10Mb half-duplex) can take
+    # ~5s to answer in-cluster. Timeout must exceed 2x PDU_REQUEST_TIMEOUT
+    # (connect + read).
+    scrapeTimeout: 10s
+    interval: 15s
 
 resources:
   limits:
