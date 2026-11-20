@@ -27,7 +27,7 @@
         "type": "prometheus",
         "uid": "prometheus"
       },
-      "description": "",
+      "description": "Energy used over the selected time range, computed with increase() on each PDU's own kWh counter. Robust to exporter restarts (series are merged per PDU), scrape gaps (bridged with max_over_time over 5m) and PDU counter resets. Series recorded before exporter 0.1.0 carried no pdu label and are attributed to pdu01.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -49,13 +49,12 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
+        "h": 9,
         "w": 3,
         "x": 0,
         "y": 0
       },
       "id": 3,
-      "interval": "5s",
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -64,7 +63,7 @@
         "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
-            "range"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false
@@ -82,10 +81,10 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "max by (pdu)(pdu_kwh_total{pdu=~\"$pdu\"}) * $kwh_cost",
-          "instant": false,
+          "expr": "sum(increase((max by (pdu) (label_replace(max_over_time(pdu_kwh_total{pdu=~\"$pdu|\"}[5m]), \"pdu\", \"pdu01\", \"pdu\", \"\")))[$__range:1m]) and on (pdu) group by (pdu) (pdu_kwh_total{pdu=~\"$pdu\"})) * $kwh_cost",
+          "instant": true,
           "legendFormat": "{{pdu}}",
-          "range": true,
+          "range": false,
           "refId": "A"
         }
       ],
@@ -120,7 +119,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
+        "h": 9,
         "w": 21,
         "x": 3,
         "y": 0
@@ -134,7 +133,7 @@
         "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
-            "range"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false
@@ -151,15 +150,16 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "max by (pdu, num, name)(pdu_outlet_kwh_total{pdu=~\"$pdu\"}) * $kwh_cost",
-          "instant": false,
-          "legendFormat": "{{pdu}} {{name}}",
-          "range": true,
+          "expr": "increase((max by (pdu, num) (label_replace(max_over_time(pdu_outlet_kwh_total{pdu=~\"$pdu|\"}[5m]), \"pdu\", \"pdu01\", \"pdu\", \"\")))[$__range:1m]) * on (pdu, num) group_left (name) (max by (pdu, num, name) (pdu_outlet_kwh_total{pdu=~\"$pdu\"}) * 0 + 1) * $kwh_cost",
+          "instant": true,
+          "legendFormat": "{{name}}",
+          "range": false,
           "refId": "A"
         }
       ],
       "title": "Cost per Outlet (Selected Interval)",
-      "type": "stat"
+      "type": "stat",
+      "description": "Energy used over the selected time range, computed with increase() on each PDU's own kWh counter. Robust to exporter restarts (series are merged per PDU), scrape gaps (bridged with max_over_time over 5m) and PDU counter resets. Series recorded before exporter 0.1.0 carried no pdu label and are attributed to pdu01. Grouped by outlet number and shown under the outlet's current name, so renames don't split an outlet."
     },
     {
       "collapsed": false,
@@ -167,7 +167,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 6
+        "y": 9
       },
       "id": 6,
       "panels": [],
@@ -180,7 +180,7 @@
         "type": "prometheus",
         "uid": "prometheus"
       },
-      "description": "",
+      "description": "Energy used over the selected time range, computed with increase() on each PDU's own kWh counter. Robust to exporter restarts (series are merged per PDU), scrape gaps (bridged with max_over_time over 5m) and PDU counter resets. Series recorded before exporter 0.1.0 carried no pdu label and are attributed to pdu01.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -204,10 +204,9 @@
         "h": 9,
         "w": 6,
         "x": 0,
-        "y": 7
+        "y": 10
       },
       "id": 2,
-      "interval": "5s",
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -216,7 +215,7 @@
         "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
-            "range"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false
@@ -233,10 +232,10 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "max by (pdu)(pdu_kwh{pdu=~\"$pdu\"})",
-          "instant": false,
+          "expr": "sum(increase((max by (pdu) (label_replace(max_over_time(pdu_kwh_total{pdu=~\"$pdu|\"}[5m]), \"pdu\", \"pdu01\", \"pdu\", \"\")))[$__range:1m]) and on (pdu) group by (pdu) (pdu_kwh_total{pdu=~\"$pdu\"}))",
+          "instant": true,
           "legendFormat": "{{pdu}}",
-          "range": true,
+          "range": false,
           "refId": "A"
         }
       ],
@@ -282,8 +281,8 @@
             "showPoints": "auto",
             "spanNulls": false,
             "stacking": {
-              "group": "A",
-              "mode": "none"
+              "mode": "normal",
+              "group": "A"
             },
             "thresholdsStyle": {
               "mode": "line"
@@ -307,7 +306,7 @@
         "h": 9,
         "w": 6,
         "x": 6,
-        "y": 7
+        "y": 10
       },
       "id": 5,
       "interval": "5s",
@@ -414,7 +413,7 @@
         "h": 9,
         "w": 6,
         "x": 12,
-        "y": 7
+        "y": 10
       },
       "id": 4,
       "interval": "5s",
@@ -516,7 +515,7 @@
         "h": 9,
         "w": 6,
         "x": 18,
-        "y": 7
+        "y": 10
       },
       "id": 1,
       "interval": "5s",
@@ -561,7 +560,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 16
+        "y": 19
       },
       "id": 7,
       "panels": [],
@@ -634,7 +633,7 @@
         "h": 11,
         "w": 12,
         "x": 0,
-        "y": 17
+        "y": 20
       },
       "id": 9,
       "interval": "5s",
@@ -667,7 +666,7 @@
           "editorMode": "code",
           "expr": "max by (pdu, num, name)(pdu_outlet_amps{pdu=~\"$pdu\"})",
           "instant": false,
-          "legendFormat": "{{pdu}} {{name}}",
+          "legendFormat": "{{name}} ({{pdu}})",
           "range": true,
           "refId": "A"
         }
@@ -741,7 +740,7 @@
         "h": 11,
         "w": 12,
         "x": 12,
-        "y": 17
+        "y": 20
       },
       "id": 13,
       "interval": "5s",
@@ -774,7 +773,7 @@
           "editorMode": "code",
           "expr": "max by (pdu, num, name)(pdu_outlet_watts{pdu=~\"$pdu\"})",
           "instant": false,
-          "legendFormat": "{{pdu}} {{name}}",
+          "legendFormat": "{{name}} ({{pdu}})",
           "range": true,
           "refId": "A"
         }
@@ -848,7 +847,7 @@
         "h": 12,
         "w": 12,
         "x": 12,
-        "y": 28
+        "y": 31
       },
       "id": 16,
       "interval": "5s",
@@ -882,7 +881,7 @@
           "expr": "max by (pdu, num, name)(pdu_outlet_watts{pdu=~\"$pdu\"}) / (max by (pdu, num, name)(pdu_outlet_amps{pdu=~\"$pdu\"}) * on(pdu) group_left max by (pdu)(pdu_volts{pdu=~\"$pdu\"}))",
           "hide": false,
           "instant": false,
-          "legendFormat": "{{pdu}} {{name}}",
+          "legendFormat": "{{name}} ({{pdu}})",
           "range": true,
           "refId": "A"
         }
