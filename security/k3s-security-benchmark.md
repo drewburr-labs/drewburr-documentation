@@ -3,8 +3,10 @@
 **Date:** 2026-04-12
 **Cluster:** k3s.drewburr.com
 **K3s Version:** v1.35.2+k3s1
-**Nodes:** kube02, kube03 (control-plane/etcd), kube04, kube05 (workers)
+**Nodes (at scan time):** kube02, kube03 (control-plane/etcd), kube04, kube05 (workers)
 **OS:** Ubuntu 24.04.4 LTS
+
+> **Topology change since this scan:** kube04 has been decommissioned, and kube01 has joined as a control-plane/etcd node. As of 2026-11-19 the cluster is kube01, kube02, kube03 (control-plane/etcd) and kube05 (worker). Findings below that mention kube04 are historical. kube01 was not part of this scan and has not been benchmarked.
 
 ---
 
