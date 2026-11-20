@@ -1,0 +1,69 @@
+# SNMP community for the UPS cards. Never in git: create it once in
+# shared-secrets and the ExternalSecret renders it into the auth file below.
+#   kubectl -n shared-secrets create secret generic apc-ups-snmp \
+#     --from-literal=community=<community>
+snmpSecret:
+  sourceKey: apc-ups-snmp
+
+prometheus-snmp-exporter:
+  # Stock snmp.yml ships the `apcups` module. The auth file is layered on top
+  # as a second config file, because --config.expand-environment-variables
+  # only expands SNMPv3 username/password fields, never `community`.
+  extraArgs:
+    - --config.file=/etc/snmp_exporter/snmp.yml
+    - --config.file=/etc/snmp_exporter_auth/auth.yml
+
+  extraSecretMounts:
+    - name: snmp-auth
+      secretName: apc-ups-snmp-auth # rendered by templates/externalsecret.yaml
+      mountPath: /etc/snmp_exporter_auth/auth.yml
+      subPath: auth.yml
+      readOnly: true
+      defaultMode: 0444
+
+  # Chart's Role only grants `get endpoints`, which snmp_exporter never uses
+  rbac:
+    create: false
+
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65532
+    runAsGroup: 65532
+    seccompProfile:
+      type: RuntimeDefault
+
+  containerSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 65532
+    runAsGroup: 65532
+    readOnlyRootFilesystem: true
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+      - ALL
+
+  resources:
+    limits:
+      cpu: 250m
+      memory: 64Mi
+    requests:
+      cpu: 10m
+      memory: 32Mi
+
+  serviceMonitor:
+    enabled: true
+    selector:
+      release: prometheus
+    # A full apcups walk of the AP9631 (NMC2) takes ~3.2s.
+    interval: 30s
+    scrapeTimeout: 20s
+    module:
+      - apcups
+    auth:
+      - apc_ups
+    # One ServiceMonitor per card. `name` becomes the `target` label.
+    # Cards only answer SNMP from addresses in their access-control list
+    # (192.168.4.0/24 covers the cluster nodes).
+    params:
+      - name: apc01
+        target: 192.168.4.14

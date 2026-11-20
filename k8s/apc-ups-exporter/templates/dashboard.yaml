@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: apc-ups-grafana-dashboard
+  labels:
+    grafana_dashboard: "1"
+data:
+  apc-ups-grafana-dashboard.json: |
+    {{ .Files.Get "files/apc-ups-grafana-dashboard.json" | nindent 4 }}
