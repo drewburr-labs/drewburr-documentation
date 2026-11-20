@@ -12,6 +12,7 @@ Documentation related to the drewburr.com environment.
 - [Workstation: OpenRGB lighting](workstation/openrgb/README.md)
 - [spud: CPU boost and cooling (CoolerControl)](spud/cooling/README.md)
 - [qBittorrent over VPN: routing, port forward, UniFi gotchas](k8s/plex/qbittorrent/README.md)
+- [APC UPS monitoring: SNMP exporter, card setup and gotchas](k8s/apc-ups-exporter/README.md)
 
 ## Environment Overview
 
