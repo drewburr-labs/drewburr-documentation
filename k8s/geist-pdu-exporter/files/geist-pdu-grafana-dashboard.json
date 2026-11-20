@@ -82,9 +82,9 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "max by (type)(pdu_kwh_total) * $kwh_cost",
+          "expr": "max by (pdu)(pdu_kwh_total{pdu=~\"$pdu\"}) * $kwh_cost",
           "instant": false,
-          "legendFormat": "{{type}}",
+          "legendFormat": "{{pdu}}",
           "range": true,
           "refId": "A"
         }
@@ -151,9 +151,9 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "max by (num, name)(pdu_outlet_kwh_total) * $kwh_cost",
+          "expr": "max by (pdu, num, name)(pdu_outlet_kwh_total{pdu=~\"$pdu\"}) * $kwh_cost",
           "instant": false,
-          "legendFormat": "{{name}}",
+          "legendFormat": "{{pdu}} {{name}}",
           "range": true,
           "refId": "A"
         }
@@ -233,9 +233,9 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "max by (type)(pdu_kwh)",
+          "expr": "max by (pdu)(pdu_kwh{pdu=~\"$pdu\"})",
           "instant": false,
-          "legendFormat": "{{type}}",
+          "legendFormat": "{{pdu}}",
           "range": true,
           "refId": "A"
         }
@@ -336,9 +336,9 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "max by (type)(pdu_amps)",
+          "expr": "max by (pdu)(pdu_amps{pdu=~\"$pdu\"})",
           "instant": false,
-          "legendFormat": "{{type}}",
+          "legendFormat": "{{pdu}}",
           "range": true,
           "refId": "A"
         }
@@ -443,9 +443,9 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "max by (type)(pdu_volts)",
+          "expr": "max by (pdu)(pdu_volts{pdu=~\"$pdu\"})",
           "instant": false,
-          "legendFormat": "{{type}}",
+          "legendFormat": "{{pdu}}",
           "range": true,
           "refId": "A"
         }
@@ -545,9 +545,9 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "max by (type)(pdu_power_factor_percent)",
+          "expr": "max by (pdu)(pdu_power_factor_percent{pdu=~\"$pdu\"})",
           "instant": false,
-          "legendFormat": "{{type}}",
+          "legendFormat": "{{pdu}}",
           "range": true,
           "refId": "A"
         }
@@ -665,9 +665,9 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "max by (name, num)(pdu_outlet_amps)",
+          "expr": "max by (pdu, num, name)(pdu_outlet_amps{pdu=~\"$pdu\"})",
           "instant": false,
-          "legendFormat": "{{name}}",
+          "legendFormat": "{{pdu}} {{name}}",
           "range": true,
           "refId": "A"
         }
@@ -772,9 +772,9 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "max by (name, num)(pdu_outlet_watts)",
+          "expr": "max by (pdu, num, name)(pdu_outlet_watts{pdu=~\"$pdu\"})",
           "instant": false,
-          "legendFormat": "{{name}}",
+          "legendFormat": "{{pdu}} {{name}}",
           "range": true,
           "refId": "A"
         }
@@ -879,25 +879,12 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "max by (name, num)(pdu_outlet_watts) / (max by (name, num)(pdu_outlet_amps) * ignoring(name, num) group_left sum(pdu_volts))",
+          "expr": "max by (pdu, num, name)(pdu_outlet_watts{pdu=~\"$pdu\"}) / (max by (pdu, num, name)(pdu_outlet_amps{pdu=~\"$pdu\"}) * on(pdu) group_left max by (pdu)(pdu_volts{pdu=~\"$pdu\"}))",
           "hide": false,
           "instant": false,
-          "legendFormat": "{{name}}",
+          "legendFormat": "{{pdu}} {{name}}",
           "range": true,
           "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "editorMode": "code",
-          "expr": "max(sum by (name, num)(pdu_outlet_watts)) / (max(max by (name, num)(pdu_outlet_amps)) * max(pdu_volts))",
-          "hide": true,
-          "instant": false,
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "B"
         }
       ],
       "title": "Power Factor per Outlet",
@@ -917,6 +904,36 @@
         "query": "0.11661",
         "skipUrlSync": true,
         "type": "constant"
+      },
+      {
+        "name": "pdu",
+        "label": "PDU",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "query": {
+          "query": "label_values(pdu_realpower_total, pdu)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "definition": "label_values(pdu_realpower_total, pdu)",
+        "refresh": 2,
+        "multi": true,
+        "includeAll": true,
+        "allValue": ".*",
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "sort": 1,
+        "hide": 0,
+        "options": []
       }
     ]
   },

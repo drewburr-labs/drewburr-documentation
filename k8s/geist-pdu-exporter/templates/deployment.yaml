@@ -30,13 +30,13 @@ spec:
             - name: http
               containerPort: {{ .Values.service.port }}
               protocol: TCP
+          # TCP probes: an HTTP GET on the exporter triggers a full scrape of
+          # every PDU, so a slow PDU would fail the probe and restart the pod.
           livenessProbe:
-            httpGet:
-              path: /
+            tcpSocket:
               port: http
           readinessProbe:
-            httpGet:
-              path: /
+            tcpSocket:
               port: http
           env:
             {{- toYaml .Values.env | nindent 12 }}
