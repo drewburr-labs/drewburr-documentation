@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: {{ .Values.bluemap.name }}
 spec:
-  replicas: 1
+  replicas: 0 # offline ~1 year: crashes on startup (MinecraftVersion NPE)
   selector:
     matchLabels:
       app: {{ .Values.bluemap.name }}

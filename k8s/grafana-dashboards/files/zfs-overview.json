@@ -2757,7 +2757,7 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "count(max by (name) (zfs_dataset_volume_size_bytes{instance=\"$instance\", pool=~\"$pool\"}) unless on (name) max by (name) (label_replace(zfs_dataset_used_bytes{instance=\"$instance\", pool=~\"$pool\", type=\"snapshot\"}, \"name\", \"$1\", \"name\", \"([^@]+)@.*\"))) or vector(0)",
+          "expr": "count(label_replace(max by (name) (zfs_dataset_volume_size_bytes{instance=\"$instance\", pool=~\"$pool\"}), \"zvol\", \"$1\", \"name\", \"(.*)\") unless on (zvol) max by (zvol) (label_replace(zfs_dataset_used_bytes{instance=\"$instance\", pool=~\"$pool\", type=\"snapshot\"}, \"zvol\", \"$1\", \"name\", \"([^@]+)@.*\"))) or vector(0)",
           "refId": "A",
           "legendFormat": "__auto",
           "range": false,
