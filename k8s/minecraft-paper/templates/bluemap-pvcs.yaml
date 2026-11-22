@@ -1,8 +1,10 @@
+# The *-64k claims replace the original 16K-volblocksize zvols (sas-pool Phase 2,
+# see k8s/democratic-csi-zfs-nvmeof/volblocksize-phase2-plan.md).
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: bluemap-data
+  name: bluemap-data-64k
 spec:
   accessModes:
     - ReadWriteOnce
@@ -14,7 +16,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: bluemap-web
+  name: bluemap-web-64k
 spec:
   accessModes:
     - ReadWriteOnce
@@ -26,11 +28,11 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: bluemap-configs
+  name: bluemap-configs-64k
 spec:
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 100Mi
+      storage: 1Gi # xfs needs >=300MB; the old ext4 claim was 100Mi
   storageClassName: zfs-nvmeof

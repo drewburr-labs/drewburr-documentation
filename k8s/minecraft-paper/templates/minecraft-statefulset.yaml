@@ -49,7 +49,7 @@ spec:
       volumes:
         - name: data
           persistentVolumeClaim:
-            claimName: minecraft-data
+            claimName: minecraft-data-64k
         {{- with .Values.minecraft.additionalVolumes }}
         {{- toYaml . | nindent 8 }}
         {{- end }}

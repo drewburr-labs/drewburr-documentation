@@ -80,7 +80,7 @@ minecraft:
   envFrom: []
 
   persistence:
-    name: minecraft-data
+    name: minecraft-data-64k # 64K copy of the original 16K zvol (sas-pool Phase 2)
     path: /data
     resources:
       requests:

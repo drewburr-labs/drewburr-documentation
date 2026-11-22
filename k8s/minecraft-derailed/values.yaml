@@ -9,11 +9,26 @@ craftycontroller:
   podAnnotations:
     drewburr.com/crafty-image: "4.11.0-c18a0b0"
 
+  # The *-64k claims replace the original 16K-volblocksize zvols (sas-pool
+  # Phase 2, see k8s/democratic-csi-zfs-nvmeof/volblocksize-phase2-plan.md).
+  # The disabled originals are kept until their PVCs are deleted.
   persistence:
     crafty-app-config:
+      enabled: false
+    crafty-app-config-64k:
+      enabled: true
+      accessModes:
+        - ReadWriteOnce
+      mountPath: /crafty/app/config
       requests: 1Gi
       storageClassName: zfs-nvmeof
     crafty-servers:
+      enabled: false
+    crafty-servers-64k:
+      enabled: true
+      accessModes:
+        - ReadWriteOnce
+      mountPath: /crafty/servers
       requests: 150Gi
       storageClassName: zfs-nvmeof
     crafty-backups:
@@ -21,10 +36,17 @@ craftycontroller:
       requests: 300Gi
       storageClassName: zfs-nvmeof
     crafty-logs:
+      enabled: false
+    crafty-logs-64k:
       enabled: true
+      accessModes:
+        - ReadWriteOnce
+      mountPath: /crafty/logs
       requests: 1Gi
       storageClassName: zfs-nvmeof
     crafty-home:
+      enabled: false
+    crafty-home-64k:
       enabled: true
       accessModes:
         - ReadWriteOnce
