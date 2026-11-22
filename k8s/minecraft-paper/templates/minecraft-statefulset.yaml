@@ -3,7 +3,7 @@ kind: StatefulSet
 metadata:
   name: {{ .Values.minecraft.name }}
 spec:
-  replicas: 1
+  replicas: 0
   selector:
     matchLabels:
       app: {{ .Values.minecraft.name }}

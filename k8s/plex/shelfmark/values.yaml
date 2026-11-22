@@ -2,7 +2,7 @@
 # Formerly calibre-web-automated-book-downloader. Search/download UI that
 # drops books into the CWA ingest folder. Runs non-root; entrypoint requires
 # writable /tmp/shelfmark, /var/log/shelfmark, and /config in that mode.
-replicaCount: 1
+replicaCount: 0
 
 image:
   repository: ghcr.io/calibrain/shelfmark

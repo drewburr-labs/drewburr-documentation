@@ -1,4 +1,5 @@
 craftycontroller:
+  replicas: 0
   image:
     repository: ghcr.io/drewburr-labs/crafty-4
     tag: latest
