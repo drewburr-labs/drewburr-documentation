@@ -1,0 +1,18 @@
+---
+# One CronJob per node. A CronJob's pod lands wherever the scheduler puts it,
+# so each node gets its own CronJob pinned by hostname. Add new nodes here.
+nodes:
+  - kube01
+  - kube02
+  - kube03
+  - kube05
+
+# Weekly, Sunday 02:00 UTC, staggered per node (index * staggerMinutes) so the
+# discards don't all land on storage01 at once.
+schedule:
+  minute: 0
+  hour: 2
+  dayOfWeek: 0
+staggerMinutes: 20
+
+image: docker.io/library/busybox:1.37.0

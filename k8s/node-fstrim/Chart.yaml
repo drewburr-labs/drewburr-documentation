@@ -1,0 +1,6 @@
+---
+apiVersion: v2
+name: node-fstrim
+description: Weekly fstrim of every mounted filesystem on each node, including CSI PVC mounts
+type: application
+version: 0.1.0

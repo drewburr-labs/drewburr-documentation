@@ -1,0 +1,66 @@
+{{- /*
+Why this exists: zfs-nvmeof PVCs are XFS on zvols, mounted without `discard`.
+Blocks freed by deleting files stay allocated on sas-pool until something
+issues a TRIM. The host's fstrim.timer only trims /etc/fstab entries, so CSI
+mounts were never trimmed (see incidents/storage01-saspool-capacity-exhaustion-readonly.md).
+
+`fstrim --all` in the host mount namespace trims every mounted filesystem that
+supports discard, once per device (PVCs via their CSI globalmount). Freed space
+returns to the pool after sanoid's hourly snapshot rotates (hourly=1).
+*/ -}}
+{{- range $i, $node := .Values.nodes }}
+{{- $total := add $.Values.schedule.minute (mul $i $.Values.staggerMinutes) }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: fstrim-{{ $node }}
+  labels:
+    app: node-fstrim
+spec:
+  schedule: "{{ mod $total 60 }} {{ add $.Values.schedule.hour (div $total 60) }} * * {{ $.Values.schedule.dayOfWeek }}"
+  timeZone: Etc/UTC
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      activeDeadlineSeconds: 7200
+      ttlSecondsAfterFinished: 604800
+      template:
+        metadata:
+          labels:
+            app: node-fstrim
+        spec:
+          restartPolicy: Never
+          nodeSelector:
+            kubernetes.io/hostname: {{ $node }}
+          # Run on every node regardless of taints (CriticalAddonsOnly, compute, ...).
+          tolerations:
+            - operator: Exists
+          # hostPID gives access to PID 1's mount namespace; privileged is
+          # required for setns() and the FITRIM ioctl.
+          hostPID: true
+          automountServiceAccountToken: false
+          containers:
+            - name: fstrim
+              image: {{ $.Values.image }}
+              command:
+                - nsenter
+                - --target=1
+                - --mount
+                - --
+                - /usr/sbin/fstrim
+                - --all
+                - --verbose
+                - --quiet-unsupported
+              securityContext:
+                privileged: true
+              resources:
+                requests:
+                  cpu: 10m
+                  memory: 16Mi
+                limits:
+                  memory: 64Mi
+{{- end }}
