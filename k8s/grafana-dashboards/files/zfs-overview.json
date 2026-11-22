@@ -1975,6 +1975,32 @@
           "instant": true,
           "editorMode": "code",
           "format": "table"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "(max by (name, pool, persistentvolume) (label_replace(zfs_dataset_referenced_bytes{instance=\"$instance\", pool=~\"$pool\", name=~\".*/pvc-[0-9a-f-]+\", type!=\"snapshot\"}, \"persistentvolume\", \"$1\", \"name\", \".*/(pvc-[0-9a-f-]+)$\"))\n  * on (persistentvolume) group_left (claim_namespace, claim)\n  max by (persistentvolume, claim_namespace, claim) (label_replace(kube_persistentvolume_claim_ref, \"claim\", \"$1\", \"name\", \"(.*)\"))) * 0\n+ on (claim_namespace, claim) group_left ()\n(max by (claim_namespace, claim) (label_replace(label_replace(kubelet_volume_stats_used_bytes, \"claim_namespace\", \"$1\", \"namespace\", \"(.*)\"), \"claim\", \"$1\", \"persistentvolumeclaim\", \"(.*)\")) / max by (claim_namespace, claim) (label_replace(label_replace(kubelet_volume_stats_capacity_bytes, \"claim_namespace\", \"$1\", \"namespace\", \"(.*)\"), \"claim\", \"$1\", \"persistentvolumeclaim\", \"(.*)\")))",
+          "refId": "F",
+          "legendFormat": "__auto",
+          "range": false,
+          "instant": true,
+          "editorMode": "code",
+          "format": "table"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "clamp_min(\nmax by (name, pool, persistentvolume) (label_replace(zfs_dataset_logical_used_bytes{instance=\"$instance\", pool=~\"$pool\", name=~\".*/pvc-[0-9a-f-]+\", type=\"volume\"}, \"persistentvolume\", \"$1\", \"name\", \".*/(pvc-[0-9a-f-]+)$\"))\n  * on (persistentvolume) group_left (claim_namespace, claim)\n  max by (persistentvolume, claim_namespace, claim) (label_replace(kube_persistentvolume_claim_ref, \"claim\", \"$1\", \"name\", \"(.*)\"))\n- on (claim_namespace, claim) group_left\nmax by (claim_namespace, claim) (label_replace(label_replace(kubelet_volume_stats_used_bytes, \"claim_namespace\", \"$1\", \"namespace\", \"(.*)\"), \"claim\", \"$1\", \"persistentvolumeclaim\", \"(.*)\")), 0)",
+          "refId": "G",
+          "legendFormat": "__auto",
+          "range": false,
+          "instant": true,
+          "editorMode": "code",
+          "format": "table"
         }
       ],
       "fieldConfig": {
@@ -2039,7 +2065,19 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Full"
+              "options": "Reclaimable (TRIM)"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "FS used"
             },
             "properties": [
               {
@@ -2097,6 +2135,40 @@
           {
             "matcher": {
               "id": "byName",
+              "options": "ZFS allocated"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percentunit"
+              },
+              {
+                "id": "min",
+                "value": 0
+              },
+              {
+                "id": "max",
+                "value": 1
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "continuous-BlPu"
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "gauge",
+                  "mode": "basic",
+                  "valueDisplayMode": "text"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
               "options": "PV"
             },
             "properties": [
@@ -2132,12 +2204,12 @@
         },
         "sortBy": [
           {
-            "displayName": "Full",
+            "displayName": "FS used",
             "desc": true
           }
         ]
       },
-      "description": "zvols / filesystems created by democratic-csi, joined to their PVC via kube-state-metrics. Data = referenced bytes on disk (on raidz this includes parity/padding, so it can exceed Size). Full = logical bytes written \u00f7 volume size (zvols only). Used also counts reservation and snapshots. Volumes whose PV no longer exists are listed under Orphaned datasets.",
+      "description": "zvols / filesystems created by democratic-csi, joined to their PVC via kube-state-metrics.\n\nFS used: what the filesystem inside the volume reports (kubelet) \u2014 this is the real fullness.\nZFS allocated: logical blocks ever written to the zvol \u00f7 size. Without TRIM/discard, blocks freed by deleting files stay allocated on ZFS, so this only grows toward 100%.\nReclaimable: ZFS logical allocated \u2212 FS used; roughly what an fstrim would hand back to the pool.\nData = referenced bytes on disk (raidz parity/padding included, so it can exceed Size). Used also counts snapshots. FS used is blank for volumes not currently mounted (kubelet only reports mounted ones). Volumes with no PV are listed under Orphaned datasets.",
       "transformations": [
         {
           "id": "merge",
@@ -2152,9 +2224,11 @@
             "renameByName": {
               "Value #A": "Size",
               "Value #B": "Data",
-              "Value #C": "Full",
+              "Value #C": "ZFS allocated",
               "Value #D": "Used (incl. snapshots)",
               "Value #E": "Written since snapshot",
+              "Value #F": "FS used",
+              "Value #G": "Reclaimable (TRIM)",
               "claim_namespace": "Namespace",
               "claim": "PVC",
               "name": "Dataset",
@@ -2165,13 +2239,15 @@
               "Namespace": 0,
               "PVC": 1,
               "Size": 2,
-              "Data": 3,
-              "Full": 4,
-              "Used (incl. snapshots)": 5,
-              "Written since snapshot": 6,
-              "Pool": 7,
-              "PV": 8,
-              "Dataset": 9
+              "FS used": 3,
+              "ZFS allocated": 4,
+              "Reclaimable (TRIM)": 5,
+              "Data": 6,
+              "Used (incl. snapshots)": 7,
+              "Written since snapshot": 8,
+              "Pool": 9,
+              "PV": 10,
+              "Dataset": 11
             }
           }
         }
