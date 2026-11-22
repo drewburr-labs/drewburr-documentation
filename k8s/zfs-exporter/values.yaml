@@ -10,6 +10,9 @@ endpoint:
   path: /metrics
   port: http
   scheme: http
+  # scrapeTimeout must be <= interval, or prometheus-operator rejects the
+  # ServiceMonitor (default interval is 30s).
+  interval: 60s
   scrapeTimeout: 60s
 port: 9134
 labels:

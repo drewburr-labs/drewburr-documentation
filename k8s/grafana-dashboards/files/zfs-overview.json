@@ -486,8 +486,8 @@
       {
         "allowCustomValue": false,
         "current": {
-          "text": "192.168.4.2:9134",
-          "value": "192.168.4.2:9134"
+          "text": "192.168.4.31:9134",
+          "value": "192.168.4.31:9134"
         },
         "definition": "label_values(zfs_exporter_build_info,instance)",
         "name": "instance",
