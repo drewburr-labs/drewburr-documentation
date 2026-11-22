@@ -126,7 +126,9 @@ envVars:
 
 # All are mounted under fsroot `/`. Supports additions
 persistence:
-  - name: plex-config
+  # 64K-volblocksize copy of the original 16K plex-config (sas-pool Phase 2,
+  # see k8s/democratic-csi-zfs-nvmeof/volblocksize-phase2-plan.md).
+  - name: plex-config-64k
     mountPath: config
     accessModes:
       - ReadWriteOnce

@@ -74,7 +74,8 @@ envVars:
 
 # All are mounted under fsroot `/`. Supports additions
 persistence:
-  - name: plex-config
+  - name: plex-config-64k
+    mountPath: plex-config # mountPath defaults to the name; keep /plex-config
   - name: plex-data
   - name: backups
   - name: transcode-large
