@@ -1116,8 +1116,7 @@
           },
           "color": {
             "mode": "palette-classic"
-          },
-          "min": 0
+          }
         },
         "overrides": [
           {
@@ -1352,8 +1351,7 @@
           },
           "color": {
             "mode": "palette-classic"
-          },
-          "min": 0
+          }
         },
         "overrides": [
           {
