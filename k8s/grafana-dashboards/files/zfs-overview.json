@@ -1748,9 +1748,9 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "topk(15, max by (name) (delta(zfs_dataset_used_bytes{instance=\"$instance\", pool=~\"$pool\", type!=\"snapshot\"}[$__range])) > 0)",
+          "expr": "topk(15, (\n  label_join(\n    label_replace((max by (name) (delta(zfs_dataset_used_bytes{instance=\"$instance\", pool=~\"$pool\", type!=\"snapshot\"}[$__range]))\n    unless on (name) label_replace(max by (parent) (label_replace(zfs_dataset_used_bytes{instance=\"$instance\", pool=~\"$pool\", type!=\"snapshot\"}, \"parent\", \"$1\", \"name\", \"(.*)/[^/]+\")), \"name\", \"$1\", \"parent\", \"(.*)\")), \"persistentvolume\", \"$1\", \"name\", \".*/(pvc-[0-9a-f-]+)$\")\n    * on (persistentvolume) group_left (claim_namespace, claim) max by (persistentvolume, claim_namespace, claim) (label_replace(kube_persistentvolume_claim_ref, \"claim\", \"$1\", \"name\", \"(.*)\")),\n    \"display\", \"/\", \"claim_namespace\", \"claim\")\n  or on (name) label_replace((max by (name) (delta(zfs_dataset_used_bytes{instance=\"$instance\", pool=~\"$pool\", type!=\"snapshot\"}[$__range]))\n    unless on (name) label_replace(max by (parent) (label_replace(zfs_dataset_used_bytes{instance=\"$instance\", pool=~\"$pool\", type!=\"snapshot\"}, \"parent\", \"$1\", \"name\", \"(.*)/[^/]+\")), \"name\", \"$1\", \"parent\", \"(.*)\")), \"display\", \"$1\", \"name\", \"(.*)\")\n) > 0)",
           "refId": "A",
-          "legendFormat": "{{name}}",
+          "legendFormat": "{{display}}",
           "range": false,
           "instant": true,
           "editorMode": "code"
@@ -1760,7 +1760,7 @@
         "defaults": {
           "unit": "bytes",
           "color": {
-            "mode": "continuous-GrYlRd"
+            "mode": "continuous-BlPu"
           },
           "min": 0
         },
@@ -1778,10 +1778,13 @@
         "displayMode": "gradient",
         "showUnfilled": true,
         "valueMode": "color",
-        "namePlacement": "top",
-        "sizing": "auto"
+        "namePlacement": "left",
+        "sizing": "manual",
+        "minVizHeight": 16,
+        "maxVizHeight": 24,
+        "minVizWidth": 8
       },
-      "description": "Change in used bytes (incl. children/snapshots) across the selected time range. Parent datasets include their children's growth."
+      "description": "Change in used bytes (including snapshots) of leaf datasets across the selected time range. PVC datasets are labelled namespace/claim; others by dataset name."
     },
     {
       "type": "timeseries",
