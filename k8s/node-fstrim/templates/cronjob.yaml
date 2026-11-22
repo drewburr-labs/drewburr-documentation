@@ -25,7 +25,10 @@ spec:
   failedJobsHistoryLimit: 3
   jobTemplate:
     spec:
-      backoffLimit: 1
+      # fstrim exits 64 when some filesystems fail (e.g. EUCLEAN on a corrupt
+      # ext4/XFS volume) after trimming the rest. A retry can't fix that, so
+      # don't rerun the whole node; leave the Job Failed as the signal.
+      backoffLimit: 0
       activeDeadlineSeconds: 7200
       ttlSecondsAfterFinished: 604800
       template:
