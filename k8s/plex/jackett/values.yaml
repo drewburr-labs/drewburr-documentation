@@ -76,13 +76,13 @@ envVars:
 # All are mounted under fsroot `/`. Supports additions
 # Expected to be created already for Plex
 persistence:
-  - name: jackett-config
+  - name: jackett-config-64k
     mountPath: config
     accessModes:
       - ReadWriteOnce
     requests: 1Gi
     storageClassName: zfs-nvmeof
-  - name: jackett-downloads
+  - name: jackett-downloads-64k
     mountPath: downloads
     accessModes:
       - ReadWriteOnce

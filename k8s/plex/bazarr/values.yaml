@@ -67,7 +67,7 @@ envVars:
 # All are mounted under fsroot `/`. Supports additions
 # plex-data is a shared PVC so Bazarr can write .srt files next to media
 persistence:
-  - name: bazarr-config
+  - name: bazarr-config-64k
     mountPath: config
     accessModes:
       - ReadWriteOnce

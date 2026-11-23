@@ -43,7 +43,7 @@ envVars:
   PGDATA: /var/lib/postgresql/data/pgdata
 
 persistence:
-  - name: postgres-data
+  - name: postgres-data-64k
     mountPath: var/lib/postgresql/data
     accessModes:
       - ReadWriteOnce

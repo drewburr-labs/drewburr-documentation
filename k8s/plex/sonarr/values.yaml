@@ -75,7 +75,7 @@ envVars:
 # All are mounted under fsroot `/`. Supports additions
 # Expected to be created already for Plex
 persistence:
-  - name: sonarr-config
+  - name: sonarr-config-64k
     mountPath: config
     accessModes:
       - ReadWriteOnce

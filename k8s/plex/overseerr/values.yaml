@@ -76,7 +76,7 @@ envVars:
 # All are mounted under fsroot `/`. Supports additions
 # Expected to be created already for Plex
 persistence:
-  - name: overseerr-config
+  - name: overseerr-config-64k
     mountPath: app/config
     accessModes:
       - ReadWriteOnce

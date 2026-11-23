@@ -83,7 +83,7 @@ envVars:
 # All are mounted under fsroot `/`. Supports additions
 # Expected to be created already for Plex
 persistence:
-  - name: qbittorrent-config
+  - name: qbittorrent-config-64k
     mountPath: config
     accessModes:
       - ReadWriteOnce
@@ -143,7 +143,7 @@ initContainers:
         fi
         true
     volumeMountsOverride:
-      - name: qbittorrent-config
+      - name: qbittorrent-config-64k
         mountPath: /config
 
 # initContainers:
