@@ -240,9 +240,24 @@ ssh ubuntu@storage01.drewburr.com \
 | Loki stack (7 PVCs: write/backend/minio) | 2026-06-13 | recreated empty (logs discardable) |
 | `plex/transcode-large` (506G→0) | 2026-06-15 | ~580G (scratch, recreated empty) |
 | `kube-prometheus-stack/prometheus-db` (382G→90G) | 2026-06-15 | ~292G (data copied, 92d history preserved) |
+| `minecraft-poke-central` crafty-{servers,app-config,logs,home} → `-64k` (Phase 2 pilot) | 2026-11-22 | ~13G (dormant app, no downtime) |
+| `plex/plex-config` → `plex-config-64k` (303G→104G physical) | 2026-11-22 | pool 1.38T→**1.11T** (~2m40s Plex downtime) |
+| Waves 2–5b in parallel: `minecraft-{derailed,underground,jinkies,novacraft,paper}`, 20 PVCs → `-64k` | 2026-11-22 | pool 1.29T→**0.78T** (~4m45s server downtime) |
+| Wave 6: Plex config batch (10 apps, 12 PVCs → `-64k`) | 2026-11-23 | pool → **797G / 10% CAP** (~5m downtime); only Grafana's 0.2G PVC left at 16K (skipped) |
+| Retire wave: sabnzbd-flex, sonarr-anime, notifiarr, home-assistant PVCs deleted; harbor reset to empty 64K; 14 orphans quarantined (destroyed 2026-11-23) | 2026-11-22 | ~130G (pool 1.55T→1.42T) + 11.4G quarantine → **787G final** |
 
-Pool went 97% → **40%** across Phase 0 + these. **Remaining 16K targets** (by
-physical size), as of 2026-06-15:
+Pool went 97% → **40%** across Phase 0 + these.
+
+> **Current plan (2026-11-22): [volblocksize-phase2-plan.md](volblocksize-phase2-plan.md)**
+> has the full inventory of the 60 remaining 16K zvols mapped to app/PVC, an
+> estimated ~508G reclaim, the proposed wave order, retire-vs-migrate decisions,
+> and the per-app procedure. That procedure uses a new `-64k` claim with the
+> chart reference swapped, so the old PVC stays as the rollback until sign-off.
+> The table below and the per-volume procedure are kept for history. The
+> procedure is also the fallback for volumeClaimTemplate workloads.
+
+**Remaining 16K targets** (by physical size), as of 2026-06-15 (*stale*:
+jinkies `crafty-backups` has since moved to 64K):
 
 | PVC | Namespace | Size | Physical | notes |
 |---|---|---|---|---|
