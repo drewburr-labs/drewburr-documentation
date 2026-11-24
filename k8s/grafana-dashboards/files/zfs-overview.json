@@ -1306,7 +1306,7 @@
           "sort": "desc"
         }
       },
-      "description": "Free-space fragmentation. High values slow writes as the pool fills."
+      "description": "Free-space fragmentation. High values slow writes as the pool fills (it matters mostly above ~80% capacity). This comes from per-metaslab histograms stored on disk, which are only rebuilt when ZFS loads and condenses a metaslab. After a large delete it can stay high for a long time: on 2026-11-23 sas-pool reported 43% while the actual free space (zdb -mmm, in-memory histograms) was ~1.4% fragmented. Check with: sudo zdb -mmm <pool> <vdev> <metaslab>."
     },
     {
       "type": "timeseries",
