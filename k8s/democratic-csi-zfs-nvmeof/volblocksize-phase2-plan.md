@@ -195,6 +195,14 @@ Re-checked before retiring (2026-11-22, read-only):
   zvol was never carried over. Starting this app would hang mounting it. It's
   the only dangling `zfs-nvmeof` PV in the cluster (the other 73 all have
   zvols). The fix is a fresh, empty `crafty-backups-64k`.
+- **Fixed 2026-11-23:** there was nothing to copy, so the claim kept its name
+  and no chart change was needed. All four nodes had no mount or NVMe
+  connection to `pvc-e0d68002`, and the pool had no dataset or snapshot for
+  it. The PVC was deleted (its PV was gone within 15s), then a selective
+  ArgoCD sync of only that PVC recreated `crafty-backups`. The new PV
+  `pvc-73759b6b` is bound to a 200G, **64K** zvol. It stays unformatted until
+  the server first starts, since `replicas: 0`. The app is Synced/Healthy, and
+  every `zfs-nvmeof` PV now has a zvol.
 
 ### Wave 1 (`plex-config`): executed 2026-11-22
 
