@@ -1,10 +1,32 @@
 # Phase 2 plan — migrate the remaining 16K zvols to 64K
 
 Part of the [sas-pool space remediation runbook](volblocksize-remediation.md)
-(Phase 2). Inventory taken **2026-11-22**. This is a plan only: no workload is
-scaled, copied, or deleted until each wave gets an explicit go-ahead.
+(Phase 2). Inventory taken **2026-11-22**. Each wave ran only after its own
+explicit go-ahead.
 
-## Where things stand
+## Outcome: complete (2026-11-23)
+
+Every wave ran, and the exit criteria below were met, checked live on
+2026-11-23.
+
+| | Before (2026-11-22) | After (2026-11-23) |
+|---|---|---|
+| Pool ALLOC / CAP | 1.55T / 21% | **787G / 10%** right after the last destroy (823G / 11% the next day, from ordinary writes) |
+| FRAG | 42% | 42–43%. It did **not** drop (see the waves 2–5b notes) |
+| 16K zvols | 60 | **1**, `prometheus-grafana` (0.2G, skipped on purpose) |
+| zvols vs `zfs-nvmeof` PVs | 12 orphan zvols, 1 PV with no zvol | 74 and 74, a one-to-one match |
+
+- **Migrated** to `-64k` claims: 37 PVCs across 7 namespaces (pilot and
+  waves 1–6: 24 in the six Minecraft namespaces, 13 in `plex`).
+- **Retired:** 5 PVCs. Harbor was reset to empty 64K volumes. The 12 orphan
+  zvols plus 2 more were quarantined and then destroyed.
+- **Recreated empty:** poke-central `crafty-backups`, which had lost its zvol
+  in the 2025 rebuild.
+
+The sections below are the original plan plus a log of each executed wave.
+Its numbers are from the 2026-11-22 inventory.
+
+## Where things stood (2026-11-22, before any wave)
 
 | | |
 |---|---|
@@ -723,8 +745,12 @@ For Grafana (autosynced `prometheus` app), the alternative is
 
 ## Exit criteria for Phase 2
 
-- `zfs list -t volume ... | awk '$2==16384'` lists only the volumes you
-  deliberately chose to skip (harbor, Grafana).
-- The orphan diff (Phase 0.1) is empty.
-- `zpool list sas-pool` ALLOC and FRAG are recorded before and after, in the
+All three were met on 2026-11-23:
+
+- ✅ `zfs list -t volume ... | awk '$2==16384'` lists only the volumes you
+  deliberately chose to skip. Only `prometheus-grafana` is left. Harbor was
+  reset to 64K instead of skipped.
+- ✅ The orphan diff (Phase 0.1) is empty in both directions: 74 zvols and 74
+  `zfs-nvmeof` PVs.
+- ✅ `zpool list sas-pool` ALLOC and FRAG are recorded before and after, in the
   runbook's completed-migrations table.

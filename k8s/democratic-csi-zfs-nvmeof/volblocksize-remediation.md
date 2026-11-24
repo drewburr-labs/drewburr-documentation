@@ -16,6 +16,10 @@ Expected end state: pool drops from ~6.5T ALLOC to roughly 3.5T, and future
 growth runs at 1.5x logical instead of 3-4x. (As of 2026-06-15: pool at **40%**
 after Phase 0 + Loki/transcode/prometheus migrations.)
 
+**Status 2026-11-23: all three phases complete.** The pool is at **787G / 10%
+CAP**. One 16K zvol is left, `prometheus-grafana` (0.2G), skipped on purpose.
+No orphans remain. See the [Phase 2 plan](volblocksize-phase2-plan.md#outcome-complete-2026-11-23).
+
 > **Note on deletions:** CSI does NOT auto-destroy a zvol on PVC delete — sanoid
 > snapshots block it (see §0.5). Every PVC delete in this runbook requires the
 > **"Deleting a CSI PVC"** snapshot-clearing step. This is a deliberate ongoing
@@ -245,19 +249,22 @@ ssh ubuntu@storage01.drewburr.com \
 | Waves 2–5b in parallel: `minecraft-{derailed,underground,jinkies,novacraft,paper}`, 20 PVCs → `-64k` | 2026-11-22 | pool 1.29T→**0.78T** (~4m45s server downtime) |
 | Wave 6: Plex config batch (10 apps, 12 PVCs → `-64k`) | 2026-11-23 | pool → **797G / 10% CAP** (~5m downtime); only Grafana's 0.2G PVC left at 16K (skipped) |
 | Retire wave: sabnzbd-flex, sonarr-anime, notifiarr, home-assistant PVCs deleted; harbor reset to empty 64K; 14 orphans quarantined (destroyed 2026-11-23) | 2026-11-22 | ~130G (pool 1.55T→1.42T) + 11.4G quarantine → **787G final** |
+| `minecraft-poke-central/crafty-backups` recreated empty, same name (its PV had no zvol since the 2025-08-19 rebuild) | 2026-11-23 | 0 (nothing to copy). Every PV now has a zvol |
 
-Pool went 97% → **40%** across Phase 0 + these.
+Pool went 97% → 40% across Phase 0 and the June migrations, then → **10%**
+after Phase 2 (2026-11-23).
 
-> **Current plan (2026-11-22): [volblocksize-phase2-plan.md](volblocksize-phase2-plan.md)**
-> has the full inventory of the 60 remaining 16K zvols mapped to app/PVC, an
+> **Phase 2 (done 2026-11-23): [volblocksize-phase2-plan.md](volblocksize-phase2-plan.md)**
+> has the outcome summary, the full inventory of the 60 remaining 16K zvols mapped to app/PVC, an
 > estimated ~508G reclaim, the proposed wave order, retire-vs-migrate decisions,
 > and the per-app procedure. That procedure uses a new `-64k` claim with the
 > chart reference swapped, so the old PVC stays as the rollback until sign-off.
 > The table below and the per-volume procedure are kept for history. The
 > procedure is also the fallback for volumeClaimTemplate workloads.
 
-**Remaining 16K targets** (by physical size), as of 2026-06-15 (*stale*:
-jinkies `crafty-backups` has since moved to 64K):
+**Remaining 16K targets** (by physical size), as of 2026-06-15. *Historical*:
+every row here is now on 64K. jinkies `crafty-backups` moved before Phase 2,
+and the rest moved in Phase 2.
 
 | PVC | Namespace | Size | Physical | notes |
 |---|---|---|---|---|
@@ -373,9 +380,9 @@ The swap keeps the original PVC name so GitOps manifests stay untouched.
 
 ## Verification / exit criteria
 
-- `zpool list sas-pool` CAP at or below ~50% after Phases 0+2. ✅ (40% as of 2026-06-15)
-- New PVCs show `volblocksize 64K` on storage01. ✅
-- Orphan diff (0.1) returns empty.
+- `zpool list sas-pool` CAP at or below ~50% after Phases 0+2. ✅ (40% as of 2026-06-15, **10%** after Phase 2 on 2026-11-23)
+- New PVCs show `volblocksize 64K` on storage01. ✅ (73 of 74 zvols. The one 16K zvol left is Grafana, skipped)
+- Orphan diff (0.1) returns empty. ✅ (2026-11-23: 74 zvols, 74 PVs, no mismatch either way)
 - ✅ Storage alerts live (Grafana, folder Spud → drewburr-labs Discord):
   - `ZfsPoolCapacityHigh` (group `storage.zfs`) — `zpool_capacity_ratio` >80%,
     fed by `/usr/local/bin/zpool-textfile-collector.sh` + systemd timer on
