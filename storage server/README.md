@@ -22,7 +22,7 @@ Of the 24 SSDs, 20 are `sas-pool`. The other 4 (`S182NEAG610807`, `610064`, `610
 | Pool | Layout | Raw | Notes |
 |-|-|-|-|
 | `sas-pool` | 20x NetApp X438 SAS SSD (373GB usable each), raidz3 | 7.3T | All Kubernetes PVCs except Plex media. `zfs-nvmeof` zvols and `zfs-nfs` datasets under `sas-pool/k8s/nvmeof/dataset`. |
-| `lake` | 9-wide raidz2 spinners: 5x HGST 12TB (3 SATA `HUH721212ALE601`, 2 SAS `HUH721212AL4205`) + 4x WD 14TB (2x `WUH721414AL` and 2x shucked `WD140EDGZ`). Expanded with raidz expansion from 5 to 6 wide in January 2026 (completed Jan 28 2026), from 6 to 7 wide in November 2026 (attached 2026-11-01, finished 2026-11-04), and from 7 to 8 wide (`9RGGE14C` attached 2026-11-16 00:02, copied 62.7T in 2 days 4h 40m, finished 2026-11-18 04:42), and from 8 to 9 wide (`Y5KTG63C` attached 2026-11-19 13:23 UTC, copied 63.1T in 1 day 22h 19m, finished 2026-11-21 11:42 UTC). Pool features upgraded 2026-11-22, and all data rewritten to the 9-wide ratio with `zfs rewrite` (finished 2026-11-26), see [Expanding to 9 wide and rewriting](#expanding-lake-to-9-wide-and-rewriting-november-2026). | 98.2T | Plex media over NFS (`nfs-lake`). Datasets under `lake/k8s/nvmeof/dataset`. `zfs list` still reports space at the original 5-wide ratio, so its `USED` and `AVAIL` are lower than the real numbers; trust `zpool list`. The 14TB drives only contribute 12TB each until every member is at least 14TB. |
+| `lake` | 9-wide raidz2 spinners: 5x HGST 12TB (3 SATA `HUH721212ALE601`, 2 SAS `HUH721212AL4205`) + 4x WD 14TB (2x `WUH721414AL` and 2x shucked `WD140EDGZ`). Created 4 wide on 2024-12-11. Expanded with raidz expansion from 4 to 5 and 5 to 6 wide in January 2026 (attached 2026-01-24 and 2026-01-27, completed Jan 28 2026), from 6 to 7 wide in November 2026 (attached 2026-11-01, finished 2026-11-04), and from 7 to 8 wide (`9RGGE14C` attached 2026-11-16 00:02, copied 62.7T in 2 days 4h 40m, finished 2026-11-18 04:42), and from 8 to 9 wide (`Y5KTG63C` attached 2026-11-19 13:23 UTC, copied 63.1T in 1 day 22h 19m, finished 2026-11-21 11:42 UTC). Pool features upgraded 2026-11-22, and all data rewritten to the 9-wide ratio with `zfs rewrite` (finished 2026-11-26), see [Expanding to 9 wide and rewriting](#expanding-lake-to-9-wide-and-rewriting-november-2026). | 98.2T | Plex media over NFS (`nfs-lake`). Datasets under `lake/k8s/nvmeof/dataset`. `zfs list`, `df` and dataset quotas still count space at the original 4-wide ratio, so they under-report by about a third; see [lake space accounting](#lake-space-accounting). Trust `zpool list`. The 14TB drives only contribute 12TB each until every member is at least 14TB. |
 
 Both pools reference disks by `/dev/disk/by-id/` names. Identify a physical drive by serial number (see below).
 
@@ -54,7 +54,7 @@ Members whose recorded path still exists keep it; only the ones that moved get r
 
 **Result:** done 2026-11-26. `lake` went from 63.2T allocated / 35.0T free (64%) before the rewrite to 48.6T allocated / 49.6T free (about 50%), freeing about 14.6T raw. 37.1T of data now takes 48.6T raw, about 76% efficiency, which matches 9-wide raidz2 with 128K records. Both rewrites exited 0 with no errors, and the pool is healthy. The procedure as run is below.
 
-**Why:** raidz expansion does not re-stripe existing blocks. Only new writes use the wider layout. As of 2026-11-18, `lake` holds 36.5T of data (`logicalused`, compression ratio 1.00x) in 62.7T raw. That is about 58% efficiency, roughly what 5-wide raidz2 gives with 128K records, so nearly everything is still at the original parity ratio. ZFS 2.4's `zfs rewrite` writes files back in place, and the new blocks use the current width.
+**Why:** raidz expansion does not re-stripe existing blocks. Only new writes use the wider layout. As of 2026-11-18, `lake` holds 36.5T of data (`logicalused`, compression ratio 1.00x) in 62.7T raw. That is about 58% efficiency. Most of it was written at 4 to 6 wide (4-wide raidz2 gives about 48% with 128K records, 6-wide about 67%), so nearly everything is still at an older parity ratio. ZFS 2.4's `zfs rewrite` writes files back in place, and the new blocks use the current width.
 
 **Why expand first:** every expansion copies all allocated data, and rewrite is the expensive pass, so do the rewrite only once, at the final width. Rewriting at 8 wide and then adding the 9th drive would leave data at the 8-wide ratio and need a second rewrite. With 128K records and 4K sectors (ashift 12), a block uses about 71% of its raw space at 8 wide and about 76% at 9 wide, because of raidz padding.
 
@@ -100,9 +100,23 @@ Steps, on storage01:
 
 Notes:
 
-- `zfs list` keeps under-reporting `AVAIL` and `USED` after the rewrite (on 2026-11-26 it showed 23.6T used / 23.9T available against 37.1T logical). The vdev's space accounting stays at the original 5-wide ratio, so `zpool list` is the number to trust.
+- `zfs list` keeps under-reporting `AVAIL` and `USED` after the rewrite (on 2026-11-26 it showed 23.6T used / 23.9T available against 37.1T logical). The vdev's space accounting stays at the original 4-wide ratio, so `zpool list` is the number to trust. See [lake space accounting](#lake-space-accounting).
 - Rewrite keeps each file's existing record size. Changing `recordsize` (for example to 1M for media) only takes effect by copying files into a new dataset. That is not worth doing for about 4% more efficiency.
 - The 14TB members still only contribute 12TB each until every member is at least 14TB.
+
+#### lake space accounting
+
+`lake` was created as a 4-wide raidz2 (`zpool history lake`, 2024-12-11). raidz expansion keeps the vdev's space accounting at the width it was created with, so ZFS converts raw space to `USED` and `AVAIL` as if the vdev were still 4 wide. A 128K block on 4-wide raidz2 takes 66 sectors for 32 sectors of data, so ZFS counts about 1 TiB of `USED` for every 2.06 TiB of raw space. Data now sits at 9 wide, which needs only about 1.31 TiB raw per TiB, so ZFS reports each real TiB as about 0.635 TiB.
+
+Measured 2026-11-25 on the Plex media dataset (`pvc-1a6ee17d-...`): `logicalused` 37.06 TiB, `used` 23.52 TiB. The whole pool is about 47.4 TiB in these reported units (`used` + `available` on `lake`), and holds about 74.7 TiB of real data when full.
+
+What this means:
+
+- `zfs list`, `df` inside pods, and the PVC size all use the reported units, not real bytes. Use `zfs get logicalused` for the real data size and `zpool list lake` for how full the disks are.
+- A dataset quota (`refquota`, which democratic-csi sets from the PVC size) is checked against reported `used`. There is no ZFS quota on real bytes, so a PVC size on `lake` cannot be made to mean real capacity.
+- Only a vdev created at the final width counts space correctly, which would mean moving all the data off and recreating the pool. Not worth it.
+
+Decision (2026-11-25): the `plex-data` PVC is set to 70Ti in `k8s/plex/plex/values.yaml`. That is deliberately larger than the pool in reported units, so the quota never limits writes, and the existing pool-usage alerts on `lake` are the real limit. The earlier 40Ti PVC would have stopped writes at about 63 TiB of real data (about 84% pool usage). Before the November expansions the 6-wide pool was only about 31.7 TiB in reported units, so the 40Ti PVC was already larger than the pool and never limited anything.
 
 ### Snapshots and backups
 
