@@ -116,7 +116,7 @@ What this means:
 - A dataset quota (`refquota`, which democratic-csi sets from the PVC size) is checked against reported `used`. There is no ZFS quota on real bytes, so a PVC size on `lake` cannot be made to mean real capacity.
 - Only a vdev created at the final width counts space correctly, which would mean moving all the data off and recreating the pool. Not worth it.
 
-Decision (2026-11-25): the `plex-data` PVC stays at 40Ti (`k8s/plex/plex/values.yaml`). At today's ratio that stops writes at about 63 TiB of real data, with `lake` about 84% full, so it now acts as a cap below the pool-usage alerts. To let Plex use the whole pool, raise the PVC to about 47Ti or more (anything above the pool's ~47.4 TiB in reported units means the quota never limits writes). Before the November expansions the 6-wide pool was only about 31.7 TiB in reported units, so the 40Ti PVC was larger than the pool and never limited anything.
+Decision (2026-11-25): the `plex-data` PVC stays at 40Ti (`k8s/plex/plex/values.yaml`). At today's ratio that stops writes at about 63 TiB of real data, with `lake` about 84% full, so it now acts as a cap below the pool-usage alerts. This is intentional: Plex stops writing at about 84% instead of filling the pool. To let Plex use the whole pool, raise the PVC to about 47Ti or more (anything above the pool's ~47.4 TiB in reported units means the quota never limits writes). Before the November expansions the 6-wide pool was only about 31.7 TiB in reported units, so the 40Ti PVC was larger than the pool and never limited anything.
 
 ### Snapshots and backups
 
