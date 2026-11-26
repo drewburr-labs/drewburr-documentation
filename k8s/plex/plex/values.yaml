@@ -136,15 +136,15 @@ persistence:
     storageClassName: zfs-nvmeof
   # The size becomes the dataset's ZFS refquota, and on lake that is NOT real
   # bytes: lake was created 4-wide, so ZFS still reports space at the 4-wide
-  # raidz2 ratio (about 0.635 reported TiB per real TiB at 9-wide). 70Ti is
-  # deliberately larger than the whole pool (about 47.4Ti in reported units),
-  # so the quota never binds and lake's pool-usage alerts are the real limit.
-  # See "storage server/README.md", "lake space accounting".
+  # raidz2 ratio (about 0.635 reported TiB per real TiB at 9-wide). 40Ti stops
+  # writes at about 63 TiB of real media (lake about 84% full); the whole pool
+  # is about 47.4Ti in reported units. See "storage server/README.md",
+  # "lake space accounting".
   - name: plex-data
     mountPath: data
     accessModes:
       - ReadWriteMany
-    requests: 70Ti
+    requests: 40Ti
     storageClassName: nfs-lake
   - name: backups
     accessModes:
